@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+$material-design-icons-font-directory-path: '~material-design-icons-iconfont/dist/fonts/';
+@import '~material-design-icons-iconfont/src/material-design-icons';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

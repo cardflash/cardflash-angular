@@ -20,7 +20,9 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field'; 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment'; 
 @NgModule({
   declarations: [
     AppComponent,
@@ -43,7 +45,11 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     MatSelectModule,
     FormsModule,
     MatInputModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerImmediately'
+    })
   ],
   providers: [],
   bootstrap: [AppComponent],
