@@ -1,17 +1,17 @@
 <mat-card>
-      <mat-card-header>
-        <mat-card-title>
+      <!-- <mat-card-header>
+        <mat-card-title> -->
           <div class="cardMetaFields">
             <mat-accordion>
               <mat-expansion-panel #panel>
                 <mat-expansion-panel-header>
-                  <mat-panel-title>
+                  <mat-panel-title class="cardHeaderText">
                     {{this.card.title || "Title"}}
                   </mat-panel-title>
-                  <mat-panel-description>
+                  <mat-panel-description  class="cardHeaderText cardDescription">
                     {{this.card.chapter || "Chapter"}}
                   </mat-panel-description>
-                  <mat-icon *ngIf="!panel.expanded" style="margin-right: 5px">edit</mat-icon>
+                  <mat-icon *ngIf="!panel.expanded" style="margin-right: 5px" class="cardHeaderText">edit</mat-icon>
                 </mat-expansion-panel-header>
           <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
             <mat-label>Title</mat-label>
@@ -26,9 +26,9 @@
         </mat-expansion-panel>
         </mat-accordion>
         </div>
-        </mat-card-title>
+        <!-- </mat-card-title> -->
         <!-- <mat-card-subtitle>{{this.card.id}}</mat-card-subtitle> -->
-        </mat-card-header>
+        <!-- </mat-card-header> -->
       <mat-card-content>
         <div class="front-div" [ngClass]="{'active': (active && frontActive)}"> 
           <ckeditor #frontEditor [editor]="FrontEditor" [(ngModel)]="card.front" (change)="change()"
@@ -41,12 +41,24 @@
 </div>
   </mat-card-content>
       <a #downloadAnchor href="#" download="selection.png"></a>
-      <mat-card-actions>
-        <button mat-icon-button aria-label="Download card" (click)="save(false)">
+      <mat-card-actions class="cardActions">
+        <button mat-stroked-button aria-label="Download card" (click)="save(false)">
           <mat-icon>download</mat-icon>
         </button>
-        <button mat-icon-button aria-label="Send to Anki" (click)="save(true)">
-          <mat-icon>send</mat-icon>
+        <mat-form-field class="" appearance="standard" style="margin-bottom: -1.25em" class="smallField">
+          <mat-label>Card ID</mat-label>
+        <input matInput type="text" readonly [ngModel]="this.card.id">
+      </mat-form-field>
+        <button mat-stroked-button aria-label="Send to Anki" (click)="save(true)">
+          <mat-icon>send</mat-icon> Anki
+        </button>
+        <mat-form-field class="miniField" appearance="standard" style="margin-bottom: -1.25em">
+          <mat-label>Page #</mat-label>
+          <!-- <span matPrefix>p.</span> -->
+          <input matInput type="number" [(ngModel)]="this.card.page">
+        </mat-form-field>
+        <button mat-stroked-button aria-label="Delete card" color="warn" (click)="deleteEvent.emit(this.card.id)">
+          <mat-icon>delete</mat-icon>
         </button>
         <!-- <nb-actions size="small">
           <nb-action (click)="save(false)" icon="download" title="download"></nb-action>

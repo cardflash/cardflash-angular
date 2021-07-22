@@ -14,8 +14,8 @@
 
     <mat-button-toggle
     title="Allow selection with left-mouse/touch once"
-    [checked]="!this.config.selectionOnTop &&zIndex >= 1 && !dragging"
-    (change)="zIndex > 1 ? (zIndex = -1) : (zIndex = 1)"
+    [checked]="!this.config.selectionOnTop && zIndex >= 1 && !dragging"
+    (change)="zIndex >= 1 ? (zIndex = -1) : (zIndex = 1)"
     [disabled]="this.config.selectionOnTop">
       <mat-icon>crop</mat-icon>
     </mat-button-toggle>
@@ -82,15 +82,12 @@
       (change)="this.config.addOcrTextOption = !this.config.addOcrTextOption"
       >
       <mat-spinner [diameter]="30" class="ocrSpinner" *ngIf="ocrLoadingNum > 0"></mat-spinner>
-      <mat-icon>highlight</mat-icon> OCR
+      <mat-icon>highlight</mat-icon>
       </mat-button-toggle>
     </mat-button-toggle-group>
-
-    <span class="toolbarSpace"></span>
-
     <mat-form-field appearance="fill" class="oerLanguageField" style="margin-bottom: -1.5em">
       <mat-label>OCR Language</mat-label>
-      <mat-select>
+      <mat-select [disabled]="!this.config.addOcrTextOption" [(value)]="this.config.ocrLanguage">
         <mat-option *ngFor="let lang of OCR_LANGUAGES" [value]="lang.short">
           {{lang.short}} - {{lang.long}}
         </mat-option>
@@ -116,7 +113,7 @@
   #selCanv
   width="816px"
   height="1056px"
-  style="position: absolute; display: block; left: 0; right: 0"
+  style="position: absolute; display: block; left: 0; right: 0; cursor: crosshair !important;"
   [ngStyle]="{ 'z-index': zIndex }"
   tabindex="0"
   (mousedown)="mouseDown($event)"
@@ -164,7 +161,9 @@
   </mat-form-field>
 
   <div class="currentCardActions">
-  <button class="finishButton" mat-flat-button color="primary">Finish this card</button>
+  <button class="finishButton" mat-flat-button color="primary" (click)="finishCard()">
+    Finish this card
+  </button>
     <br>
   <mat-button-toggle-group class="currentCardSideToggle">
     <mat-button-toggle 

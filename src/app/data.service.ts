@@ -14,7 +14,7 @@ export class DataService {
     addImageOption: true,
     addTextOption: true,
     addOcrTextOption: false,
-    useEnglishOcr: true,
+    ocrLanguage: "eng",
     addTextAsHidden: true,
     singlePageMode: false
   }

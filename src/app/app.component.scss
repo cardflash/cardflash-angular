@@ -14,7 +14,8 @@
 .ocrSpinner{
   position: absolute;
   top: 50%;
-  transform: translateX(50%) translateY(-50%);
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 
 .oerLanguageField{
@@ -67,4 +68,10 @@
 .currentCardSideToggle{
   margin-left: auto;
   margin-right: auto;
+}
+
+.cards{
+  overflow-y: scroll;
+  max-height: 70vh;
+  margin: 5px;
 }

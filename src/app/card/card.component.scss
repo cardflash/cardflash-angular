@@ -16,6 +16,8 @@ padding-left: 3px;
   margin-right: auto;
   --editor-min-height:  200px;
   min-height: var(--editor-min-height);
+  max-height: 400px;
+  overflow: auto;
 }
 
 div.front-div.active, div.back-div.active {
@@ -40,10 +42,11 @@ hr.solid {
 }
 
 .cardMetaFields{
-  width: 100%;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  margin-bottom: 8px;
 }
 
 .cardMetaFields mat-form-field{
@@ -57,3 +60,25 @@ mat-card {
   margin: 10px;
 }
 
+.miniField{
+  width: 70px;
+  text-align: center;
+}
+
+.smallField{
+  width: 120px;
+  text-align: center;
+}
+
+
+.cardHeaderText{
+  align-self: center;
+  // overflow-y: hidden;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 45px;
+}

@@ -281,7 +281,11 @@ export class AppComponent {
         this.finishCard();
       }
     } else if (event.key == 's') {
-      this.zIndex = 1;
+      if(this.zIndex < 1){
+        this.zIndex = 1;
+      }else if (!this.config.selectionOnTop) {
+          this.zIndex = -1;
+      }
     } else if (event.key == '1') {
       this.frontSelected = true;
     } else if (event.key == '2') {
@@ -619,7 +623,7 @@ export class AppComponent {
     if (this.config.addTextOption && this.config.addOcrTextOption) {
       this.ocrLoadingNum++;
 
-      recognize(dataURL, this.config.useEnglishOcr ? 'eng' : 'deu', {
+      recognize(dataURL, this.config.ocrLanguage, {
         logger: (m) => {
           console.log(m);
         },

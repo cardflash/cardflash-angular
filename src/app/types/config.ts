@@ -6,7 +6,7 @@ export interface Config {
     addImageOption: boolean,
     addTextOption: boolean,
     addOcrTextOption: boolean,
-    useEnglishOcr: boolean,
+    ocrLanguage: string,
     addTextAsHidden: boolean,
     singlePageMode: boolean
     
