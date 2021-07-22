@@ -41,14 +41,19 @@ hr.solid {
 
 .cardMetaFields{
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 .cardMetaFields mat-form-field{
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   font-size: 12px;
 }
 
 mat-card {
-  margin: 5px;
+  margin: 10px;
 }
 

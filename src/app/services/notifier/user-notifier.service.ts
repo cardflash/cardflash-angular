@@ -20,9 +20,10 @@ export class UserNotifierService {
       autoHide: autoHide};
 
     const snackRef = this.snackBar.openFromComponent(NotificationComponent,{
-      verticalPosition: 'bottom',
+      verticalPosition: 'top',
       panelClass: type,
-      data: notificationData
+      data: notificationData,
+      duration: autoHide ? 2000 : undefined
     })
     // snackRef.afterDismissed
     // const toastNot = await this.toastController.create({

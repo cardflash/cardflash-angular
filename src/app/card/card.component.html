@@ -1,18 +1,34 @@
 <mat-card>
       <mat-card-header>
-        <div class="cardMetaFields">
-        <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
-          <mat-label>Title</mat-label>
-          <input matInput placeholder="Document Title" [(ngModel)]="this.card.title">
-          <mat-icon matPrefix>book</mat-icon>
-        </mat-form-field>
-        <mat-form-field appearance="outline" style="margin-bottom: -1.0em">
-          <mat-label>Chapter</mat-label>
-          <input matInput placeholder="Chapter"  [(ngModel)]="this.card.chapter">
-          <mat-icon matPrefix>bookmark</mat-icon>
-        </mat-form-field>
-      </div>
-      </mat-card-header>
+        <mat-card-title>
+          <div class="cardMetaFields">
+            <mat-accordion>
+              <mat-expansion-panel #panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{this.card.title || "Title"}}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{this.card.chapter || "Chapter"}}
+                  </mat-panel-description>
+                  <mat-icon *ngIf="!panel.expanded" style="margin-right: 5px">edit</mat-icon>
+                </mat-expansion-panel-header>
+          <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
+            <mat-label>Title</mat-label>
+            <input matInput placeholder="Document Title" [(ngModel)]="this.card.title">
+            <mat-icon matPrefix>book</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="margin-bottom: -1.0em">
+            <mat-label>Chapter</mat-label>
+            <input matInput placeholder="Chapter"  [(ngModel)]="this.card.chapter">
+            <mat-icon matPrefix>bookmark</mat-icon>
+          </mat-form-field>
+        </mat-expansion-panel>
+        </mat-accordion>
+        </div>
+        </mat-card-title>
+        <!-- <mat-card-subtitle>{{this.card.id}}</mat-card-subtitle> -->
+        </mat-card-header>
       <mat-card-content>
         <div class="front-div" [ngClass]="{'active': (active && frontActive)}"> 
           <ckeditor #frontEditor [editor]="FrontEditor" [(ngModel)]="card.front" (change)="change()"

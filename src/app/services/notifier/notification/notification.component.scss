@@ -11,6 +11,10 @@
   width: 90%;
 }
 
+.notificationContent p{
+  white-space: break-spaces;
+}
+
 .success.notificationContent .title{
   color: green;
 }

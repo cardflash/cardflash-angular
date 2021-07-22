@@ -27,7 +27,7 @@ export class CardComponent implements OnInit {
   @Input('active') active: boolean = false;
   @Input('deckName') deckName? : string;
 
-  private readonly modelVersion : string = "2.0a";
+  private readonly MODEL_VERSION : string = "2.1a";
 
   constructor(private http: HttpClient, private userNotifierService: UserNotifierService) { }
 
@@ -136,7 +136,7 @@ export class CardComponent implements OnInit {
         params: {
           note: {
             deckName: this.deckName,
-            modelName: 'flashcards.siter.eu-V'+this.modelVersion,
+            modelName: 'flashcards.siter.eu-V'+this.MODEL_VERSION,
             fields: {
               ID: this.card.id,
               Front: newFrontContent,
@@ -206,7 +206,8 @@ export class CardComponent implements OnInit {
       const noteRes = await this.userNotifierService.notifyOnPromiseReject(noteProm,'Adding Note'+this.card.id,"AnkiConnect is not reachable");
       if(noteRes.result['error']){
         this.userNotifierService.notify("Adding Note failed","AnkiConnect was reachable, but unable to add the note","danger");
-        return;
+      }else{
+        this.userNotifierService.notify("Adding Note was successfull","","success",true);
       }
       // this.makeHttpRequest(bodyData).subscribe((res) => {
       //   console.log(res);
@@ -279,12 +280,12 @@ export class CardComponent implements OnInit {
       action: 'createModel',
       version: 6,
       params: {
-        modelName: 'flashcards.siter.eu-V'+this.modelVersion,
+        modelName: 'flashcards.siter.eu-V'+this.MODEL_VERSION,
         inOrderFields: ['ID', 'Front', 'Back', 'Title', 'Page', 'Chapter', 'Hidden'],
         css: ckEditorCss,
         cardTemplates: [
           {
-            Name: 'flashcards.siter.eu Card-V'+this.modelVersion,
+            Name: 'flashcards.siter.eu Card-V'+this.MODEL_VERSION,
             Front: "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}}</div>",
             Back: "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}} <hr id=answer> {{Back}} <br><br> ID: {{ID}}; Page: {{Page}}</div>",
           },
@@ -298,10 +299,10 @@ export class CardComponent implements OnInit {
         if (res.result['error'] && res.result['error'] !== 'Model name already exists') {
           await this.userNotifierService.notify("Creating Model failed","AnkiConnect was reachable, but unable to create the model\n" + res.result['error'],"danger");
           return false;
-        }else{
-        await this.userNotifierService.notify("Creating Model was successfull",'',"success");
-          return true;
+        }else if(!res.result['error']){
+        // await this.userNotifierService.notify("Creating Model was successfull",'',"success",true);
       }
+      return true;
     }else{
       return false;
     }

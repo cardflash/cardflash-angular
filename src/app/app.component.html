@@ -1,8 +1,8 @@
 <mat-toolbar>
   <mat-toolbar-row>
-  <span>flashcards.siter.eu</span>
-  <span class="toolbarSpace"></span>
-
+  <!-- <span>flashcards.siter.eu</span> -->
+  <!-- <span class="toolbarSpace"></span> -->
+  <div class="headerOptions">
   <mat-button-toggle-group multiple>
     <mat-button-toggle
     title="Allow selection with left-mouse/touch"
@@ -30,14 +30,14 @@
   </mat-button-toggle-group>
   <span class="toolbarSpace"></span>
   <input
-        nbInput
-        fieldSize="tiny"
+        class="pdfFileSelector"
         (change)="onFileSelected()"
         type="file"
         accept=".pdf"
         #fileSelector
         label="Select a pdf file"
       />
+      
       <span class="toolbarSpace"></span>
       <mat-button-toggle
       title="Single Page Mode (requires page reload)"
@@ -82,12 +82,31 @@
       (change)="this.config.addOcrTextOption = !this.config.addOcrTextOption"
       >
       <mat-spinner [diameter]="30" class="ocrSpinner" *ngIf="ocrLoadingNum > 0"></mat-spinner>
-
-        OCR <mat-icon>highlight</mat-icon>
+      <mat-icon>highlight</mat-icon> OCR
       </mat-button-toggle>
-
     </mat-button-toggle-group>
 
+    <span class="toolbarSpace"></span>
+
+    <mat-form-field appearance="fill" class="oerLanguageField" style="margin-bottom: -1.5em">
+      <mat-label>OCR Language</mat-label>
+      <mat-select>
+        <mat-option *ngFor="let lang of OCR_LANGUAGES" [value]="lang.short">
+          {{lang.short}} - {{lang.long}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <span class="toolbarSpace"></span>
+
+    <mat-button-toggle class="coloredToggle" 
+    title="Automatically add cards to Anki"
+    [checked]="this.config.autoAddAnki"
+    (change)="this.config.autoAddAnki = !this.config.autoAddAnki"
+    >
+    <mat-icon>repeat</mat-icon> Anki
+  </mat-button-toggle>
+</div>
 </mat-toolbar-row>
 </mat-toolbar>
 <div id="pdf-column">
@@ -131,6 +150,38 @@
 </div>
 </div>
 <div id="cards-column">
+  <div class="defaultTitleFieldWrapper">
+  <mat-form-field class="defaultTitleField" appearance="outline">
+    <mat-label>Default Title</mat-label>
+    <input matInput placeholder="Default Document Title"
+    [(ngModel)]="this.title" [matAutocomplete]="titleAuto">
+    <mat-autocomplete autoActiveFirstOption #titleAuto="matAutocomplete">
+      <mat-option *ngFor="let option of this.titleOptions" [value]="option">
+        {{option}}
+      </mat-option>
+    </mat-autocomplete>
+    <mat-icon matPrefix>book</mat-icon>
+  </mat-form-field>
+
+  <div class="currentCardActions">
+  <button class="finishButton" mat-flat-button color="primary">Finish this card</button>
+    <br>
+  <mat-button-toggle-group class="currentCardSideToggle">
+    <mat-button-toggle 
+    [checked]="this.frontSelected"
+    (change)="this.frontSelected = !this.frontSelected"
+    >
+      Front
+    </mat-button-toggle>
+    <mat-button-toggle
+    [checked]="!this.frontSelected"
+    (change)="this.frontSelected = !this.frontSelected">
+      Back
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+
+</div>
+</div>
   <div class="cards">
     <app-card
       [(card)]="cards[i]"

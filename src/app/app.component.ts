@@ -7,6 +7,7 @@ import { Rectangle } from './types/rectangle';
 import { customAlphabet } from 'nanoid';
 import { DataService } from './data.service';
 import {recognize} from 'tesseract.js';
+import { TesseractLanguages } from './data/tesseract-languages';
 
 @Component({
   selector: 'app-root',
@@ -75,6 +76,8 @@ export class AppComponent {
   public title : string = "";
   public titleOptions : string[] = [];
   public chapter : string = "";
+
+  public readonly OCR_LANGUAGES  : {short: string, long: string}[] = TesseractLanguages.LANGS;
 
   @ViewChildren(CardComponent) cardCompList?: QueryList<CardComponent>;
 
