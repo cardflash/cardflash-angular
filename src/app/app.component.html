@@ -7,7 +7,7 @@
     <mat-button-toggle
     title="Allow selection with left-mouse/touch"
     [checked]="this.config.selectionOnTop"
-    (change)="selectionOnTopChange($event)"
+    (change)="selectionOnTopChange($event); this.saveConfig()"
     >
       <mat-icon>layers</mat-icon>
     </mat-button-toggle>
@@ -15,7 +15,7 @@
     <mat-button-toggle
     title="Allow selection with left-mouse/touch once"
     [checked]="!this.config.selectionOnTop && zIndex >= 1 && !dragging"
-    (change)="zIndex >= 1 ? (zIndex = -1) : (zIndex = 1)"
+    (change)="zIndex >= 1 ? (zIndex = -1) : (zIndex = 1); this.saveConfig()"
     [disabled]="this.config.selectionOnTop">
       <mat-icon>crop</mat-icon>
     </mat-button-toggle>
@@ -23,7 +23,7 @@
     <mat-button-toggle
     title="Draw selection semi-permanently on pdf"
     [checked]="this.config.drawOnPdf"
-    (change)="this.config.drawOnPdf = !this.config.drawOnPdf"
+    (change)="this.config.drawOnPdf = !this.config.drawOnPdf; this.saveConfig()"
     >
       <mat-icon>edit</mat-icon>
     </mat-button-toggle>
@@ -31,7 +31,7 @@
   <span class="toolbarSpace"></span>
   <input
         class="pdfFileSelector"
-        (change)="onFileSelected()"
+        (change)="onFileSelected(); this.saveConfig()"
         type="file"
         accept=".pdf"
         #fileSelector
@@ -42,7 +42,7 @@
       <mat-button-toggle
       title="Single Page Mode (requires page reload)"
       [checked]="this.config.singlePageMode"
-      (change)="this.config.singlePageMode = !this.config.singlePageMode"
+      (change)="this.config.singlePageMode = !this.config.singlePageMode; this.saveConfig()"
       >
         <mat-icon>insert_drive_file</mat-icon>
       </mat-button-toggle>
@@ -53,7 +53,7 @@
       <mat-button-toggle
       title="Add selection as image to card"
       [checked]="this.config.addImageOption"
-      (change)="this.config.addImageOption = !this.config.addImageOption"
+      (change)="this.config.addImageOption = !this.config.addImageOption; this.saveConfig()"
       >
         <mat-icon>image</mat-icon>
       </mat-button-toggle>
@@ -61,7 +61,7 @@
       <mat-button-toggle
       title="Add selection as visible text to card"
       [checked]="this.config.addTextOption"
-      (change)="this.config.addTextOption = !this.config.addTextOption"
+      (change)="this.config.addTextOption = !this.config.addTextOption; this.saveConfig()"
       >
         <mat-icon>format_shapes</mat-icon>
       </mat-button-toggle>
@@ -70,7 +70,7 @@
       title="Add selection as hidden text to card"
       [disabled]="!this.config.addTextOption"
       [checked]="this.config.addTextAsHidden"
-      (change)="this.config.addTextAsHidden = !this.config.addTextAsHidden"
+      (change)="this.config.addTextAsHidden = !this.config.addTextAsHidden; this.saveConfig()"
       >
         <mat-icon>visibility_off</mat-icon>
       </mat-button-toggle>
@@ -79,7 +79,7 @@
       title="Use OCR for text recognition"
       [disabled]="!this.config.addTextOption"
       [checked]="this.config.addOcrTextOption"
-      (change)="this.config.addOcrTextOption = !this.config.addOcrTextOption"
+      (change)="this.config.addOcrTextOption = !this.config.addOcrTextOption; this.saveConfig()"
       >
       <mat-spinner [diameter]="30" class="ocrSpinner" *ngIf="ocrLoadingNum > 0"></mat-spinner>
       <mat-icon>highlight</mat-icon>
@@ -99,7 +99,7 @@
     <mat-button-toggle class="coloredToggle" 
     title="Automatically add cards to Anki"
     [checked]="this.config.autoAddAnki"
-    (change)="this.config.autoAddAnki = !this.config.autoAddAnki"
+    (change)="this.config.autoAddAnki = !this.config.autoAddAnki; this.saveConfig()"
     >
     <mat-icon>repeat</mat-icon> Anki
   </mat-button-toggle>
@@ -168,13 +168,13 @@
   <mat-button-toggle-group class="currentCardSideToggle">
     <mat-button-toggle 
     [checked]="this.frontSelected"
-    (change)="this.frontSelected = !this.frontSelected"
+    (change)="this.frontSelected = !this.frontSelected; this.saveConfig()"
     >
       Front
     </mat-button-toggle>
     <mat-button-toggle
     [checked]="!this.frontSelected"
-    (change)="this.frontSelected = !this.frontSelected">
+    (change)="this.frontSelected = !this.frontSelected; this.saveConfig()">
       Back
     </mat-button-toggle>
   </mat-button-toggle-group>

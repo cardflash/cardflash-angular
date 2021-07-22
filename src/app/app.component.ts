@@ -85,7 +85,9 @@ export class AppComponent {
 
   }
   async ngOnInit() {
-    this.config = this.dataService.config;
+    this.dataService.init().then(()=> {
+      this.config = this.dataService.prefs['config'];
+    })
   }
 
   async ngAfterViewInit() {
@@ -705,7 +707,8 @@ export class AppComponent {
   }
   }
 
-  saveConfig(){
+  async saveConfig(){
+    const res = await this.dataService.savePrefs({config: this.config});
     // this.dataService.set('config',JSON.stringify(this.config)).then((res) => {
 
     // }).catch((err) => {

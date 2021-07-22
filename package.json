@@ -21,6 +21,8 @@
     "@angular/platform-browser-dynamic": "~12.1.0-",
     "@angular/router": "~12.1.0-",
     "@ckeditor/ckeditor5-angular": "^2.0.2",
+    "appwrite": "^3.2.0",
+    "localforage": "^1.9.0",
     "nanoid": "^3.1.23",
     "ngx-extended-pdf-viewer": "^10.0.0-alpha.1",
     "rxjs": "~6.6.0",
