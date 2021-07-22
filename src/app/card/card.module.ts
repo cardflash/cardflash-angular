@@ -7,7 +7,6 @@ import { FormsModule } from '@angular/forms';
 
 import {MatCardModule} from '@angular/material/card'
 import {MatButtonModule} from '@angular/material/button'; 
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatFormFieldModule} from '@angular/material/form-field'; 
 import {MatInputModule} from '@angular/material/input'
 import {MatIconModule} from '@angular/material/icon'; 
@@ -18,7 +17,6 @@ import {MatIconModule} from '@angular/material/icon';
     CKEditorModule,
     FormsModule,
     MatButtonModule,
-    MatButtonToggleModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,

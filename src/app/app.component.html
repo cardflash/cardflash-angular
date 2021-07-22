@@ -1,4 +1,95 @@
+<mat-toolbar>
+  <mat-toolbar-row>
+  <span>flashcards.siter.eu</span>
+  <span class="toolbarSpace"></span>
 
+  <mat-button-toggle-group multiple>
+    <mat-button-toggle
+    title="Allow selection with left-mouse/touch"
+    [checked]="this.config.selectionOnTop"
+    (change)="selectionOnTopChange($event)"
+    >
+      <mat-icon>layers</mat-icon>
+    </mat-button-toggle>
+
+    <mat-button-toggle
+    title="Allow selection with left-mouse/touch once"
+    [checked]="!this.config.selectionOnTop &&zIndex >= 1 && !dragging"
+    (change)="zIndex > 1 ? (zIndex = -1) : (zIndex = 1)"
+    [disabled]="this.config.selectionOnTop">
+      <mat-icon>crop</mat-icon>
+    </mat-button-toggle>
+
+    <mat-button-toggle
+    title="Draw selection semi-permanently on pdf"
+    [checked]="this.config.drawOnPdf"
+    (change)="this.config.drawOnPdf = !this.config.drawOnPdf"
+    >
+      <mat-icon>edit</mat-icon>
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+  <span class="toolbarSpace"></span>
+  <input
+        nbInput
+        fieldSize="tiny"
+        (change)="onFileSelected()"
+        type="file"
+        accept=".pdf"
+        #fileSelector
+        label="Select a pdf file"
+      />
+      <span class="toolbarSpace"></span>
+      <mat-button-toggle
+      title="Single Page Mode (requires page reload)"
+      [checked]="this.config.singlePageMode"
+      (change)="this.config.singlePageMode = !this.config.singlePageMode"
+      >
+        <mat-icon>insert_drive_file</mat-icon>
+      </mat-button-toggle>
+
+      <span class="toolbarSpace"></span>
+
+      <mat-button-toggle-group multiple>
+      <mat-button-toggle
+      title="Add selection as image to card"
+      [checked]="this.config.addImageOption"
+      (change)="this.config.addImageOption = !this.config.addImageOption"
+      >
+        <mat-icon>image</mat-icon>
+      </mat-button-toggle>
+
+      <mat-button-toggle
+      title="Add selection as visible text to card"
+      [checked]="this.config.addTextOption"
+      (change)="this.config.addTextOption = !this.config.addTextOption"
+      >
+        <mat-icon>format_shapes</mat-icon>
+      </mat-button-toggle>
+
+      <mat-button-toggle
+      title="Add selection as hidden text to card"
+      [disabled]="!this.config.addTextOption"
+      [checked]="this.config.addTextAsHidden"
+      (change)="this.config.addTextAsHidden = !this.config.addTextAsHidden"
+      >
+        <mat-icon>visibility_off</mat-icon>
+      </mat-button-toggle>
+
+      <mat-button-toggle
+      title="Use OCR for text recognition"
+      [disabled]="!this.config.addTextOption"
+      [checked]="this.config.addOcrTextOption"
+      (change)="this.config.addOcrTextOption = !this.config.addOcrTextOption"
+      >
+      <mat-spinner [diameter]="30" class="ocrSpinner" *ngIf="ocrLoadingNum > 0"></mat-spinner>
+
+        OCR <mat-icon>highlight</mat-icon>
+      </mat-button-toggle>
+
+    </mat-button-toggle-group>
+
+</mat-toolbar-row>
+</mat-toolbar>
 <div id="pdf-column">
 <canvas style="display: none" #previewCanvas></canvas>
 
@@ -32,7 +123,7 @@
   (sidebarVisibleChange)="calcScaling()"
   (pagesLoaded)="loadComplete($event)"
   (pageRendered)="pageRendered($event)"
-  [ignoreKeys]="['1', '2', 'w', 's']"
+  [ignoreKeys]="['1', '2', 'w', 's','space']"
   [enablePinchOnMobile]="true"
   [showBorders]="false"
   [pageViewMode]="config.singlePageMode ? 'single' : 'multiple'"

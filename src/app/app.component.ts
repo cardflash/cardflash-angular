@@ -641,11 +641,14 @@ export class AppComponent {
   }
 }
 
-  selectionOnTopChange(newVal: boolean) {
-    if (newVal) {
+  selectionOnTopChange(newVal: any) {
+    
+    if (!this.config.selectionOnTop) {
       this.zIndex = 1;
+      this.config.selectionOnTop = true;
     } else {
       this.zIndex = -1;
+      this.config.selectionOnTop = false;
     }
   }
 
