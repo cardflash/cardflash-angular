@@ -1,0 +1,52 @@
+<mat-card>
+      <mat-card-header>
+        <div class="cardMetaFields">
+        <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
+          <mat-label>Title</mat-label>
+          <input matInput placeholder="Document Title" [(ngModel)]="this.card.title">
+          <mat-icon matPrefix>book</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" style="margin-bottom: -1.0em">
+          <mat-label>Chapter</mat-label>
+          <input matInput placeholder="Chapter"  [(ngModel)]="this.card.chapter">
+          <mat-icon matPrefix>bookmark</mat-icon>
+        </mat-form-field>
+      </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="front-div" [ngClass]="{'active': (active && frontActive)}"> 
+          <ckeditor #frontEditor [editor]="FrontEditor" [(ngModel)]="card.front" (change)="change()"
+          [config]="EDITOR_CONFIG"
+          ></ckeditor>
+    </div>
+    <hr class="solid">
+    <div class="back-div" [ngClass]="{'active': (active && !frontActive)}">
+      <ckeditor #backEditor [editor]="BackEditor" [(ngModel)]="card.back" (change)="change()" [config]="EDITOR_CONFIG"></ckeditor>
+</div>
+  </mat-card-content>
+      <a #downloadAnchor href="#" download="selection.png"></a>
+      <mat-card-actions>
+        <button mat-icon-button aria-label="Download card" (click)="save(false)">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Send to Anki" (click)="save(true)">
+          <mat-icon>send</mat-icon>
+        </button>
+        <!-- <nb-actions size="small">
+          <nb-action (click)="save(false)" icon="download" title="download"></nb-action>
+          <nb-action (click)="deleteEvent.emit(this.card.id)"  title="delete">
+            <a href="#" class="icon-container"><nb-icon  status="danger" icon="trash"></nb-icon></a>
+          </nb-action>
+          <nb-action appCopyOnClick nbPopover="Copied!" nbPopoverTrigger="noop" title="id" (dblclick)="showCopyPopover()">
+            {{this.card.id}}
+          </nb-action>
+          <nb-action title="page number">p. {{this.card.page}}</nb-action>
+          <nb-action (click)="save(true)" icon="radio-outline" title="send to ankiConnect"></nb-action>
+          <nb-action (click)="openHiddenTextDialog()" icon="file-text-outline" title="view hidden text"></nb-action>
+        </nb-actions> -->
+
+      </mat-card-actions>
+    <!-- </nb-card> -->
+    </mat-card>
+  
+

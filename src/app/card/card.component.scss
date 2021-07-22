@@ -1,0 +1,54 @@
+li {
+  padding: 0;
+}
+
+.card-body{
+padding-left: 3px;
+}
+.front-div , .back-div{
+  border: rgba(219, 207, 207, 0.548) 1px solid;
+  padding: 2px;
+  // width: 100%;
+  // height: 50%;
+  // overflow-y: scroll;
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  --editor-min-height:  200px;
+  min-height: var(--editor-min-height);
+}
+
+div.front-div.active, div.back-div.active {
+  border: rgba(88, 119, 117, 0.637) 3px dashed;
+}
+
+.card {
+margin: 10px 0px;
+}
+
+hr.solid {
+  border-top: 3px solid #bbb;
+}
+
+#dynamicHeight {
+  height: 95%;
+  width: 100%;
+  max-width: 500px;
+  max-height: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cardMetaFields{
+  width: 100%;
+}
+
+.cardMetaFields mat-form-field{
+  width: 100%;
+  font-size: 12px;
+}
+
+mat-card {
+  margin: 5px;
+}
+

@@ -1,0 +1,20 @@
+.dismissOption{
+  // width: 10%;
+  float: right;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
+}
+
+.notificationContent{
+  float:left;
+  width: 90%;
+}
+
+.success.notificationContent .title{
+  color: green;
+}
+
+.danger.notificationContent .title{
+  color: red;
+}
