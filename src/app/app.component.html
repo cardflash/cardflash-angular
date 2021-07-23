@@ -149,20 +149,26 @@
 </div>
 <div id="cards-column">
   <div class="defaultTitleFieldWrapper">
-  <mat-form-field class="defaultTitleField" appearance="outline">
-    <mat-label>Default Title</mat-label>
-    <input matInput placeholder="Default Document Title"
-    [(ngModel)]="this.title" [matAutocomplete]="titleAuto">
-    <mat-autocomplete autoActiveFirstOption #titleAuto="matAutocomplete">
-      <mat-option *ngFor="let option of this.titleOptions" [value]="option">
-        {{option}}
-      </mat-option>
-    </mat-autocomplete>
-    <mat-icon matPrefix>book</mat-icon>
-  </mat-form-field>
+    <mat-form-field class="defaultTitleField" appearance="outline" style="margin-bottom: -1.25em">
+      <mat-label>Default Title</mat-label>
+      <input matInput placeholder="Default Document Title"
+      [(ngModel)]="this.title" [matAutocomplete]="titleAuto">
+      <mat-autocomplete autoActiveFirstOption #titleAuto="matAutocomplete">
+        <mat-option *ngFor="let option of this.titleOptions" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-icon matSuffix>book</mat-icon>
+    </mat-form-field>
+    <mat-form-field class="defaultTitleField" appearance="outline" style="margin-bottom: -1.25em">
+      <mat-label>Anki Deck</mat-label>
+      <input matInput placeholder="Deck Name"
+      [(ngModel)]="this.config.deckName">
+      <mat-icon matSuffix>inbox</mat-icon>
+    </mat-form-field>
 
   <div class="currentCardActions">
-  <button class="finishButton" mat-flat-button color="primary" (click)="finishCard()">
+  <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()">
     Finish this card
   </button>
     <br>
