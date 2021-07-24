@@ -1,10 +1,12 @@
 export interface Card{
-    id: string,
+    localID: string,
     front: string,
-    back:string,
+    back: string,
     page: number,
     hiddenText: string,
     chapter: string,
-    title: string
+    title: string,
+    imgs?: string[],
+    $id?: string
     
 }

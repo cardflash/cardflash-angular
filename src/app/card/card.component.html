@@ -1,80 +1,88 @@
-<mat-card>
-      <!-- <mat-card-header>
-        <mat-card-title> -->
-          <div class="cardMetaFields">
-            <mat-accordion>
-              <mat-expansion-panel #panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title class="cardHeaderText">
-                    {{this.card.title || "Title"}}
-                  </mat-panel-title>
-                  <mat-panel-description  class="cardHeaderText cardDescription">
-                    {{this.card.chapter || "Chapter"}}
-                  </mat-panel-description>
-                  <mat-icon *ngIf="!panel.expanded" style="margin-right: 5px" class="cardHeaderText">edit</mat-icon>
-                </mat-expansion-panel-header>
-          <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
-            <mat-label>Title</mat-label>
-            <input matInput placeholder="Document Title" [(ngModel)]="this.card.title">
-            <mat-icon matPrefix>book</mat-icon>
-          </mat-form-field>
-          <mat-form-field appearance="outline" style="margin-bottom: -1.0em">
-            <mat-label>Chapter</mat-label>
-            <input matInput placeholder="Chapter"  [(ngModel)]="this.card.chapter">
-            <mat-icon matPrefix>bookmark</mat-icon>
-          </mat-form-field>
-        </mat-expansion-panel>
-        </mat-accordion>
-        </div>
-        <!-- </mat-card-title> -->
-        <!-- <mat-card-subtitle>{{this.card.id}}</mat-card-subtitle> -->
-        <!-- </mat-card-header> -->
-      <mat-card-content>
+<mat-accordion>
+  <mat-expansion-panel expanded="{{this.active}}" class="cardAccordion">
+    <mat-expansion-panel-header>
+      <mat-panel-title class="cardHeaderText">
+        {{this.card.title || "Title"}}
+      </mat-panel-title>
+      <mat-panel-description  class="cardHeaderText cardDescription">
+        {{this.card.chapter || "Chapter"}}
+      </mat-panel-description>
+      </mat-expansion-panel-header>
+        <mat-card class="front-card">
+          <mat-card-header>
+            <mat-card-subtitle>Front</mat-card-subtitle>
+            </mat-card-header>
+      <!-- <mat-card-content> -->
         <div class="front-div" [ngClass]="{'active': (active && frontActive)}"> 
           <ckeditor #frontEditor [editor]="FrontEditor" [(ngModel)]="card.front" (change)="change()"
           [config]="EDITOR_CONFIG"
           ></ckeditor>
     </div>
-    <hr class="solid">
+    <!-- </mat-card-content>     -->
+    </mat-card>
+    <!-- <hr class="solid"> -->
+    <br>
+    <mat-card class="back-card">
+      <mat-card-header>
+        <mat-card-subtitle>Back</mat-card-subtitle>
+        </mat-card-header>
+      <!-- <mat-card-content> -->
     <div class="back-div" [ngClass]="{'active': (active && !frontActive)}">
       <ckeditor #backEditor [editor]="BackEditor" [(ngModel)]="card.back" (change)="change()" [config]="EDITOR_CONFIG"></ckeditor>
 </div>
-  </mat-card-content>
+<!-- </mat-card-content>     -->
+</mat-card>
+<br>
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>Edit Metadata</mat-panel-title>
+      <mat-panel-description>Title, Chapter, Hidden Text</mat-panel-description>
+    </mat-expansion-panel-header>
+    <div class="cardMetaFields">
+      <mat-form-field class="titleField" appearance="fill" style="margin-bottom: -1.25em">
+        <mat-label>Title</mat-label>
+        <input matInput placeholder="Document Title" [(ngModel)]="this.card.title">
+        <mat-icon matSuffix>book</mat-icon>
+      </mat-form-field>
+      <mat-form-field class="chapterField" appearance="fill" style="margin-bottom: -1.0em">
+        <mat-label>Chapter</mat-label>
+        <input matInput placeholder="Chapter"  [(ngModel)]="this.card.chapter">
+        <mat-icon matSuffix>bookmark</mat-icon>
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" class="hiddenText">
+      <mat-label>Hidden Text</mat-label>
+      <textarea matInput [(ngModel)]="this.card.hiddenText"></textarea>
+    </mat-form-field>
+  </mat-expansion-panel>
+</mat-accordion>
       <a #downloadAnchor href="#" download="selection.png"></a>
-      <mat-card-actions class="cardActions">
-        <button mat-stroked-button aria-label="Download card" (click)="save(false)">
-          <mat-icon>file_download</mat-icon>
-        </button>
+      <div class="cardActions">
         <mat-form-field class="" appearance="standard" style="margin-bottom: -1.25em" class="smallField">
           <mat-label>Card ID</mat-label>
-        <input matInput type="text" readonly [ngModel]="this.card.id">
-      </mat-form-field>
-        <button mat-stroked-button aria-label="Send to Anki" (click)="save(true)">
-          <mat-icon>send</mat-icon> Anki
-        </button>
+          <input matInput type="text" readonly [ngModel]="this.card.localID">
+        </mat-form-field>
         <mat-form-field class="miniField" appearance="standard" style="margin-bottom: -1.25em">
           <mat-label>Page #</mat-label>
           <!-- <span matPrefix>p.</span> -->
           <input matInput type="number" [(ngModel)]="this.card.page">
         </mat-form-field>
-        <button mat-stroked-button aria-label="Delete card" color="warn" (click)="deleteEvent.emit(this.card.id)">
+        <button mat-stroked-button aria-label="Send to Anki" (click)="save(true)">
+          <mat-icon>send</mat-icon> Anki
+        </button>
+        <button mat-stroked-button aria-label="Send to Server" (click)="saveToServer()">
+          <mat-icon>send</mat-icon> Server
+        </button>
+        <button mat-stroked-button aria-label="Download card" (click)="save(false)">
+          <mat-icon>file_download</mat-icon>
+        </button>
+        <button mat-stroked-button aria-label="Delete card" color="warn" (click)="deleteEvent.emit(this.card.localID)">
           <mat-icon>delete</mat-icon>
         </button>
-        <!-- <nb-actions size="small">
-          <nb-action (click)="save(false)" icon="download" title="download"></nb-action>
-          <nb-action (click)="deleteEvent.emit(this.card.id)"  title="delete">
-            <a href="#" class="icon-container"><nb-icon  status="danger" icon="trash"></nb-icon></a>
-          </nb-action>
-          <nb-action appCopyOnClick nbPopover="Copied!" nbPopoverTrigger="noop" title="id" (dblclick)="showCopyPopover()">
-            {{this.card.id}}
-          </nb-action>
-          <nb-action title="page number">p. {{this.card.page}}</nb-action>
-          <nb-action (click)="save(true)" icon="radio-outline" title="send to ankiConnect"></nb-action>
-          <nb-action (click)="openHiddenTextDialog()" icon="file-text-outline" title="view hidden text"></nb-action>
-        </nb-actions> -->
-
-      </mat-card-actions>
+      </div>
     <!-- </nb-card> -->
-    </mat-card>
+  </mat-expansion-panel>
+    </mat-accordion>
   
 

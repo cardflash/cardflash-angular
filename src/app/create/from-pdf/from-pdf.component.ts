@@ -1,95 +1,95 @@
-import { Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { IPDFViewerApplication, PageRenderedEvent, PagesLoadedEvent } from 'ngx-extended-pdf-viewer';
-import { CardComponent } from './card/card.component';
-import { Card } from './types/card';
-import { Config } from './types/config';
-import { Rectangle } from './types/rectangle';
+import { CardComponent } from '../../card/card.component';
+import { Card } from '../../types/card';
+import { Config } from '../../types/config';
+import { Rectangle } from '../../types/rectangle';
 import { customAlphabet } from 'nanoid';
-import { DataService } from './data.service';
+import { DataService } from '../../data.service';
 import {recognize} from 'tesseract.js';
-import { TesseractLanguages } from './data/tesseract-languages';
+import { TesseractLanguages } from '../../data/tesseract-languages';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'app-from-pdf',
+  templateUrl: './from-pdf.component.html',
+  styleUrls: ['./from-pdf.component.scss']
 })
-export class AppComponent {
-  pdfSrc = 'assets/pdfs/flashcards_siter_eu.pdf';
+export class FromPdfComponent implements OnInit {
+  pdfSrc = '/assets/pdfs/flashcards_siter_eu.pdf';
   numPages = 1;
   page = 1;
-
+  
   zIndex: number = 0;
   private readonly nanoid = customAlphabet(
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
     10
   );
-
+  
   pdfApplication?: IPDFViewerApplication;
-
+  
   @ViewChild('fileSelector')
   private fileSelector?: ElementRef<HTMLInputElement>;
-
+  
   @ViewChild('selCanv')
   private selCanv?: ElementRef<HTMLCanvasElement>;
   @ViewChild('previewCanvas')
   private previewCanvas?: ElementRef<HTMLCanvasElement>;
-
+  
   private pdfCanvContext: CanvasRenderingContext2D[] = [];
-
+  
   textDivs: HTMLElement[][] = [];
-
+  
   private context?: CanvasRenderingContext2D;
   private previewContext?: CanvasRenderingContext2D;
-
+  
   //rectangle stuff
   private rect: Rectangle = { x: 0, y: 0, width: 0, height: 0 };
   dragging: boolean = false;
-
+  
   //download stuff
   public downloadLink: string = '';
   @ViewChild('downloadAnchor')
   private downloadAnchor?: ElementRef<HTMLAnchorElement>;
-
+  
   //cards
   public cards: Card[] = [
     { localID: this.nanoid(), front: '', back: '', page: this.page, hiddenText: '', chapter: '', title: '' },
   ];
-
+  
   public currIndex = 0;
   public frontSelected: boolean = true;
-
+  
   public scale: number = 1;
   public sidebarVisible: boolean = false;
-
+  
   public ocrLoadingNum: number = 0;
-
-
+  
+  
   public config : Config =  DataService.DEFAULT_CONFIG;
-
+  
   public disablePDFViewer : boolean = false;
   private pdfOutline: { page: number; title: string }[] = [];
-
-
+  
+  
   private mouseStillDown : boolean = false;
-
+  
   public title : string = "";
   public titleOptions : string[] = [];
   public chapter : string = "";
-
+  
   public readonly OCR_LANGUAGES  : {short: string, long: string}[] = TesseractLanguages.LANGS;
-
+  
   @ViewChildren(CardComponent) cardCompList?: QueryList<CardComponent>;
-
+  
   constructor(public dataService: DataService){
-
+  
   }
   async ngOnInit() {
     this.dataService.init().then(()=> {
       this.config = this.dataService.prefs['config'];
     })
   }
-
+  
   async ngAfterViewInit() {
     if(this.selCanv){
       const context = this.selCanv.nativeElement.getContext('2d');
@@ -118,7 +118,7 @@ export class AppComponent {
     }
     this.calcScaling();
   }
-
+  
   async loadComplete(e: PagesLoadedEvent) {
     this.numPages = e.pagesCount;
     this.page = 1;
@@ -153,7 +153,7 @@ export class AppComponent {
       }
     }
   }
-
+  
   async addToPdfOutline(
     dest: any,
     title: string,
@@ -170,7 +170,7 @@ export class AppComponent {
       dest
     ); //returns pageNr-1
     this.pdfOutline.push({ page: pageIndex + 1, title: title });
-
+  
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       let dest = item.dest;
@@ -180,7 +180,7 @@ export class AppComponent {
       await this.addToPdfOutline(dest, title + ' - ' + item.title, item.items);
     }
   }
-
+  
   getOutlineForPage(page: number) {
     for (let i = this.pdfOutline.length - 1; i >= 0; i--) {
       const el = this.pdfOutline[i];
@@ -190,7 +190,7 @@ export class AppComponent {
     }
     return '';
   }
-
+  
   calcScaling() {
     let sidebarRef: HTMLElement | null = document.querySelector<HTMLElement>(
       '#sidebarContent'
@@ -198,16 +198,16 @@ export class AppComponent {
     let viewerContainerRef: HTMLElement | null = document.querySelector<HTMLElement>(
       '#viewerContainer'
     );
-
+  
     if(sidebarRef && viewerContainerRef && this.selCanv && this.context){
       let bodyRect = document.body.getBoundingClientRect();
       let clientRect = viewerContainerRef.getBoundingClientRect();
-
+  
       var width = clientRect.width;
       var height = clientRect.height;
       let left = clientRect.left - bodyRect.left;
       let top = clientRect.top - bodyRect.top;
-
+  
       if (this.sidebarVisible && viewerContainerRef.offsetLeft == 0) {
         this.selCanv.nativeElement.style.marginLeft =
           sidebarRef.offsetWidth + 'px';
@@ -215,10 +215,10 @@ export class AppComponent {
       } else {
         this.selCanv.nativeElement.style.marginLeft = 0 + 'px';
       }
-
+  
       this.selCanv.nativeElement.style.top = top + 'px';
       this.selCanv.nativeElement.style.left = left + 'px';
-
+  
       this.scale = window.devicePixelRatio;
       this.selCanv.nativeElement.width = Math.floor(width * this.scale);
       this.selCanv.nativeElement.height = Math.floor(height * this.scale);
@@ -227,17 +227,17 @@ export class AppComponent {
       this.context.scale(this.scale, this.scale);
   }
   }
-
   
-
+  
+  
   onFileSelected() {
     if (typeof FileReader !== 'undefined') {
       let reader = new FileReader();
-
+  
       reader.onload = (e: any) => {
         this.pdfSrc = e.target.result;
       };
-
+  
     const files = this.fileSelector?.nativeElement.files;
     if(files && files.length >= 1){
       reader.readAsArrayBuffer(files[0]);
@@ -253,22 +253,22 @@ export class AppComponent {
         this.pdfCanvContext[e.pageNumber] = pageCanvContext
         this.calcScaling();
       }
-
+  
     }
   }
-
+  
   @HostListener('window:resize', ['$event'])
   @HostListener('window:orientationchange', ['$event'])
   resize() {
     this.calcScaling();
   }
-
+  
   @HostListener('window:keydown', ['$event'])
   keyDown(event: KeyboardEvent) {
     if (document.activeElement !== document.body) {
       return;
     }
-
+  
     if (event.key == 'c' || event.key == 'Escape') {
       this.dragging = false;
       if (!this.config.selectionOnTop) {
@@ -312,7 +312,7 @@ export class AppComponent {
     }
     this.nextCard();
   }
-
+  
   nextCard(){
     this.cards.unshift({
       localID: this.nanoid(),
@@ -326,7 +326,7 @@ export class AppComponent {
     this.currIndex = 0;
     this.frontSelected = true;
   }
-
+  
   mouseDown(event: MouseEvent) {
     //event.preventDefault();
     //event.stopPropagation();
@@ -335,17 +335,17 @@ export class AppComponent {
     this.zIndex = 1;
     return false;
   }
-
+  
   touchStart(event: TouchEvent) {
     if (event.touches.length === 1) {
       this.createNewRect(event.touches[0].pageX, event.touches[0].pageY);
     }
   }
-
+  
   createNewRect(x: number, y: number) {
     const currPage = this.pdfCanvContext[this.page].canvas.parentElement?.parentElement;
     if(currPage && this.selCanv && this.previewCanvas){
-
+  
     let currPageComp = window.getComputedStyle(currPage);
     let offsetLeft =
       parseFloat(currPageComp.getPropertyValue('margin-left')) +
@@ -353,7 +353,7 @@ export class AppComponent {
     let offsetTop =
       parseFloat(currPageComp.getPropertyValue('margin-top')) +
       parseFloat(currPageComp.getPropertyValue('border-top-width'));
-
+  
     this.rect = {
       x: x - this.selCanv.nativeElement.offsetLeft,
       y: y - this.selCanv.nativeElement.offsetTop,
@@ -363,24 +363,24 @@ export class AppComponent {
     this.dragging = true;
   }
   }
-
+  
   async finishRect() {
     if(this.selCanv && this.previewCanvas && this.previewContext && this.context){
     this.mouseStillDown = false;
     if (!this.dragging) {
       return;
     }
-
+  
     this.dragging = false;
     this.drawRect();
-
+  
     if (this.rect.width != 0 && this.rect.height != 0) {
       let viewerContainerRef: HTMLElement | null = document.querySelector<HTMLElement>(
         '#viewerContainer'
       );
       let pageRef = this.pdfCanvContext[this.page].canvas.parentElement?.parentElement;
         if(pageRef && viewerContainerRef){
-
+  
           let pageRefStyles = window.getComputedStyle(pageRef);
           let viewerContainerRefStyles = window.getComputedStyle(
             viewerContainerRef
@@ -388,8 +388,8 @@ export class AppComponent {
           let selCanvRefStyles = window.getComputedStyle(
             this.selCanv.nativeElement
           );
-
-
+  
+  
     if(selCanvRefStyles && pageRefStyles && viewerContainerRefStyles){
       let offSetLeft =
         -parseFloat(selCanvRefStyles.marginLeft) +
@@ -399,12 +399,12 @@ export class AppComponent {
       let offSetTop =
         parseFloat(pageRefStyles.marginTop) +
         parseFloat(pageRefStyles.borderTopWidth);
-
+  
       // let data :ImageData = this.pdfCanvContext[this.page].getImageData(
       //                         this.rect.x*this.scale - offSetLeft*this.scale + viewerContainerRef.scrollLeft*this.scale,
       //                         this.rect.y*this.scale - offSetTop*this.scale + viewerContainerRef.scrollTop*this.scale,
       //                         this.rect.width*this.scale,this.rect.height*this.scale);
-
+  
       // this.pdfCanvContext[this.page].strokeRect(this.rect.x*this.scale - offSetLeft*this.scale + viewerContainerRef.scrollLeft*this.scale,
       //                                         this.rect.y*this.scale - offSetTop*this.scale + viewerContainerRef.scrollTop*this.scale,
       //                                         this.rect.width*this.scale,this.rect.height*this.scale);
@@ -432,9 +432,9 @@ export class AppComponent {
         width: this.rect.width,
         height: this.rect.height,
       };
-
+  
       let text = this.getTextFromPosition(correctedRect);
-
+  
       if (scrollOffSet + this.rect.y >= scrollPerPage) {
         data = this.pdfCanvContext[this.page + 1].getImageData(
           this.rect.x * this.scale -
@@ -446,7 +446,7 @@ export class AppComponent {
           this.rect.width * this.scale,
           this.rect.height * this.scale
         );
-
+  
         if (this.config.drawOnPdf) {
           this.pdfCanvContext[this.page + 1].strokeRect(
             this.rect.x * this.scale -
@@ -460,15 +460,15 @@ export class AppComponent {
           );
         }
       } else {
-
+  
         const correctedRect: Rectangle = {
           x: this.rect.x - offSetLeft + viewerContainerRef.scrollLeft,
           y: this.rect.y - offSetTop + scrollOffSet,
           width: this.rect.width,
           height: this.rect.height,
         };
-
-
+  
+  
         data = this.pdfCanvContext[this.page].getImageData(
           this.rect.x * this.scale -
             offSetLeft * this.scale +
@@ -479,7 +479,7 @@ export class AppComponent {
           this.rect.width * this.scale,
           this.rect.height * this.scale
         );
-
+  
         if (this.config.drawOnPdf) {
           this.pdfCanvContext[this.page].strokeRect(
             this.rect.x * this.scale -
@@ -493,16 +493,16 @@ export class AppComponent {
           );
         }
       }
-
+  
       this.previewCanvas.nativeElement.width = this.rect.width * this.scale;
       this.previewCanvas.nativeElement.height = this.rect.height * this.scale;
       this.previewContext.putImageData(data, 0, 0);
-
+  
       this.addSelection(text);
-
+  
       this.context.strokeStyle = 'green';
       this.drawRect();
-
+  
       if (!this.config.selectionOnTop) {
         this.zIndex = -1;
       }
@@ -515,17 +515,17 @@ export class AppComponent {
       }, 200);
     }
   }
-}
   }
   }
-
+  }
+  
   mouseMove(event: MouseEvent) {
     this.mouseStillDown = false;
     if (this.dragging) {
       this.resizeRect(event.pageX, event.pageY);
     }
   }
-
+  
   touchMove(event: TouchEvent) {
     this.mouseStillDown = false;
     
@@ -537,7 +537,7 @@ export class AppComponent {
       }
     }
   }
-
+  
   resizeRect(pageX: number, pageY: number) {
     if(this.selCanv){
     this.rect.width =
@@ -547,7 +547,7 @@ export class AppComponent {
     this.drawRect();
   }
   }
-
+  
   drawRect() {
     if(this.context && this.selCanv){
     this.context.clearRect(
@@ -565,7 +565,7 @@ export class AppComponent {
     );
     }
   }
-
+  
   textLayerRendered(e: any) {
     let strings: string[] = e.source.textContentItemsStr;
     this.textDivs[e.pageNumber] = e.source.textDivs;
@@ -574,10 +574,10 @@ export class AppComponent {
     //   if(this.regex.test(s)){
     //     this.getCanvas();
     //   }
-
+  
     // }
   }
-
+  
   async addSelection(text: string = '') {
     this.saveConfig();
     if(this.previewCanvas){
@@ -587,23 +587,23 @@ export class AppComponent {
     ) {
       this.cards[this.currIndex].page = this.page; this.chapter = this.getOutlineForPage(this.page);
     }
-
+  
     this.cards[this.currIndex].chapter = this.cards[this.currIndex].chapter || this.getOutlineForPage(this.page);
     this.cards[this.currIndex].title = this.cards[this.currIndex].title ||this.title;
    
-
-
+  
+  
     let dataURL: string = this.previewCanvas.nativeElement.toDataURL(
       'image/png'
     );
     let saveIndex = this.currIndex;
-
+  
     let toAdd: string = '';
-
+  
     if (this.config.addImageOption) {
       toAdd += '<figure class="image"><img src="' + dataURL + '"alt=""></figure>\n';
     }
-
+  
     if (this.config.addTextOption && !this.config.addOcrTextOption) {
       if (this.config.addTextAsHidden) {
         this.cards[this.currIndex].hiddenText += text + "\n";
@@ -611,27 +611,27 @@ export class AppComponent {
         toAdd += text;
       }
     }
-
+  
     toAdd += '\n <br>';
-
+  
     if (this.frontSelected) {
       this.cards[this.currIndex].front += toAdd;
     } else {
       this.cards[this.currIndex].back += toAdd;
     }
-
+  
     let saveCardId: string = this.cards[this.currIndex].localID;
     let saveFrontSel = this.frontSelected;
     if (this.config.addTextOption && this.config.addOcrTextOption) {
       this.ocrLoadingNum++;
-
+  
       recognize(dataURL, this.config.ocrLanguage, {
         logger: (m) => {
           console.log(m);
         },
       }).then((tessRes) => {
         this.ocrLoadingNum--;
-
+  
         let card = this.cards.find((c) => c.localID === saveCardId);
         if(card){
         if (this.config.addTextAsHidden) {
@@ -648,8 +648,8 @@ export class AppComponent {
       
     }
   }
-}
-
+  }
+  
   selectionOnTopChange(newVal: any) {
     
     if (!this.config.selectionOnTop) {
@@ -660,7 +660,7 @@ export class AppComponent {
       this.config.selectionOnTop = false;
     }
   }
-
+  
   deleteCard(id: string) {
     let i = this.cards.findIndex((c,i) => c.localID === id);
     if(i >= 0){
@@ -676,16 +676,16 @@ export class AppComponent {
   getCardId(index: number, card: Card) {
     return card.localID;
   }
-
+  
   getTextFromPosition(rect: Rectangle) {
     const pageRef: HTMLElement | null | undefined = this.pdfCanvContext[this.page].canvas.parentElement?.parentElement;
-
+  
     const textLayer: Element | null | undefined = pageRef?.querySelector('.textLayer');
-
+  
     const spans: NodeListOf<HTMLSpanElement> | null | undefined = textLayer?.querySelectorAll(
       'span'
     );
-
+  
     if(pageRef && textLayer && spans){
     let ret = '';
     spans.forEach((span) => {
@@ -706,15 +706,16 @@ export class AppComponent {
     return '';
   }
   }
-
+  
   async saveConfig(){
     const res = await this.dataService.savePrefs({config: this.config});
     // this.dataService.set('config',JSON.stringify(this.config)).then((res) => {
-
+  
     // }).catch((err) => {
     //   console.log("Error saveConfig ",err);
     // })
   }
-
   
-}
+  
+  }
+  

@@ -1,0 +1,11 @@
+<button mat-button (click)="refresh()">
+  Refresh
+</button>
+<app-card
+[(card)]="card.value"
+[active]="false"
+[frontActive]="false"
+(delete)="deleteCard($event)"
+[deckName]="'none'"
+*ngFor="let card of this.cardsCollection | keyvalue; let i = index"
+></app-card>

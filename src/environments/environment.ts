@@ -9,7 +9,7 @@ export const environment = {
   BASE_URL: 'http://localhost:4200',
   MIN_PW_LENGTH: 6,
   MAX_PW_LENGTH: 32,
-  collectionMap: {'cards': ''}  as any,
+  collectionMap: {'cards': '60fbdf8f6f4ee'}  as any,
   dataVersion: '1.0'
 };
 

@@ -11,6 +11,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input'
 import {MatIconModule} from '@angular/material/icon'; 
 import {MatExpansionModule} from '@angular/material/expansion'; 
+import {MatStepperModule} from '@angular/material/stepper'; 
 @NgModule({
   declarations: [CardComponent],
   imports: [
@@ -22,7 +23,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatStepperModule
   ],
   exports: [CardComponent]
 })

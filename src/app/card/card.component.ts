@@ -4,6 +4,9 @@ import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 import { Card } from '../types/card';
 import { HttpClient } from '@angular/common/http';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
+import { DataService } from '../data.service';
+import { imgSrcToBlob } from 'blob-util'
+
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
@@ -20,7 +23,7 @@ export class CardComponent implements OnInit {
 
   @Output('delete') deleteEvent: EventEmitter<string> = new EventEmitter<string>();
   
-  @Input('card') card: Card = {id: '0', page: 0, title: '', chapter: '', front: '', back: '', hiddenText: ''};
+  @Input('card') card: Card = {localID: '0', page: 0, title: '', chapter: '', front: '', back: '', hiddenText: ''};
   @Output('cardChange') cardChange: EventEmitter<Card> = new EventEmitter<Card>();
 
   @Input('frontActive') frontActive: boolean = true;
@@ -29,7 +32,7 @@ export class CardComponent implements OnInit {
 
   private readonly MODEL_VERSION : string = "2.1a";
 
-  constructor(private http: HttpClient, private userNotifierService: UserNotifierService) { }
+  constructor(private http: HttpClient, private userNotifierService: UserNotifierService, private dataService: DataService) { }
 
   public readonly EDITOR_CONFIG= {  toolbar: {
     items: [
@@ -81,6 +84,16 @@ export class CardComponent implements OnInit {
   ngOnInit(): void {
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
+
+    if(this.card.imgs){
+      const serverNamingFunc = (i : number) => this.dataService.getFileView(this.card.imgs![i]).href;
+      let newFrontContent = this.replaceImageLinks(this.card.front,this.card.imgs,serverNamingFunc);
+      let newBackContent = this.replaceImageLinks(this.card.back,this.card.imgs,serverNamingFunc);
+      console.log(newFrontContent);
+      this.card.front = newFrontContent;
+      this.card.back = newBackContent;
+    }
+
   }
 
   change() {
@@ -88,7 +101,7 @@ export class CardComponent implements OnInit {
   }
 
 
-  async save(useAnkiConnect: boolean = false) {
+  getImages(){
     if(this.frontEditorComponent?.editorInstance && this.backEditorComponent?.editorInstance ){
     let imagelist: string[] = [];
 
@@ -108,23 +121,31 @@ export class CardComponent implements OnInit {
     backImgs.forEach((node) => {
       if (node.src.indexOf('data:') == 0) imagelist.push(node.src);
     });
+    return imagelist;
+  }else{
+    return [];
+  }
+  }
 
-    let newFrontContent = this.card.front;
-    let newBackContent = this.card.back;
+  replaceImageLinks(content: string, imagelist : string[], naming : (index :number) => string){
     for (let i = 0; i < imagelist.length; i++) {
       const img: string = imagelist[i];
-      newFrontContent = newFrontContent.replace(
+      content = content.replace(
         img,
-        this.card.id + '-' + i + '.png'
-      );
-      newBackContent = newBackContent.replace(
-        img,
-        this.card.id + '-' + i + '.png'
+        naming(i)
       );
     }
+    return content;
+  }
+  
+
+  async save(useAnkiConnect: boolean = false) {
+    const ankiNamingFunc = (i : number) => this.card.$id="-"+i+".png";
+    const imagelist = this.getImages();
+    let newFrontContent = this.replaceImageLinks(this.card.front,imagelist,ankiNamingFunc);
+    let newBackContent = this.replaceImageLinks(this.card.back,imagelist,ankiNamingFunc);
 
     if (useAnkiConnect) {
-
       const modelCreated = await this.createModelinAnki();
       if(!modelCreated){
         return;
@@ -138,7 +159,7 @@ export class CardComponent implements OnInit {
             deckName: this.deckName,
             modelName: 'flashcards.siter.eu-V'+this.MODEL_VERSION,
             fields: {
-              ID: this.card.id,
+              ID: this.card.localID,
               Front: newFrontContent,
               Back: newBackContent,
               Title: this.card.title,
@@ -162,17 +183,11 @@ export class CardComponent implements OnInit {
 
       for (let i = 0; i < imagelist.length; i++) {
         const img = imagelist[i];
-        //   bodyData.params.note.picture.push(
-        //   {
-        //     "filename": this.card.id+"-"+i+".png",
-        //     "data": img.substring(22),
-        //     "fields": ["Front","Back"]
-        // });
         let imgReq = {
           action: 'storeMediaFile',
           version: 6,
           params: {
-            filename: this.card.id + '-' + i + '.png',
+            filename: this.card.localID + '-' + i + '.png',
             data: img.substring(22),
           },
         };
@@ -203,39 +218,17 @@ export class CardComponent implements OnInit {
         // });
       }
       const noteProm = this.makeHttpRequest(bodyData);
-      const noteRes = await this.userNotifierService.notifyOnPromiseReject(noteProm,'Adding Note'+this.card.id,"AnkiConnect is not reachable");
+      const noteRes = await this.userNotifierService.notifyOnPromiseReject(noteProm,'Adding Note'+this.card.localID,"AnkiConnect is not reachable");
       if(noteRes.result['error']){
         this.userNotifierService.notify("Adding Note failed","AnkiConnect was reachable, but unable to add the note","danger");
       }else{
         this.userNotifierService.notify("Adding Note was successfull","","success",true);
       }
-      // this.makeHttpRequest(bodyData).subscribe((res) => {
-      //   console.log(res);
-      //   if (res) {
-      //     if (res && 'error' in res && res['error']) {
-      //       this.toastrService.show(res['error'], 'Request failed', {
-      //         status: 'danger',
-      //       });
-      //     } else {
-      //       this.toastrService.show(
-      //         'Note ' + this.card.id + 'was added!',
-      //         'Request successful',
-      //         { status: 'success' }
-      //       );
-      //     }
-      //   } else {
-      //     this.toastrService.show(
-      //       'Check your settings and make sure Anki is running.',
-      //       'Request failed',
-      //       { status: 'danger' }
-      //     );
-      //   }
-      // });
     } else {
       const blob = new Blob(
         [
           '"' +
-            this.card.id +
+            this.card.localID +
             '","' +
             newFrontContent.replace(/"/g, '""') +
             '","' +
@@ -247,7 +240,7 @@ export class CardComponent implements OnInit {
 
       if(this.downloadAnchor){
       this.downloadAnchor.nativeElement.href = window.URL.createObjectURL(blob);
-      this.downloadAnchor.nativeElement.download = this.card.id + '.csv';
+      this.downloadAnchor.nativeElement.download = this.card.localID + '.csv';
       this.downloadAnchor.nativeElement.click();
 
       for (let i = 0; i < imagelist.length; i++) {
@@ -257,14 +250,49 @@ export class CardComponent implements OnInit {
           'image/octet-stream'
         );
         this.downloadAnchor.nativeElement.download =
-          this.card.id + '-' + i + '.png';
+          this.card.localID + '-' + i + '.png';
         this.downloadAnchor.nativeElement.click();
-
       }
       }
     }
   }
+
+
+  async saveToServer(){
+    
+    const imagelist = this.getImages();
+    let imgs = [];
+    let promises = [];
+    for (let i = 0; i < imagelist.length; i++) {
+      const img = imagelist[i];
+      console.log(img);
+      // img: data:image/png;base64,...
+      const blob : Blob = await imgSrcToBlob(img);
+      promises.push(this.dataService.saveImage(new File([blob],this.card.localID + '-' + i + '.png')));
+    }
+    const imgRes = await Promise.all(promises);
+
+    this.card.imgs = imgRes;
+    const saveNamingFunc = (i : number) => this.card.imgs![i];
+    const newFront : string = this.replaceImageLinks(this.card.front,imagelist,saveNamingFunc);
+    const newBack : string  = this.replaceImageLinks(this.card.back,imagelist,saveNamingFunc);
+
+    this.dataService.offlineMode = false;
+    const cardToSave : Card =  {
+      front: newFront,
+      back: newBack,
+      localID: this.card.localID,
+      chapter: this.card.chapter,
+      title: this.card.title,
+      page: this.card.page,
+      hiddenText: this.card.hiddenText,
+      imgs:  this.card.imgs
+    };
+    const prom = await this.dataService.createDocument("cards",cardToSave);
+    console.log(prom);
+
   }
+
 
   openHiddenTextDialog(){
   }

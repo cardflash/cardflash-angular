@@ -1,0 +1,49 @@
+.mainContent{
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.register{
+  float: left;
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.login{
+  float: right;
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.login mat-form-field, .register mat-form-field{
+  width: 100%;
+}
+
+.bigButton{
+  width: 50%
+}
+.validationIndicator{
+  overflow:visible
+}
+
+
+@media screen and (max-width: 900px) {
+  .mainContent{
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  
+  .register{
+    float: none;
+    width: 80%;
+  }
+  .login{
+    float: none;
+    width: 80%;
+  }
+}

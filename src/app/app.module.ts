@@ -19,14 +19,21 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select'; 
 import {MatFormFieldModule} from '@angular/material/form-field'; 
 import { FormsModule } from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms'
 import { MatInputModule } from '@angular/material/input';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment'; 
+import { environment } from '../environments/environment';
+import { LoginComponent } from './account/login/login.component';
+import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
+import { CardsComponent } from './cards/cards.component'; 
 @NgModule({
   declarations: [
     AppComponent,
     NotificationComponent,
+    LoginComponent,
+    FromPdfComponent,
+    CardsComponent,
   ],
   imports: [
     BrowserModule,
@@ -44,6 +51,7 @@ import { environment } from '../environments/environment';
     MatFormFieldModule,
     MatSelectModule,
     FormsModule,
+    ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
     ServiceWorkerModule.register('ngsw-worker.js', {

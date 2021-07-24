@@ -437,5 +437,19 @@ export class DataService {
     }
   }
 
+  async saveImage(img: File) : Promise<string>{
+    const prom = this.appwrite.storage.createFile(img);
+    const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Uploading Image");
+    if(res.success){
+      return res.result.$id;
+    }else{
+      return "";
+    }
+  }
+
+  getFileView(fileid: string){
+    return this.appwrite.storage.getFileView(fileid);
+  }
+
 
 }
