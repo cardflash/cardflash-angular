@@ -140,7 +140,7 @@ export class CardComponent implements OnInit {
   
 
   async save(useAnkiConnect: boolean = false) {
-    const ankiNamingFunc = (i : number) => this.card.$id="-"+i+".png";
+    const ankiNamingFunc = (i : number) => this.card.localID+"-"+i+".png";
     const imagelist = this.getImages();
     let newFrontContent = this.replaceImageLinks(this.card.front,imagelist,ankiNamingFunc);
     let newBackContent = this.replaceImageLinks(this.card.back,imagelist,ankiNamingFunc);
