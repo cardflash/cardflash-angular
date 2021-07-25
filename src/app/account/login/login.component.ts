@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AccountService } from 'src/app/services/account.service';
 import { environment } from 'src/environments/environment';
 
@@ -13,7 +14,14 @@ export class LoginComponent implements OnInit {
   public loginForm : FormGroup;
   public registerForm : FormGroup;
   public email : string = "";
-  constructor(private formBuilder : FormBuilder, public accountService: AccountService) {
+
+  public isVerifying : boolean = false;
+  public startEmailVerificationDisabled = false;
+
+  public verifySecret: string = '';
+  public verifyUserid: string = '';
+
+  constructor(private formBuilder : FormBuilder, public accountService: AccountService,private route: ActivatedRoute, private router: Router) {
     this.loginForm = formBuilder.group({
       email: ['',[Validators.required,Validators.email]],
       password: ['',[Validators.required,Validators.minLength(environment.MIN_PW_LENGTH),Validators.maxLength(environment.MAX_PW_LENGTH)]]
@@ -25,8 +33,20 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    let queryParamMap = this.route.snapshot.queryParamMap;
+    if(queryParamMap.has('verification')){
+      if(queryParamMap.get('verification') == '1'){
+        this.isVerifying = true;
+        this.verifySecret = queryParamMap.get('secret') || "";
+        this.verifyUserid = queryParamMap.get('userId') || "";
+        console.log("verify email", this.verifyUserid ,  this.verifySecret )
+      }
 
+      this.router.navigate([],{queryParams: {'secret': null, userId: null, verification: null}, queryParamsHandling: 'merge'});
+    }
+    await this.accountService.updateAcc();
+    console.log(this.accountService.getAcc())
   }
 
   async login(){
@@ -60,4 +80,31 @@ export class LoginComponent implements OnInit {
   loginWithGoogle(){
     this.accountService.loginWithGoogle();
   }
+
+
+  canStartValidation(){
+    return (this.accountService.isLoggedIn() && !this.accountService.getAcc().emailVerification) && !this.isVerifying;
+  }
+
+  canValidateEmail(){
+    return (!this.accountService.getAcc()?.emailVerification) && this.isVerifying;
+  }
+
+
+
+  async startVerification(){
+    const success = await  this.accountService.startEmailVerification();
+    if(success){
+      this.startEmailVerificationDisabled = true;
+      setTimeout(() => this.startEmailVerificationDisabled = true,30000);
+    }
+    }
+
+
+    async verifyEmail(){
+      const success = await this.accountService.verifyEmail(this.verifyUserid,this.verifySecret);
+      if(success){
+        this.router.navigate(['settings']);
+      }
+    }
 }

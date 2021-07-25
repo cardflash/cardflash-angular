@@ -1,8 +1,6 @@
 <div class="mat-app-background">
   <mat-toolbar>
     <mat-toolbar-row>
-    <!-- <span>flashcards.siter.eu</span> -->
-    <!-- <span class="toolbarSpace"></span> -->
     <div class="headerOptions">
     <mat-button-toggle-group multiple>
       <mat-button-toggle
@@ -29,7 +27,6 @@
         <mat-icon>edit</mat-icon>
       </mat-button-toggle>
     </mat-button-toggle-group>
-    <span class="toolbarSpace"></span>
     <input
           class="pdfFileSelector"
           (change)="onFileSelected(); this.saveConfig()"
@@ -38,8 +35,6 @@
           #fileSelector
           label="Select a pdf file"
         />
-        
-        <span class="toolbarSpace"></span>
         <mat-button-toggle
         title="Single Page Mode (requires page reload)"
         [checked]="this.config.singlePageMode"
@@ -47,9 +42,7 @@
         >
           <mat-icon>insert_drive_file</mat-icon>
         </mat-button-toggle>
-  
-        <span class="toolbarSpace"></span>
-  
+
         <mat-button-toggle-group multiple>
         <mat-button-toggle
         title="Add selection as image to card"
@@ -94,9 +87,6 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-  
-      <span class="toolbarSpace"></span>
-  
       <mat-button-toggle class="coloredToggle" 
       title="Automatically add cards to Anki"
       [checked]="this.config.autoAddAnki"

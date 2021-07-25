@@ -20,9 +20,11 @@
 
 .oerLanguageField{
   font-size: 12px;
+  max-width: 120px;
 }
 
 .headerOptions{
+  margin-left: 70px;
   width: 100%;
   display: flex;
   justify-content: space-around;
@@ -31,14 +33,9 @@
 .headerOptions .pdfFileSelector{
   margin-top: auto;
   margin-bottom: auto;
-}
-
-.mat-button-toggle {
-  background-color: rgba(187, 221, 243, 0.431);
-}
-
-.mat-button-toggle-checked {
-  background-color: rgb(123, 200, 251);
+  width: 200px;
+  border: 1px dashed rgba(167, 167, 167, 0.473);
+  padding: 15px;
 }
 
 .defaultTitleField, .ankiDeckField{
@@ -80,4 +77,15 @@
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.mat-button-toggle-checked {
+  background-color: rgb(123, 200, 251);
+}
+.mat-button-toggle-disabled{
+  background-color: rgb(202, 202, 202);
+}
+
+.mat-button-toggle-checked.mat-button-toggle-disabled{
+  background-color: rgb(159, 189, 211);
 }

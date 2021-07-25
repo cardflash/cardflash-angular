@@ -27,6 +27,8 @@ import { environment } from '../environments/environment';
 import { LoginComponent } from './account/login/login.component';
 import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
 import { CardsComponent } from './cards/cards.component'; 
+import {MatSidenavModule} from '@angular/material/sidenav'; 
+import {MatTabsModule} from '@angular/material/tabs';
 @NgModule({
   declarations: [
     AppComponent,
@@ -54,6 +56,8 @@ import { CardsComponent } from './cards/cards.component';
     ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
+    MatSidenavModule,
+    MatTabsModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'

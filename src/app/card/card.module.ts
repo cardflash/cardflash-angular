@@ -11,9 +11,11 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input'
 import {MatIconModule} from '@angular/material/icon'; 
 import {MatExpansionModule} from '@angular/material/expansion'; 
-import {MatStepperModule} from '@angular/material/stepper'; 
+import {MatStepperModule} from '@angular/material/stepper';
+import { CardSideComponent } from './card-side/card-side.component';
+import { StaticCardSideComponent } from './static-card-side/static-card-side.component'; 
 @NgModule({
-  declarations: [CardComponent],
+  declarations: [CardComponent, CardSideComponent, StaticCardSideComponent],
   imports: [
     CommonModule,
     CKEditorModule,
@@ -26,6 +28,6 @@ import {MatStepperModule} from '@angular/material/stepper';
     MatExpansionModule,
     MatStepperModule
   ],
-  exports: [CardComponent]
+  exports: [CardComponent, CardSideComponent,StaticCardSideComponent]
 })
 export class CardModule { }

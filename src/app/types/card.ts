@@ -7,6 +7,7 @@ export interface Card{
     chapter: string,
     title: string,
     imgs?: string[],
+    imgsLocal?: string[],
     $id?: string
     
 }

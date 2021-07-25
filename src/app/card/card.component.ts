@@ -261,7 +261,6 @@ export class CardComponent implements OnInit {
   async saveToServer(){
     
     const imagelist = this.getImages();
-    let imgs = [];
     let promises = [];
     for (let i = 0; i < imagelist.length; i++) {
       const img = imagelist[i];
@@ -277,7 +276,6 @@ export class CardComponent implements OnInit {
     const newFront : string = this.replaceImageLinks(this.card.front,imagelist,saveNamingFunc);
     const newBack : string  = this.replaceImageLinks(this.card.back,imagelist,saveNamingFunc);
 
-    this.dataService.offlineMode = false;
     const cardToSave : Card =  {
       front: newFront,
       back: newBack,

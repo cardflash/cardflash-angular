@@ -65,7 +65,8 @@ export class DataService {
   initLocalForage(){
     localforage.config({
       name: 'flashcards_siter.eu',
-      storeName: 'flashcards_siter_eu'
+      storeName: 'flashcards_siter_eu',
+      driver: [ localforage.LOCALSTORAGE, localforage.INDEXEDDB, localforage.WEBSQL]
     });
   }
 
@@ -449,6 +450,12 @@ export class DataService {
 
   getFileView(fileid: string){
     return this.appwrite.storage.getFileView(fileid);
+  }
+
+  async deleteImage(id: string){
+    const prom = this.appwrite.storage.deleteFile(id);
+    const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Uploading Image");
+    return res.success;
   }
 
 

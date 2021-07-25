@@ -1,0 +1,10 @@
+<mat-card class="card">
+  <mat-card-header>
+    <mat-card-subtitle>{{name}}</mat-card-subtitle>
+    </mat-card-header>
+<div class="editor-div" [ngClass]="{'active': highlighted}"> 
+  <ckeditor #frontEditor [editor]="Editor" [(ngModel)]="content" (change)="onChange()"
+  [config]="EDITOR_CONFIG"
+  ></ckeditor>
+</div>
+</mat-card>

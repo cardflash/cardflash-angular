@@ -1,3 +1,62 @@
 .active {
   background-color: turquoise;
+  color: black;
+}
+
+.mat-tab-header{
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+}
+
+.mainToolbar, .mainToolbarRow{
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+.mainToolbar > nav {
+  min-height: 30px !important;
+  height: 30px !important;
+}
+
+.mat-tab-links{
+  display: block;
+}
+a.mat-tab-link {
+}
+
+.menu-fab{
+  position: absolute;
+  z-index: 3;
+  left: 15px;
+  top: 5px;
+}
+
+
+.sideNavigation{
+text-align: center;
+}
+.sideNavigation button{
+  width: 80%;
+  // margin-left: auto;
+  // margin-right: auto;
+}
+
+.mainDrawer{
+  text-align: center;
+}
+
+.mainContainer, .mainContent{
+  height: 100%;
+}
+
+.mat-button-toggle-checked {
+  background-color: rgb(123, 200, 251);
+}
+.mat-button-toggle-disabled{
+  background-color: rgb(202, 202, 202);
+}
+
+.mat-button-toggle-checked.mat-button-toggle-disabled{
+  background-color: rgb(159, 189, 211);
 }

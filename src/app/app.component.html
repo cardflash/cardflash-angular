@@ -1,12 +1,85 @@
+<mat-drawer-container hasBackdrop="true" class="mainContainer">
+  <mat-drawer #drawer mode="over" class="mainDrawer">
+    <h2>flashcards.siter.eu</h2>
+    <div class="accountInfo" *ngIf="accountService.isLoggedIn()">
+      <h3>Welcome {{ this.accountService.getAcc().name }}</h3>
+    </div>
+    <nav class="sideNavigation">
+      <button
+        (click)="drawer.toggle()"
+        mat-stroked-button
+        color="primary"
+        routerLinkActive="active"
+        routerLink="/cards"
+      >
+        Cards
+      </button>
+      <button
+        (click)="drawer.toggle()"
+        mat-stroked-button
+        color="primary"
+        routerLinkActive="active"
+        routerLink="/create/from-pdf"
+      >
+        Create Cards from PDF
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        (click)="drawer.toggle()"
+        *ngIf="!accountService.isLoggedIn()"
+        mat-stroked-button
+        color="primary"
+        routerLinkActive="active"
+        routerLink="/login"
+      >
+        Login or Register
+        <mat-icon>login</mat-icon>
+      </button>
+    </nav>
+    <br />
+    <mat-button-toggle
+      [checked]="dataService.offlineMode"
+      (change)="
+        dataService.offlineMode = !dataService.offlineMode;
+        dataService.saveOfflineModeSetting()
+      "
+      >Offline Mode</mat-button-toggle
+    >
+    <br />
+    <br />
+    <button *ngIf="this.accountService.isLoggedIn()"
+        (click)="accountService.logout()"
+        mat-stroked-button
+        color="warn"
+        routerLink="/login"
+      >
+        Logout
+        <mat-icon>logout</mat-icon>
+      </button>
+  </mat-drawer>
+  <mat-drawer-content class="mainContent">
+    <div class="menu-fab">
+      <button
+        mat-fab
+        color="primary"
+        aria-label="Toggle sidenav"
+        (click)="drawer.toggle()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+    <!-- <mat-toolbar class="mainToolbar">
+  <mat-toolbar-row class="mainToolbarRow">
+    <button mat-icon-button (click)="drawer.toggle();">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <nav mat-tab-nav-bar>
+      <a mat-tab-link [routerLink]="['/cards']" routerLinkActive #rla1="routerLinkActive" [active]="rla1.isActive">Cards</a>
+      <a mat-tab-link [routerLink]="['/create/from-pdf']" routerLinkActive #rla2="routerLinkActive" [active]="rla2.isActive">Create from PDF</a>
+    </nav>
 
-<mat-toolbar>
-  <mat-toolbar-row>
-    <mat-button-toggle [value]="dataService.offlineMode" (change)="dataService.offlineMode = !dataService.offlineMode">
-      Offline Mode
-    </mat-button-toggle>
-
-    <button mat-flat-button routerLinkActive="active" routerLink="cards">Cards</button>
-    <button mat-flat-button routerLinkActive="active" routerLink="create/from-pdf">Create from PDF</button>
-    </mat-toolbar-row>
-  </mat-toolbar>
-<router-outlet></router-outlet>
+      </mat-toolbar-row>
+  </mat-toolbar> -->
+    <router-outlet></router-outlet>
+  </mat-drawer-content>
+</mat-drawer-container>

@@ -6,13 +6,11 @@
 }
 
 .register{
-  float: left;
   width: 40%;
   margin-left: auto;
   margin-right: auto;
 }
 .login{
-  float: right;
   width: 40%;
   margin-left: auto;
   margin-right: auto;
@@ -29,6 +27,15 @@
   overflow:visible
 }
 
+.flexParent{
+  display: flex;
+  margin-top: 20px;
+}
+
+.verificationStart, .verificationFinish{
+  margin-top: 50px;
+}
+
 
 @media screen and (max-width: 900px) {
   .mainContent{
@@ -36,6 +43,11 @@
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+  }
+
+  .flexParent{
+    display: block;
+    margin-top: 20px;
   }
   
   .register{

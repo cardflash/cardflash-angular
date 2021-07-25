@@ -1,0 +1,25 @@
+
+.cards{
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  grid-auto-rows: 1fr;
+}
+
+.card{
+  margin-bottom: 10px;
+}
+
+.main{
+  text-align: center;
+}
+
+@media screen and (max-width: 1200px) {
+  .cards{
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+@media screen and (max-width: 600px) {
+  .cards{
+    grid-template-columns: 1fr;
+  }
+}

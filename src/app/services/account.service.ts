@@ -35,7 +35,7 @@ export class AccountService {
   
 
   async loginWithGoogle() {
-    const oathSession =  this.appwrite.account.createOAuth2Session("google",environment.BASE_URL+"/settings?oauth=1",environment.BASE_URL+"/settings?oauth=-1")
+    const oathSession =  this.appwrite.account.createOAuth2Session("google",environment.BASE_URL+"/login?oauth=1",environment.BASE_URL+"/login?oauth=-1")
     console.log("Created new oathSession", oathSession);
   }
 
@@ -59,7 +59,7 @@ export class AccountService {
   }
 
   async startEmailVerification() : Promise<boolean>{
-    const prom =  this.appwrite.account.createVerification(environment.BASE_URL+"/register?verification=1")
+    const prom =  this.appwrite.account.createVerification(environment.BASE_URL+"/login?verification=1")
     const res = await this.userNotifier.notifyForPromise(prom,"Starting email verification");
     return res.success;
   }
