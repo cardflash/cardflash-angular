@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './account/login/login.component';
+import { EditCardComponent } from './card/edit-card/edit-card.component';
 import { CardsComponent } from './cards/cards.component';
 import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: '/cards', pathMatch: 'full' },
   {
     path: 'login',
     component: LoginComponent
@@ -16,7 +18,11 @@ const routes: Routes = [
   {
     path: 'cards',
     component: CardsComponent
-  }
+  },
+  {
+    path: 'cards/:id',
+    component: EditCardComponent
+  },
 ];
 
 @NgModule({

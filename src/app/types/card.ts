@@ -8,6 +8,7 @@ export interface Card{
     title: string,
     imgs?: string[],
     imgsLocal?: string[],
-    $id?: string
+    $id?: string,
+    creationTime? : number
     
 }

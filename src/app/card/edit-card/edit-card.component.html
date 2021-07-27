@@ -1,0 +1,8 @@
+
+<div class="mainContent">
+<h1>Edit card</h1>
+<button class="backButton" mat-flat-button routerLink="/cards" color="accent">
+<mat-icon>arrow_back_ios</mat-icon>Go back to all cards
+</button>
+<app-card *ngIf="this.card" [card]="this.card" [alreadyOnServer]="true" [active]="true" (delete)="this.deleteCard()"></app-card>
+</div>

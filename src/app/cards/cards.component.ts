@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { KeyValue } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CardService } from '../card/card.service';
 import { DataService } from '../data.service';
 import { Card } from '../types/card';
@@ -8,45 +10,49 @@ import { Card } from '../types/card';
   templateUrl: './cards.component.html',
   styleUrls: ['./cards.component.scss']
 })
-export class CardsComponent implements OnInit {
+export class CardsComponent implements OnInit, OnDestroy {
   public cardsCollection: Map<string,Card> = new Map<string,Card>();
-
-  constructor(private dataService: DataService) { }
+  private subscription : Subscription | undefined;
+  constructor(private dataService: DataService, private cardService: CardService) { }
 
   async ngOnInit() {
-    this.refresh();
+    this.subscription = this.cardService.cards$.subscribe((cards)=> this.loadCards(cards))
+  }
+
+  ngOnDestroy(){
+    this.subscription?.unsubscribe();
   }
 
 
-
-  async refresh(){
-    await this.dataService.init();
-    this.cardsCollection = await this.dataService.fetchCollection('cards');
-    for(const card of this.cardsCollection.values()){
+  loadCards(cards: Map<string,Card>){
+    console.log("Loading cards");
+    this.cardsCollection = cards;
+    for(const card of cards.values()){
       if(card.imgs){
+        const prefixed = card.imgs.map((val) => "__SERVER__:"+val)
         const serverNamingFunc = (i : number) => this.dataService.getFileView(card.imgs![i]).href;
-        let newFrontContent = CardService.replaceImageLinks(card.front,card.imgs,serverNamingFunc);
-        let newBackContent = CardService.replaceImageLinks(card.back,card.imgs,serverNamingFunc);
-        card.front = newFrontContent;
-        card.back = newBackContent;
-        console.log(card.back)
+        card.front = CardService.replaceImageLinks(card.front,prefixed,serverNamingFunc);
+        card.back = CardService.replaceImageLinks(card.back,prefixed,serverNamingFunc);
+      }
+  }
+}
+
+  creationTimeOrder(a : KeyValue<string,Card>, b : KeyValue<string,Card>){
+    if(a.value.creationTime && b.value.creationTime){
+      return a.value.creationTime < b.value.creationTime ?
+            1 : ( a.value.creationTime > b.value.creationTime ? -1 : 0)
+    }else{
+      if(a.value.creationTime){
+        return -1;
+      }else if(b.value.creationTime){
+        return 1;
+      }else{
+        return 0;
       }
     }
-  
-    console.log(this.cardsCollection);
   }
 
 
-  async deleteCard(card: Card){
-    console.log(card);
-    if(card.imgs){
-      for(let i = 0; i<card.imgs.length; i++){
-        const imgSuccess = await this.dataService.deleteImage(card.imgs[i]);
-      }
-    }
-    await this.dataService.deleteDocument('cards',card);
-    this.refresh();
-  }
-  
+
 
 }

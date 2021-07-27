@@ -86,7 +86,9 @@ export class FromPdfComponent implements OnInit {
   }
   async ngOnInit() {
     this.dataService.init().then(()=> {
-      this.config = this.dataService.prefs['config'];
+      if(this.dataService.prefs['config']){
+        this.config = this.dataService.prefs['config'];
+      }
     })
   }
   
@@ -303,13 +305,19 @@ export class FromPdfComponent implements OnInit {
     }
   }
   finishCard() {
-    if (this.config.autoAddAnki) {
       if(this.cardCompList){
         this.cardCompList
         .filter((cc: CardComponent) => cc.active)
-        .forEach((cc: CardComponent) => cc.save(true));
+        .forEach((cc: CardComponent) => {
+          if (this.config.autoAddServer){
+            cc.saveToServer();
+          }
+          if (this.config.autoAddAnki) {
+            cc.save(true);
+          }
+        });
       }
-    }
+
     this.nextCard();
   }
   

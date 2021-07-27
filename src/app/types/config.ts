@@ -8,6 +8,7 @@ export interface Config {
     addOcrTextOption: boolean,
     ocrLanguage: string,
     addTextAsHidden: boolean,
-    singlePageMode: boolean
+    singlePageMode: boolean,
+    autoAddServer: boolean
     
 }

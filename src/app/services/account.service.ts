@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Appwrite } from 'appwrite';
 import { environment } from 'src/environments/environment';
+import { DataService } from '../data.service';
 import { UserNotifierService } from './notifier/user-notifier.service';
 
 @Injectable({
@@ -14,7 +15,7 @@ export class AccountService {
 
   private appwrite! : Appwrite;
 
-  constructor(private userNotifier : UserNotifierService) {
+  constructor(private userNotifier : UserNotifierService, private dataService: DataService) {
     this.setUpApi();
   }
 
@@ -29,6 +30,7 @@ export class AccountService {
     const res = await this.userNotifier.notifyForPromise(prom,"Login");
     if(res.success){
       this.updateAcc();
+      this.dataService.offlineMode = false;
     }
     return res.success;
   }

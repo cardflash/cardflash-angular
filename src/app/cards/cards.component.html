@@ -8,22 +8,9 @@
 
 <link href="/assets/card-styles.css" rel="stylesheet">
 <div class="cards">
-<!-- <app-card
-[(card)]="card.value"
-[active]="true"
-[frontActive]="false"
-(delete)="deleteCard($event)"
-[deckName]="'none'"
-*ngFor="let card of this.cardsCollection | keyvalue; let i = index"
-></app-card> -->
-<div class="card" *ngFor="let card of this.cardsCollection | keyvalue; let i = index">
-<app-static-card-side [content]="card.value.front" name="Front"></app-static-card-side>
-<app-static-card-side [content]="card.value.back" name="Back"></app-static-card-side>
-<button mat-icon-button color="warn" aria-label="Delete icon button" (click)="deleteCard(card.value)">
-  <mat-icon>delete</mat-icon>
-</button>
-</div>
 
+<app-static-card *ngFor="let card of this.cardsCollection | keyvalue: creationTimeOrder"
+[card]="card.value"></app-static-card>
 </div>
   
 </div>

@@ -71,13 +71,16 @@
         <button mat-stroked-button aria-label="Send to Anki" (click)="save(true)">
           <mat-icon>send</mat-icon> Anki
         </button>
-        <button mat-stroked-button aria-label="Send to Server" (click)="saveToServer()">
+        <button *ngIf="!alreadyOnServer" mat-stroked-button aria-label="Send to Server" (click)="saveToServer()">
           <mat-icon>send</mat-icon> Server
+        </button>
+        <button *ngIf="alreadyOnServer" mat-stroked-button aria-label="Save changes to Server" (click)="saveToServer()">
+          <mat-icon>save</mat-icon> Server
         </button>
         <button mat-stroked-button aria-label="Download card" (click)="save(false)">
           <mat-icon>file_download</mat-icon>
         </button>
-        <button mat-stroked-button aria-label="Delete card" color="warn" (click)="deleteEvent.emit(this.card.localID)">
+        <button mat-stroked-button aria-label="Delete card" color="warn" (click)="deleteCard()">
           <mat-icon>delete</mat-icon>
         </button>
       </div>

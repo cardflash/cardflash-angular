@@ -94,6 +94,14 @@
       >
       <mat-icon>repeat</mat-icon> Anki
     </mat-button-toggle>
+    <mat-button-toggle class="coloredToggle" 
+    title="Automatically save cards to Server"
+    [checked]="this.config.autoAddServer"
+    (change)="this.config.autoAddServer = !this.config.autoAddServer; this.saveConfig()"
+    >
+    <mat-icon>repeat</mat-icon>
+    <mat-icon>cloud</mat-icon>
+  </mat-button-toggle>
   </div>
   </mat-toolbar-row>
   </mat-toolbar>
@@ -134,6 +142,7 @@
     [enablePinchOnMobile]="true"
     [showBorders]="false"
     [pageViewMode]="config.singlePageMode ? 'single' : 'multiple'"
+    [height]="'100%'"
   ></ngx-extended-pdf-viewer>
   </div>
   </div>

@@ -60,3 +60,13 @@ text-align: center;
 .mat-button-toggle-checked.mat-button-toggle-disabled{
   background-color: rgb(159, 189, 211);
 }
+
+footer{
+  text-align: center;
+  margin-top: 5px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+
+}
