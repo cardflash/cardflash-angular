@@ -125,8 +125,8 @@ export class FromPdfComponent implements OnInit {
     this.numPages = e.pagesCount;
     this.page = 1;
     this.pdfApplication = (window as any).PDFViewerApplication;
-    console.log(this.pdfApplication);
-    this.titleOptions = [];
+    this.titleOptions = [this.title];
+    this.title = "";
     const pdfTitle = (this.pdfApplication as any).documentInfo?.Title
     if(pdfTitle){
       this.titleOptions.push(pdfTitle);
