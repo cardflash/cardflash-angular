@@ -12,13 +12,12 @@ import {MatInputModule} from '@angular/material/input'
 import {MatIconModule} from '@angular/material/icon'; 
 import {MatExpansionModule} from '@angular/material/expansion'; 
 import {MatStepperModule} from '@angular/material/stepper';
-import { CardSideComponent } from './card-side/card-side.component';
 import { StaticCardSideComponent } from './static-card-side/static-card-side.component';
 import { StaticCardComponent } from './static-card/static-card.component';
 import { EditCardComponent } from './edit-card/edit-card.component'; 
 import { AppRoutingModule } from '../app-routing.module';
 @NgModule({
-  declarations: [CardComponent, CardSideComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent],
+  declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent],
   imports: [
     CommonModule,
     CKEditorModule,
@@ -32,6 +31,6 @@ import { AppRoutingModule } from '../app-routing.module';
     MatStepperModule,
     AppRoutingModule
   ],
-  exports: [CardComponent, CardSideComponent,StaticCardSideComponent, StaticCardComponent]
+  exports: [CardComponent,StaticCardSideComponent, StaticCardComponent]
 })
 export class CardModule { }
