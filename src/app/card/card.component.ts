@@ -389,6 +389,7 @@ export class CardComponent implements OnInit {
         const res = await this.cardService.updateCard(this.card);
       } else {
         const res = await this.cardService.addCard(this.card);
+        this.alreadyOnServer = true;
       }
     }
   }
