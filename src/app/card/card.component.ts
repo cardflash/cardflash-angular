@@ -61,34 +61,43 @@ export class CardComponent implements OnInit {
   ) {}
 
   public readonly EDITOR_CONFIG = {
+					
     toolbar: {
       items: [
         'bold',
         'italic',
-        'underline',
-        'fontColor',
-        'link',
         'highlight',
-        '-',
-      ],
-      shouldNotGroupWhenFull: true,
+        'underline',
+        'strikethrough'
+      ]
     },
     language: 'en',
     blockToolbar: [
       'heading',
+      'alignment',
       'bulletedList',
       'numberedList',
+      'indent',
+      'outdent',
+      'link',
+      'blockQuote',
+      'specialCharacters',
+      'fontSize',
+      'fontColor',
+      'fontBackgroundColor',
       'subscript',
       'superscript',
-      'specialCharacters',
-      'blockQuote',
+      'code',
+      'removeFormat',
       'horizontalLine',
-      'mediaEmbed',
       'insertTable',
+      'imageInsert',
+      'mediaEmbed',
       'codeBlock',
       'htmlEmbed',
-      'findAndReplace',
-      'restrictedEditingException',
+      'sourceEditing',
+      'undo',
+      'redo'
     ],
     image: {
       toolbar: [
@@ -96,13 +105,24 @@ export class CardComponent implements OnInit {
         'imageStyle:inline',
         'imageStyle:block',
         'imageStyle:side',
-      ],
+        'linkImage'
+      ]
     },
     table: {
-      contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'],
+      contentToolbar: [
+        'tableColumn',
+        'tableRow',
+        'mergeTableCells',
+        'tableCellProperties',
+        'tableProperties'
+      ]
     },
-    licenseKey: '',
-  };
+      licenseKey: '',
+      
+      
+      
+    };
+
 
   ngOnInit(): void {
     if(!this.card.creationTime){

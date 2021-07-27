@@ -57,7 +57,6 @@ export class CardService {
   async refresh(){
     const cards = await this.dataService.fetchCollection('cards');
     cards.forEach((card) => this.replaceImageLinksForCard(card));
-    console.log("GOT CARDS", cards);
     this.cards$.next(cards);
   }
 
