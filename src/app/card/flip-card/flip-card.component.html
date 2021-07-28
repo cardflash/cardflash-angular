@@ -1,0 +1,21 @@
+
+  <div class="cardHeaderTitle">
+    {{this.card.title || "-"}}
+  </div>
+  <div  class="cardChapter">
+    {{this.card.chapter || "-"}}
+  </div>
+  <div class="card flipCard">
+  <div class="inner">
+<app-static-card-side class="front" [content]="card.front" name="Front"></app-static-card-side>
+<app-static-card-side  class="back" [content]="card.back" name="Back"></app-static-card-side>
+<!-- <div class="cardActions">
+<button mat-icon-button color="warn" aria-label="Delete icon button" (click)="deleteCard()" title="delete">
+  <mat-icon>delete</mat-icon>
+</button>
+<button mat-icon-button aria-label="Delete icon button" title="edit" routerLink="/cards/{{this.card.localID}}">
+  <mat-icon>edit</mat-icon>
+</button>
+</div> -->
+</div>
+</div>

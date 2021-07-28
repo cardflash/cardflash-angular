@@ -5,4 +5,9 @@
 <mat-icon>arrow_back_ios</mat-icon>Go back to all cards
 </button>
 <app-card *ngIf="this.card" [card]="this.card" [alreadyOnServer]="true" [active]="true" (delete)="this.deleteCard()"></app-card>
+
+<h3>Preview:</h3>
+<app-flip-card  *ngIf="this.card" 
+[card]="this.card"></app-flip-card>
+
 </div>

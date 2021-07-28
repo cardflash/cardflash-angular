@@ -16,8 +16,9 @@ import { StaticCardSideComponent } from './static-card-side/static-card-side.com
 import { StaticCardComponent } from './static-card/static-card.component';
 import { EditCardComponent } from './edit-card/edit-card.component'; 
 import { AppRoutingModule } from '../app-routing.module';
+import { FlipCardComponent } from './flip-card/flip-card.component';
 @NgModule({
-  declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent],
+  declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent, FlipCardComponent],
   imports: [
     CommonModule,
     CKEditorModule,
@@ -31,6 +32,6 @@ import { AppRoutingModule } from '../app-routing.module';
     MatStepperModule,
     AppRoutingModule
   ],
-  exports: [CardComponent,StaticCardSideComponent, StaticCardComponent]
+  exports: [CardComponent,StaticCardSideComponent, StaticCardComponent, FlipCardComponent]
 })
 export class CardModule { }
