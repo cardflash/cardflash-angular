@@ -7,9 +7,8 @@
   width: 100%;
   // margin-left: auto;
   // margin-right: auto;
-  --editor-min-height:  250px;
   min-height: var(--editor-min-height);
-  max-height: var(--editor-min-height);
+  max-height: var(--editor-max-height);
   overflow: auto;
   font-size: 14px;
 }

@@ -2,7 +2,11 @@
 $material-design-icons-font-directory-path: '~material-design-icons-iconfont/dist/fonts/';
 @import '~material-design-icons-iconfont/src/material-design-icons';
 
-html, body { height: 100%; }
+html, body {
+  height: 100%; 
+  --editor-min-height: 250px;
+  --editor-max-height: 250px;
+}
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
