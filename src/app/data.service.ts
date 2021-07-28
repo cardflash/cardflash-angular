@@ -126,9 +126,9 @@ export class DataService {
       return;
     }else{
       if(!this.offlineMode){
-        this.updateDocumentOnline(collectionName,data);
+        await this.updateDocumentOnline(collectionName,data);
       }
-        this.putLocalObject(collectionName,data['localID'],data);
+      await this.putLocalObject(collectionName,data['localID'],data);
       }
   }
 
@@ -451,6 +451,10 @@ export class DataService {
 
   getFileView(fileid: string){
     return this.appwrite.storage.getFileView(fileid);
+  }
+
+  getFile(fileid: string){
+    return this.appwrite.storage.getFileDownload(fileid);
   }
 
   async deleteImage(id: string){
