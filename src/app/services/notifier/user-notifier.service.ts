@@ -67,6 +67,31 @@ export class UserNotifierService {
     })
   }
 
+  async notifyOnRejectOrError(promise : Promise<unknown>, name: string, additionalErrorText = "", isError: (result: any) => boolean) : Promise<{success: boolean, result : any}>{
+    return new Promise((resolve) => {
+      promise.then((res) => {
+        if(!isError({success: true,result:res})){
+          console.log("Silent Success:", name + " was successfull.", res);
+          resolve({success: true,result:res});
+        }else{
+          console.log(name + " failed ",res)
+          this.notify(name + " failed.",additionalErrorText + "\n" + res ,"danger",false,);
+          resolve({success: false, result:res});
+        }
+      },
+      (err) => {
+        if(!isError({success: false,result:err})){
+          console.log("Silent Success:", name + " Request failed but was deemed successfull.", err);
+          resolve({success: true,result:err});
+        }else{
+          console.log(name + " failed ",err)
+          this.notify(name + " failed.",additionalErrorText + "\n" + err ,"danger",false,);
+          resolve({success: false, result:err});
+        }
+      })
+    })
+  }
+
   notifyForPromiseFlag(promise : Promise<unknown>, name: string, notifyForSuccess : boolean) : Promise<{success: boolean, result : any}>{
     if(notifyForSuccess){
       return this.notifyForPromise(promise,name,"");

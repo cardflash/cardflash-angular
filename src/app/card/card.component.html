@@ -68,13 +68,10 @@
           <!-- <span matPrefix>p.</span> -->
           <input matInput type="number" [(ngModel)]="this.card.page">
         </mat-form-field>
-        <button mat-stroked-button aria-label="Send to Anki" (click)="save(true)">
-          <mat-icon>send</mat-icon> Anki
+        <button mat-stroked-button aria-label="Save to Anki" (click)="save(true)">
+          <mat-icon>save</mat-icon> Anki
         </button>
-        <button *ngIf="!alreadyOnServer" mat-stroked-button aria-label="Send to Server" (click)="saveToServer()">
-          <mat-icon>send</mat-icon> Server
-        </button>
-        <button *ngIf="alreadyOnServer" mat-stroked-button aria-label="Save changes to Server" (click)="saveToServer()">
+        <button mat-stroked-button aria-label="Save to Server" (click)="saveToServer()">
           <mat-icon>save</mat-icon> Server
         </button>
         <button mat-stroked-button aria-label="Download card" (click)="save(false)">

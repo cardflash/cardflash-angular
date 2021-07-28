@@ -247,29 +247,26 @@ export class CardComponent implements OnInit {
         return;
       }
   
-      let bodyData = {}
+
       if(alreadyOnAnki){
-        bodyData = {
-          action:  'updateNoteFields',
+        const delData = {
+          action:  'deleteNotes',
           version: 6,
           params: {
-            note: {
-              deckName: this.deckName,
-              modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
-              id: ankiID,
-              fields: {
-                Front: newFrontContent,
-                Back: newBackContent,
-                Title: this.card.title,
-                Page: this.card.page.toString(),
-                Chapter: this.card.chapter,
-                Hidden: this.card.hiddenText,
-              }
-          }
+            notes : [ankiID]
         }
         };
-      }else{
-        bodyData = {
+        const delProm = this.makeHttpRequest(delData);
+        const delRes = await this.userNotifierService.notifyOnRejectOrError(
+          delProm,
+          'Image Upload',
+          'AnkiConnect is not reachable',
+          (res) => !res.success || res.result.error
+        );
+
+      }
+
+      let bodyData = {
           action:  'addNote',
           version: 6,
           params: {
@@ -298,8 +295,6 @@ export class CardComponent implements OnInit {
             },
           },
         };
-      }
-      console.log(bodyData);
 
       for (let i = 0; i < imagelist.length; i++) {
         const img = imagelist[i];
@@ -312,14 +307,12 @@ export class CardComponent implements OnInit {
           },
         };
         const imgProm = this.makeHttpRequest(imgReq);
-        const imgRes = await this.userNotifierService.notifyOnPromiseReject(
+        const imgRes = await this.userNotifierService.notifyOnRejectOrError(
           imgProm,
           'Image Upload',
-          'AnkiConnect is not reachable'
+          'AnkiConnect is not reachable',
+          (res) => !res.success || res.result.error
         );
-        if (!imgRes.success || imgRes.result.error) {
-          return; //TOOD: add failure notification
-        }
         if (imgRes.result['error']) {
           this.userNotifierService.notify(
             'Image upload failed',
@@ -346,20 +339,14 @@ export class CardComponent implements OnInit {
         // });
       }
       const noteProm = this.makeHttpRequest(bodyData);
-      const noteRes = await this.userNotifierService.notifyOnPromiseReject(
+      const noteRes = await this.userNotifierService.notifyOnRejectOrError(
         noteProm,
-        'Adding Note' + this.card.localID,
-        'AnkiConnect is not reachable'
+        alreadyOnAnki? 'Updating Node ' + this.card.localID :'Adding Note' + this.card.localID,
+        'AnkiConnect is not reachable', (res) => res.result['error']
       );
-      if (noteRes.result['error']) {
+      if(noteRes.success){
         this.userNotifierService.notify(
-          'Adding Note failed',
-          'AnkiConnect was reachable, but unable to add the note',
-          'danger'
-        );
-      } else {
-        this.userNotifierService.notify(
-          'Adding Note was successfull',
+          alreadyOnAnki? 'Updating Node ' + this.card.localID + ' was successfull':'Adding Note' + this.card.localID + ' was successfull',
           '',
           'success',
           true
