@@ -13,7 +13,7 @@ import { Card } from '../types/card';
 import { HttpClient } from '@angular/common/http';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { DataService } from '../data.service';
-import { imgSrcToBlob } from 'blob-util';
+import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
 import { CardService } from './card.service';
 
 @Component({
@@ -47,11 +47,11 @@ export class CardComponent implements OnInit {
 
   @Input('frontActive') frontActive: boolean = true;
   @Input('active') active: boolean = false;
-  @Input('deckName') deckName?: string;
+  @Input('deckName') deckName?: string = this.dataService.config.deckName;
 
   @Input('alreadyOnServer') alreadyOnServer: boolean = false;
 
-  private readonly MODEL_VERSION: string = '2.1a';
+  private readonly MODEL_VERSION: string = '2.1b';
 
   constructor(
     private http: HttpClient,
@@ -185,8 +185,8 @@ export class CardComponent implements OnInit {
   }
 
   async save(useAnkiConnect: boolean = false) {
-    const ankiNamingFunc = (i: number) => this.card.localID + '-' + i + '.png';
     const imagelist = this.getImages();
+    const ankiNamingFunc = (i: number) => this.card.localID + '-' + i + '.png';
     let newFrontContent = this.replaceImageLinks(
       this.card.front,
       imagelist,
@@ -199,40 +199,107 @@ export class CardComponent implements OnInit {
     );
 
     if (useAnkiConnect) {
+      let exReq = {
+        action: 'findNotes',
+        version: 6,
+        params: {
+          query: "ID:"+this.card.localID
+        },
+      };
+      const exProm = this.makeHttpRequest(exReq);
+      const exRes = await this.userNotifierService.notifyOnPromiseReject(exProm,"Getting note info");
+      console.log(exRes);
+      const alreadyOnAnki = exRes.success && !exRes.result.error && exRes.result.result.length > 0;
+      let ankiID = 0;
+      if(alreadyOnAnki){
+          ankiID = exRes.result.result[0];
+      }
+      console.log(alreadyOnAnki)
+      if(this.card.imgs){
+        for(let i = 0; i < this.card.imgs.length; i++){
+          const src = this.dataService.getFileView(this.card.imgs[i]);
+          const dataURL = await imgSrcToDataURL(src.href,"image/png","use-credentials");
+          let imgReq = {
+            action: 'storeMediaFile',
+            version: 6,
+            params: {
+              filename: this.card.localID + '-' + i+"_SERVER" + '.png',
+              data: dataURL.substring(22),
+            },
+          };
+          const imgProm = this.makeHttpRequest(imgReq);
+          const imgRes = await this.userNotifierService.notifyOnPromiseReject(
+            imgProm,
+            'Image Upload',
+            'AnkiConnect is not reachable'
+          );
+          if (!imgRes.success || imgRes.result.error) {
+            return;
+          }else{
+            newBackContent = newBackContent.replace(src.href,this.card.localID + '-' + i+"_SERVER" + '.png');
+            newFrontContent = newFrontContent.replace(src.href,this.card.localID + '-' + i+"_SERVER" + '.png');
+          }
+        }
+      }
+
       const modelCreated = await this.createModelinAnki();
       if (!modelCreated) {
         return;
       }
-
-      let bodyData = {
-        action: 'addNote',
-        version: 6,
-        params: {
-          note: {
-            deckName: this.deckName,
-            modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
-            fields: {
-              ID: this.card.localID,
-              Front: newFrontContent,
-              Back: newBackContent,
-              Title: this.card.title,
-              Page: this.card.page.toString(),
-              Chapter: this.card.chapter,
-              Hidden: this.card.hiddenText,
-            },
-            options: {
-              allowDuplicate: false,
-              duplicateScope: 'deck',
-              duplicateScopeOptions: {
-                deckName: this.deckName,
-                checkChildren: false,
+  
+      let bodyData = {}
+      if(alreadyOnAnki){
+        bodyData = {
+          action:  'updateNoteFields',
+          version: 6,
+          params: {
+            note: {
+              deckName: this.deckName,
+              modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
+              id: ankiID,
+              fields: {
+                Front: newFrontContent,
+                Back: newBackContent,
+                Title: this.card.title,
+                Page: this.card.page.toString(),
+                Chapter: this.card.chapter,
+                Hidden: this.card.hiddenText,
+              }
+          }
+        }
+        };
+      }else{
+        bodyData = {
+          action:  'addNote',
+          version: 6,
+          params: {
+            note: {
+              deckName: this.deckName,
+              modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
+              fields: {
+                ID: this.card.localID,
+                Front: newFrontContent,
+                Back: newBackContent,
+                Title: this.card.title,
+                Page: this.card.page.toString(),
+                Chapter: this.card.chapter,
+                Hidden: this.card.hiddenText,
               },
+              options: {
+                allowDuplicate: false,
+                duplicateScope: 'deck',
+                duplicateScopeOptions: {
+                  deckName: this.deckName,
+                  checkChildren: false,
+                },
+              },
+              tags: ['flashcards.siter.eu'],
+              picture: [],
             },
-            tags: ['flashcards.siter.eu'],
-            picture: [],
           },
-        },
-      };
+        };
+      }
+      console.log(bodyData);
 
       for (let i = 0; i < imagelist.length; i++) {
         const img = imagelist[i];
@@ -250,8 +317,8 @@ export class CardComponent implements OnInit {
           'Image Upload',
           'AnkiConnect is not reachable'
         );
-        if (!imgRes.success) {
-          return;
+        if (!imgRes.success || imgRes.result.error) {
+          return; //TOOD: add failure notification
         }
         if (imgRes.result['error']) {
           this.userNotifierService.notify(
@@ -408,7 +475,6 @@ export class CardComponent implements OnInit {
     const ckEditorCss: string = await this.http
       .get('/assets/card-styles.css', { responseType: 'text' })
       .toPromise();
-    console.log(ckEditorCss);
     let bodyData = {
       action: 'createModel',
       version: 6,
