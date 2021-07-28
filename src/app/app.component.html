@@ -56,7 +56,16 @@
         Logout
         <mat-icon>logout</mat-icon>
       </button>
-
+      <br />
+      <br />
+      <br />
+      <br />
+      <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
+        <mat-label>Anki Deck</mat-label>
+        <input matInput placeholder="Deck Name"
+        [(ngModel)]="this.dataService.config.deckName">
+        <mat-icon matSuffix>inbox</mat-icon>
+      </mat-form-field>
       <footer>
         Currently WIP
         <br />
