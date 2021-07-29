@@ -123,6 +123,24 @@
     (keydown)="keyDown($event)"
     (contextmenu)="mouseDown($event)"
   ></canvas>
+
+    <div id="selectionToolTip" #selectionToolTip *ngIf="getSelection()">
+      <mat-button-toggle-group>
+        <mat-button-toggle (click)="addTextSelectionToCard()">
+          <mat-icon>text_fields</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle (click)="addTextSelectionToCard('blue')">
+          <mat-icon color="primary">circle</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle (click)="addTextSelectionToCard('green')">
+          <mat-icon color="accent">circle</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle (click)="addTextSelectionToCard('pink')">
+          <mat-icon color="warn">circle</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
   
   <div *ngIf="!disablePDFViewer">
   <ngx-extended-pdf-viewer 
@@ -132,8 +150,8 @@
     [useBrowserLocale]="true"
     [(page)]="this.page"
     [textLayer]="true"
+    (textLayerRendered)="this.textLayerRendered($event)"
     [zoom]="'page-fit'"
-    mobileFriendlyZoom="true"
     [(sidebarVisible)]="sidebarVisible"
     (sidebarVisibleChange)="calcScaling()"
     (pagesLoaded)="loadComplete($event)"
@@ -143,6 +161,7 @@
     [showBorders]="false"
     [pageViewMode]="config.singlePageMode ? 'single' : 'multiple'"
     [height]="'100%'"
+    [handTool]="false"
   ></ngx-extended-pdf-viewer>
   </div>
   </div>

@@ -90,3 +90,10 @@
   background-color: rgb(159, 189, 211);
 }
 
+
+#selectionToolTip{
+  position: absolute;
+  z-index: 3;
+  text-align: center;
+  display: none;
+}
