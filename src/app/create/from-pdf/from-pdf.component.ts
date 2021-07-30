@@ -11,6 +11,7 @@ import {
   IPDFViewerApplication,
   PageRenderedEvent,
   PagesLoadedEvent,
+  PageViewport,
 } from 'ngx-extended-pdf-viewer';
 import { CardComponent } from '../../card/card.component';
 import { Card } from '../../types/card';
@@ -20,13 +21,16 @@ import { customAlphabet } from 'nanoid';
 import { DataService } from '../../data.service';
 import { recognize } from 'tesseract.js';
 import { TesseractLanguages } from '../../data/tesseract-languages';
+import {AnnotationFactory} from 'annotpdf';
+
+
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
   styleUrls: ['./from-pdf.component.scss'],
 })
 export class FromPdfComponent implements OnInit {
-  pdfSrc = '/assets/pdfs/flashcards_siter_eu.pdf';
+  pdfSrc  : string | Uint8Array= '/assets/pdfs/flashcards_siter_eu.pdf';
   numPages = 1;
   page = 1;
 
@@ -67,6 +71,7 @@ export class FromPdfComponent implements OnInit {
 
   public selectionTimeout: NodeJS.Timeout | undefined = undefined;
 
+  public selectionBox : {x: number, y: number, absX: number, absY: number} | undefined = undefined;
   //cards
   public cards: Card[] = [
     {
@@ -103,6 +108,11 @@ export class FromPdfComponent implements OnInit {
     TesseractLanguages.LANGS;
 
   @ViewChildren(CardComponent) cardCompList?: QueryList<CardComponent>;
+
+
+  public annotationFactory? : AnnotationFactory;
+
+  public annotationForPage: Map<number,{id: string, type: string, color: string ,point: [number,number,number,number]}[]> = new Map<number,{id: string, type: string, color: string ,point: [number,number,number,number]}[]>();
 
   constructor(public dataService: DataService) {}
   async ngOnInit() {
@@ -182,6 +192,10 @@ export class FromPdfComponent implements OnInit {
           outlineEl.items
         );
       }
+    }
+    const data = await this.pdfApplication?.pdfDocument.getData();
+    if(!this.annotationFactory){
+      this.annotationFactory = new AnnotationFactory(data);
     }
   }
 
@@ -279,10 +293,44 @@ export class FromPdfComponent implements OnInit {
       const pageCanvContext = pdfCanv.getContext('2d');
       if (pageCanvContext) {
         this.pdfCanvContext[e.pageNumber] = pageCanvContext;
+        this.drawAnnotationsOnPage(e.pageNumber);
         this.calcScaling();
       }
     }
   }
+
+  drawAnnotationsOnPage(pageNumber: number){
+    if(this.pdfApplication){
+    const context = this.pdfCanvContext[pageNumber];
+    const page = this.pdfApplication.pdfViewer._pages[pageNumber-1]
+
+    const annotations = this.annotationForPage.get(pageNumber);
+    if(annotations){
+      annotations.forEach((annotation) => {
+        // pageCanvContext.fillRect(highlight[0],highlight[1],10,10);
+        context.fillStyle = annotation.color;
+        const viewport = page.viewport;
+        const rect = viewport.convertToViewportRectangle(annotation.point);
+        console.log(rect);
+        context.fillRect(rect[0],rect[1],Math.abs(rect[0]-rect[2]),Math.abs(rect[1]-rect[3]));
+      })
+    }
+    }
+  }
+
+  getPDFPoint(clientRect: ClientRect | {left: number, right: number, bottom: number, top: number}){
+    if(this.pdfApplication){
+      const page = this.pdfApplication.pdfViewer._pages[this.page-1];
+      console.log(page)
+      const pageRect : any = page.canvas.getClientRects()[0];
+      let res : [number, number, number, number] = page.viewport.convertToPdfPoint(clientRect.left - pageRect.x, clientRect.top -pageRect.y).concat(page.viewport.convertToPdfPoint(clientRect.right - pageRect.x, clientRect.bottom - pageRect.y));
+      return res;
+  }else{
+    return undefined;
+  }
+  }
+
+
 
   onSelect() {
     const sel: Selection | null = document.getSelection();
@@ -298,24 +346,78 @@ export class FromPdfComponent implements OnInit {
       ) {
         const span = (<Element>sel.focusNode).parentElement;
         // console.log(sel.toString(), span);
-        if (sel.toString() != '' && this.selectionToolTip && span) {
+        if (sel.toString() != '' && this.selectionToolTip && span && span.nodeName == "SPAN") {
+          // span.style.backgroundColor = "red";
           this.selectionToolTip.nativeElement.style.display = 'none';
           const rect = span.getBoundingClientRect();
 
           this.selectionToolTip.nativeElement.style.top = rect.top + 25 + 'px';
           this.selectionToolTip.nativeElement.style.left = rect.left + 'px';
+
+          if(this.pdfApplication){
+            const top = parseFloat(span.style.top);
+            const left = parseFloat(span.style.left);
+            const [pdfX, pdfY] = this.pdfApplication.pdfViewer._pages[this.page-1].viewport.convertToPdfPoint(left,top-rect.height)
+            if(!this.selectionBox){
+              this.selectionBox = {x: pdfX, y: pdfY, absX: left, absY: top-rect.height}
+            }
+            const [pdfX2, pdfY2] = this.pdfApplication.pdfViewer._pages[this.page-1].viewport.convertToPdfPoint(left+rect.width,top+rect.height)
+            console.log(top,left);
           this.selectionTimeout = setTimeout(() => {
             if (this.selectionToolTip) {
               this.selectionToolTip.nativeElement.style.display = 'block';
+              // this.getSelectionPoints()
             }
+
+            // if(this.selectionBox){
+            //   this.annotationFactory?.createHighlightAnnotation(this.page-1,[this.selectionBox.x,this.selectionBox.y,pdfX2,pdfY2],"test name","test author",{r: 96, g: 227, b: 188})
+            //   const newFile = this.annotationFactory?.write();
+            //   if(newFile){
+            //     this.pdfSrc = newFile;
+
+            //   }
+            //   //TODO: find a better way: remember max/min x and y or save spans that are selected (best approach)
+            //     // and figure out their position from there
+            //   // this.pdfCanvContext[this.page].strokeRect(this.selectionBox.absX,this.selectionBox.absY,
+            //   //   left+rect.width-this.selectionBox.absX,
+            //   //   top+rect.height-this.selectionBox.absY
+            //   // );
+            //   this.selectionBox = undefined;
+            // }
           }, 700);
         }
+      }
       }
     }
   }
 
   getSelection() {
     return document.getSelection()?.toString();
+  }
+
+  addHighlightForSelection(color: string = "#45454533"){
+    const selectionRects = document.getSelection()?.getRangeAt(0).getClientRects();
+    if(selectionRects){
+      const annotations = this.annotationForPage.get(this.page) || [];
+
+      for (let i = 0; i < selectionRects.length; i++) {
+        const r = selectionRects.item(i)
+        if(r){
+          const  pdfPoint = this.getPDFPoint(r);
+          if(pdfPoint){
+          annotations.push({id: "TEST", type: 'highlight',color: color, point: pdfPoint});
+
+          var splitHex = color.substring(1).match(/.{1,2}/g);
+          if(!splitHex){
+            splitHex = ["45","45","45"];
+          }
+            this.annotationFactory?.createHighlightAnnotation(this.page-1,[pdfPoint[0],pdfPoint[1],pdfPoint[2],pdfPoint[3]],"test name","test author",{r:  parseInt(splitHex[0], 16), g: parseInt(splitHex[1], 16), b: parseInt(splitHex[2], 16)})
+          }
+        }
+      }
+      this.annotationForPage.set(this.page,annotations);
+      this.drawAnnotationsOnPage(this.page);
+    }
   }
 
   addTextSelectionToCard(color: string | undefined = undefined) {
@@ -380,6 +482,7 @@ export class FromPdfComponent implements OnInit {
     }
   }
   finishCard() {
+    this.annotationFactory?.download();
     if (this.cardCompList) {
       this.cardCompList
         .filter((cc: CardComponent) => cc.active)
@@ -565,6 +668,11 @@ export class FromPdfComponent implements OnInit {
               );
 
               if (this.config.drawOnPdf) {
+                // console.log(this.rect);
+                // const pdfPoints = this.getPDFPoint({left: this.rect.x-this.selCanv.nativeElement.offsetLeft,
+                //   right: this.rect.x+this.rect.width-this.selCanv.nativeElement.offsetLeft,
+                //   top: this.rect.y-this.rect.height-this.selCanv.nativeElement.offsetTop, bottom: this.rect.y-this.selCanv.nativeElement.offsetTop});
+
                 this.pdfCanvContext[this.page].strokeRect(
                   this.rect.x * this.scale -
                     offSetLeft * this.scale +
@@ -575,6 +683,13 @@ export class FromPdfComponent implements OnInit {
                   this.rect.width * this.scale,
                   this.rect.height * this.scale
                 );
+                // if(pdfPoints && this.pdfApplication){
+                //   const page = this.pdfApplication.pdfViewer._pages[this.page];
+                //   const pageRect : any = page.canvas.getClientRects()[0];
+                //   this.pdfCanvContext[this.page].strokeStyle = 'blue';
+                //   console.log(pdfPoints);
+                //   this.pdfCanvContext[this.page].strokeRect(pdfPoints[0],pageRect.height-pdfPoints[1],pdfPoints[2]-pdfPoints[0],pdfPoints[3]-pdfPoints[1])
+                // }
               }
             }
 
