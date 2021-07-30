@@ -21,8 +21,8 @@ import { customAlphabet } from 'nanoid';
 import { DataService } from '../../data.service';
 import { recognize } from 'tesseract.js';
 import { TesseractLanguages } from '../../data/tesseract-languages';
-import {AnnotationFactory} from 'annotpdf';
-
+import { AnnotationFactory } from 'annotpdf';
+import { Annotation } from 'src/app/types/annotation';
 
 @Component({
   selector: 'app-from-pdf',
@@ -30,7 +30,7 @@ import {AnnotationFactory} from 'annotpdf';
   styleUrls: ['./from-pdf.component.scss'],
 })
 export class FromPdfComponent implements OnInit {
-  pdfSrc  : string | Uint8Array= '/assets/pdfs/flashcards_siter_eu.pdf';
+  pdfSrc: string | Uint8Array = '/assets/pdfs/flashcards_siter_eu.pdf';
   numPages = 1;
   page = 1;
 
@@ -71,7 +71,9 @@ export class FromPdfComponent implements OnInit {
 
   public selectionTimeout: NodeJS.Timeout | undefined = undefined;
 
-  public selectionBox : {x: number, y: number, absX: number, absY: number} | undefined = undefined;
+  public selectionBox:
+    | { x: number; y: number; absX: number; absY: number }
+    | undefined = undefined;
   //cards
   public cards: Card[] = [
     {
@@ -109,10 +111,18 @@ export class FromPdfComponent implements OnInit {
 
   @ViewChildren(CardComponent) cardCompList?: QueryList<CardComponent>;
 
+  public annotationFactory?: AnnotationFactory;
 
-  public annotationFactory? : AnnotationFactory;
+  public annotationForPage: Map<number, Annotation[]> = new Map<
+    number,
+    Annotation[]
+  >();
 
-  public annotationForPage: Map<number,{id: string, type: string, color: string ,point: [number,number,number,number]}[]> = new Map<number,{id: string, type: string, color: string ,point: [number,number,number,number]}[]>();
+  public availableAnnotationColors: { hex: string; marker: string }[] = [
+    { hex: '#5eacf97f', marker: 'blue' },
+    { hex: '#5ef98c7f', marker: 'green' },
+    { hex: '#f95ef37f', marker: 'pink' },
+  ];
 
   constructor(public dataService: DataService) {}
   async ngOnInit() {
@@ -194,7 +204,7 @@ export class FromPdfComponent implements OnInit {
       }
     }
     const data = await this.pdfApplication?.pdfDocument.getData();
-    if(!this.annotationFactory){
+    if (!this.annotationFactory) {
       this.annotationFactory = new AnnotationFactory(data);
     }
   }
@@ -299,38 +309,89 @@ export class FromPdfComponent implements OnInit {
     }
   }
 
-  drawAnnotationsOnPage(pageNumber: number){
-    if(this.pdfApplication){
-    const context = this.pdfCanvContext[pageNumber];
-    const page = this.pdfApplication.pdfViewer._pages[pageNumber-1]
+  drawAnnotationsOnPage(pageNumber: number) {
+    if (this.pdfApplication) {
+      const context = this.pdfCanvContext[pageNumber];
+      const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
+      const annotations = this.annotationForPage.get(pageNumber);
 
-    const annotations = this.annotationForPage.get(pageNumber);
-    if(annotations){
-      annotations.forEach((annotation) => {
-        // pageCanvContext.fillRect(highlight[0],highlight[1],10,10);
-        context.fillStyle = annotation.color;
-        const viewport = page.viewport;
-        const rect = viewport.convertToViewportRectangle(annotation.point);
-        console.log(rect);
-        context.fillRect(rect[0],rect[1],Math.abs(rect[0]-rect[2]),Math.abs(rect[1]-rect[3]));
-      })
-    }
+      const viewport = page.viewport;
+      if (annotations) {
+        annotations.forEach((annotation,index) => {
+          context.fillStyle = annotation.color;
+          annotation.points.forEach((point) => {
+            const rect = viewport.convertToViewportRectangle(point);
+            context.fillRect(
+              rect[0],
+              rect[1],
+              Math.abs(rect[0] - rect[2]),
+              Math.abs(rect[1] - rect[3])
+            );
+          });
+
+          const div = document.createElement('div');
+          const bounds = this.getBoundsForAnnotations(annotation);
+          div.setAttribute('style','position: absolute; left:'+(bounds[2]+50)+"px; bottom:"+(bounds[1]+50)+"px; width: 50px; height: 50px; background-color: "+ annotation.color);
+          console.log(page);
+          div.onclick = async (event: any) => {
+            this.annotationForPage.get(pageNumber)?.splice(index);
+            if(this.pdfApplication){
+              const page = await (this.pdfApplication.pdfViewer as any).pdfDocument.getPage(this.page);
+              console.log(page);
+              page.render({canvasContext: context, viewport: viewport});
+              div.remove();
+            }
+          }
+          page.div.appendChild(div);
+        });
+      }
     }
   }
 
-  getPDFPoint(clientRect: ClientRect | {left: number, right: number, bottom: number, top: number}){
-    if(this.pdfApplication){
-      const page = this.pdfApplication.pdfViewer._pages[this.page-1];
-      console.log(page)
-      const pageRect : any = page.canvas.getClientRects()[0];
-      let res : [number, number, number, number] = page.viewport.convertToPdfPoint(clientRect.left - pageRect.x, clientRect.top -pageRect.y).concat(page.viewport.convertToPdfPoint(clientRect.right - pageRect.x, clientRect.bottom - pageRect.y));
+  getBoundsForAnnotations(annotation: Annotation) {
+    if(annotation.points.length < 1){
+      return [0,0,0,0];
+    }else{
+      let [x,y,x2,y2] = annotation.points[0]
+
+      for (let i = 0; i < annotation.points.length; i++) {
+        const point = annotation.points[i];
+        if(point[0] === -0){ continue;}
+        if(point[0] < x) x = point[0];
+        if(point[1] < y) y = point[1];
+        if(point[2] > x2) x2 = point[2];
+        if(point[3] > y2) y2 = point[3];
+      }
+      console.log(annotation, [x,y,x2,y2])
+      return [x,y,x2,y2];
+    }
+  }
+
+  getPDFPoint(
+    clientRect:
+      | ClientRect
+      | { left: number; right: number; bottom: number; top: number }
+  ) {
+    if (this.pdfApplication) {
+      const page = this.pdfApplication.pdfViewer._pages[this.page - 1];
+      console.log(page);
+      const pageRect: any = page.canvas.getClientRects()[0];
+      let res: [number, number, number, number] = page.viewport
+        .convertToPdfPoint(
+          clientRect.left - pageRect.x,
+          clientRect.top - pageRect.y
+        )
+        .concat(
+          page.viewport.convertToPdfPoint(
+            clientRect.right - pageRect.x,
+            clientRect.bottom - pageRect.y
+          )
+        );
       return res;
-  }else{
-    return undefined;
+    } else {
+      return undefined;
+    }
   }
-  }
-
-
 
   onSelect() {
     const sel: Selection | null = document.getSelection();
@@ -346,7 +407,12 @@ export class FromPdfComponent implements OnInit {
       ) {
         const span = (<Element>sel.focusNode).parentElement;
         // console.log(sel.toString(), span);
-        if (sel.toString() != '' && this.selectionToolTip && span && span.nodeName == "SPAN") {
+        if (
+          sel.toString() != '' &&
+          this.selectionToolTip &&
+          span &&
+          span.nodeName == 'SPAN'
+        ) {
           // span.style.backgroundColor = "red";
           this.selectionToolTip.nativeElement.style.display = 'none';
           const rect = span.getBoundingClientRect();
@@ -354,39 +420,48 @@ export class FromPdfComponent implements OnInit {
           this.selectionToolTip.nativeElement.style.top = rect.top + 25 + 'px';
           this.selectionToolTip.nativeElement.style.left = rect.left + 'px';
 
-          if(this.pdfApplication){
+          if (this.pdfApplication) {
             const top = parseFloat(span.style.top);
             const left = parseFloat(span.style.left);
-            const [pdfX, pdfY] = this.pdfApplication.pdfViewer._pages[this.page-1].viewport.convertToPdfPoint(left,top-rect.height)
-            if(!this.selectionBox){
-              this.selectionBox = {x: pdfX, y: pdfY, absX: left, absY: top-rect.height}
+            const [pdfX, pdfY] = this.pdfApplication.pdfViewer._pages[
+              this.page - 1
+            ].viewport.convertToPdfPoint(left, top - rect.height);
+            if (!this.selectionBox) {
+              this.selectionBox = {
+                x: pdfX,
+                y: pdfY,
+                absX: left,
+                absY: top - rect.height,
+              };
             }
-            const [pdfX2, pdfY2] = this.pdfApplication.pdfViewer._pages[this.page-1].viewport.convertToPdfPoint(left+rect.width,top+rect.height)
-            console.log(top,left);
-          this.selectionTimeout = setTimeout(() => {
-            if (this.selectionToolTip) {
-              this.selectionToolTip.nativeElement.style.display = 'block';
-              // this.getSelectionPoints()
-            }
+            const [pdfX2, pdfY2] = this.pdfApplication.pdfViewer._pages[
+              this.page - 1
+            ].viewport.convertToPdfPoint(left + rect.width, top + rect.height);
+            console.log(top, left);
+            this.selectionTimeout = setTimeout(() => {
+              if (this.selectionToolTip) {
+                this.selectionToolTip.nativeElement.style.display = 'block';
+                // this.getSelectionPoints()
+              }
 
-            // if(this.selectionBox){
-            //   this.annotationFactory?.createHighlightAnnotation(this.page-1,[this.selectionBox.x,this.selectionBox.y,pdfX2,pdfY2],"test name","test author",{r: 96, g: 227, b: 188})
-            //   const newFile = this.annotationFactory?.write();
-            //   if(newFile){
-            //     this.pdfSrc = newFile;
+              // if(this.selectionBox){
+              //   this.annotationFactory?.createHighlightAnnotation(this.page-1,[this.selectionBox.x,this.selectionBox.y,pdfX2,pdfY2],"test name","test author",{r: 96, g: 227, b: 188})
+              //   const newFile = this.annotationFactory?.write();
+              //   if(newFile){
+              //     this.pdfSrc = newFile;
 
-            //   }
-            //   //TODO: find a better way: remember max/min x and y or save spans that are selected (best approach)
-            //     // and figure out their position from there
-            //   // this.pdfCanvContext[this.page].strokeRect(this.selectionBox.absX,this.selectionBox.absY,
-            //   //   left+rect.width-this.selectionBox.absX,
-            //   //   top+rect.height-this.selectionBox.absY
-            //   // );
-            //   this.selectionBox = undefined;
-            // }
-          }, 700);
+              //   }
+              //   //TODO: find a better way: remember max/min x and y or save spans that are selected (best approach)
+              //     // and figure out their position from there
+              //   // this.pdfCanvContext[this.page].strokeRect(this.selectionBox.absX,this.selectionBox.absY,
+              //   //   left+rect.width-this.selectionBox.absX,
+              //   //   top+rect.height-this.selectionBox.absY
+              //   // );
+              //   this.selectionBox = undefined;
+              // }
+            }, 700);
+          }
         }
-      }
       }
     }
   }
@@ -395,37 +470,73 @@ export class FromPdfComponent implements OnInit {
     return document.getSelection()?.toString();
   }
 
-  addHighlightForSelection(color: string = "#45454533"){
-    const selectionRects = document.getSelection()?.getRangeAt(0).getClientRects();
-    if(selectionRects){
+  addHighlightForSelection(color: string = '#45454533') {
+    const selectionRects = document
+      .getSelection()
+      ?.getRangeAt(0)
+      .getClientRects();
+    if (selectionRects) {
       const annotations = this.annotationForPage.get(this.page) || [];
-
+      const pdfPoints = [];
       for (let i = 0; i < selectionRects.length; i++) {
-        const r = selectionRects.item(i)
-        if(r){
-          const  pdfPoint = this.getPDFPoint(r);
-          if(pdfPoint){
-          annotations.push({id: "TEST", type: 'highlight',color: color, point: pdfPoint});
-
-          var splitHex = color.substring(1).match(/.{1,2}/g);
-          if(!splitHex){
-            splitHex = ["45","45","45"];
-          }
-            this.annotationFactory?.createHighlightAnnotation(this.page-1,[pdfPoint[0],pdfPoint[1],pdfPoint[2],pdfPoint[3]],"test name","test author",{r:  parseInt(splitHex[0], 16), g: parseInt(splitHex[1], 16), b: parseInt(splitHex[2], 16)})
+        const r = selectionRects.item(i);
+        if (r) {
+          const pdfPoint = this.getPDFPoint(r);
+          if (pdfPoint) {
+            pdfPoints.push(pdfPoint);
+            var splitHex = color.substring(1).match(/.{1,2}/g);
+            if (!splitHex) {
+              splitHex = ['45', '45', '45'];
+            }
+            this.annotationFactory?.createHighlightAnnotation(
+              this.page - 1,
+              pdfPoint,
+              'test name',
+              'test author',
+              {
+                r: parseInt(splitHex[0], 16),
+                g: parseInt(splitHex[1], 16),
+                b: parseInt(splitHex[2], 16),
+              }
+            );
           }
         }
       }
-      this.annotationForPage.set(this.page,annotations);
+      const newAnnotation = {
+        id: 'TEST',
+        type: 'highlight',
+        color: color,
+        points: pdfPoints,
+      };
+      annotations.push(newAnnotation);
+      // var splitHex = color.substring(1).match(/.{1,2}/g);
+      // if (!splitHex) {
+      //   splitHex = ['45', '45', '45'];
+      // }
+      // this.annotationFactory?.createHighlightAnnotation(
+      //   this.page - 1,
+      //   this.getBoundsForAnnotations(newAnnotation),
+      //   'test name',
+      //   'test author',
+      //   {
+      //     r: parseInt(splitHex[0], 16),
+      //     g: parseInt(splitHex[1], 16),
+      //     b: parseInt(splitHex[2], 16),
+      //   }
+      // );
+      console.log(pdfPoints);
+      this.annotationForPage.set(this.page, annotations);
       this.drawAnnotationsOnPage(this.page);
     }
   }
 
   addTextSelectionToCard(color: string | undefined = undefined) {
     let toAdd: string = '';
+    console.log(color);
     if (!color) {
       toAdd = `<p>${this.getSelection()}</p><br/>`;
     } else {
-      toAdd = `<mark class=marker-${color}>${this.getSelection()}</mark><br/>`;
+      toAdd = `<mark class="marker-${color}">${this.getSelection()}</mark><br/>`;
     }
 
     if (this.frontSelected) {

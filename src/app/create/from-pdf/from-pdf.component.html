@@ -129,14 +129,9 @@
         <mat-button-toggle (click)="addHighlightForSelection();addTextSelectionToCard();">
           <mat-icon>text_fields</mat-icon>
         </mat-button-toggle>
-        <mat-button-toggle (click)="addHighlightForSelection('#5eacf95f');addTextSelectionToCard('blue');">
-          <mat-icon color="primary">circle</mat-icon>
-        </mat-button-toggle>
-        <mat-button-toggle (click)="addHighlightForSelection('#5ef98c5f');addTextSelectionToCard('green');">
-          <mat-icon color="accent">circle</mat-icon>
-        </mat-button-toggle>
-        <mat-button-toggle (click)="addHighlightForSelection('#f95ef35f');addTextSelectionToCard('pink');">
-          <mat-icon color="warn">circle</mat-icon>
+
+        <mat-button-toggle *ngFor="let color of availableAnnotationColors" (click)="addHighlightForSelection(color.hex);addTextSelectionToCard(color.marker);">
+          <mat-icon [style]="'color: '+color.hex">circle</mat-icon>
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
