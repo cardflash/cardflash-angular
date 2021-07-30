@@ -23,7 +23,6 @@ import { recognize } from 'tesseract.js';
 import { TesseractLanguages } from '../../data/tesseract-languages';
 import { AnnotationFactory } from 'annotpdf';
 import { Annotation } from 'src/app/types/annotation';
-
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
@@ -310,41 +309,77 @@ export class FromPdfComponent implements OnInit {
   }
 
   drawAnnotationsOnPage(pageNumber: number) {
+      const annotations = this.annotationForPage.get(pageNumber);
+      if (annotations) {
+        annotations.forEach((annotation) => {
+          this.drawAnnotationOnPage(pageNumber,annotation)
+        });
+      }
+  }
+
+  drawAnnotationOnPage(pageNumber: number, annotation: Annotation){
     if (this.pdfApplication) {
       const context = this.pdfCanvContext[pageNumber];
       const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
-      const annotations = this.annotationForPage.get(pageNumber);
-
       const viewport = page.viewport;
-      if (annotations) {
-        annotations.forEach((annotation,index) => {
-          context.fillStyle = annotation.color;
-          annotation.points.forEach((point) => {
-            const rect = viewport.convertToViewportRectangle(point);
-            context.fillRect(
-              rect[0],
-              rect[1],
-              Math.abs(rect[0] - rect[2]),
-              Math.abs(rect[1] - rect[3])
-            );
-          });
+      
+    context.fillStyle = annotation.color;
+    annotation.points.forEach((point) => {
+      const rect = viewport.convertToViewportRectangle(point);
+      context.fillRect(
+        rect[0],
+        rect[1],
+        Math.abs(rect[0] - rect[2]),
+        Math.abs(rect[1] - rect[3])
+      );
+    });
 
-          const div = document.createElement('div');
-          const bounds = this.getBoundsForAnnotations(annotation);
-          div.setAttribute('style','position: absolute; left:'+(bounds[2]+50)+"px; bottom:"+(bounds[1]+50)+"px; width: 50px; height: 50px; background-color: "+ annotation.color);
-          console.log(page);
-          div.onclick = async (event: any) => {
-            this.annotationForPage.get(pageNumber)?.splice(index);
-            if(this.pdfApplication){
-              const page = await (this.pdfApplication.pdfViewer as any).pdfDocument.getPage(this.page);
-              console.log(page);
-              page.render({canvasContext: context, viewport: viewport});
-              div.remove();
-            }
-          }
-          page.div.appendChild(div);
-        });
-      }
+    this.removeDivWithID(annotation.id);
+    const div = document.createElement('div');
+    const bounds = this.getBoundsForAnnotations(annotation);
+    const rect = viewport.convertToViewportRectangle(bounds);
+    // context.fillStyle = "red";
+    // context.fillRect(
+    //   rect[0]+(Math.abs(rect[0]-rect[2])/2),
+    //   Math.min(rect[1],rect[3]),
+    //   10,
+    //   10
+    // );
+    div.setAttribute('id',"DIV_"+annotation.id)
+    div.setAttribute('style','position: absolute; left:'+(Math.min(rect[0],rect[2])-15)+"px; top:"+(Math.min(rect[1],rect[3])-15)+"px; width: 15px; height: 15px; background-image: url('/assets/delete.svg'); opacity: 0.7;");
+    console.log(page);
+    div.onclick = async (event: any) => {
+      this.deleteAnnotation(pageNumber, annotation.id);
+    }
+    page.div.appendChild(div);
+  }
+  }
+
+  async deleteAnnotation(pageNumber: number, id: string){
+    const filteredAnnot = this.annotationForPage.get(pageNumber)?.filter((annot) => annot.id !== id);
+    if(filteredAnnot){
+      this.annotationForPage.set(pageNumber,filteredAnnot);
+    }
+    if(this.pdfApplication){
+      const context = this.pdfCanvContext[pageNumber];
+      const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
+      const viewport = page.viewport;
+
+      const pageRef = await (this.pdfApplication.pdfViewer as any).pdfDocument.getPage(this.page);
+      console.log(pageRef);
+      const renderRes = await pageRef.render({canvasContext: context, viewport: viewport});
+      console.log("rendered", renderRes);
+      this.removeDivWithID(id);
+      setTimeout(() =>{
+        this.drawAnnotationsOnPage(pageNumber);
+      },100)
+    }
+  }
+
+  removeDivWithID(id: string){
+    const div = document.querySelector('#DIV_'+id);
+    if(div){
+      div.parentNode?.removeChild(div);
     }
   }
 
@@ -503,7 +538,7 @@ export class FromPdfComponent implements OnInit {
         }
       }
       const newAnnotation = {
-        id: 'TEST',
+        id: this.nanoid(),
         type: 'highlight',
         color: color,
         points: pdfPoints,
@@ -526,7 +561,7 @@ export class FromPdfComponent implements OnInit {
       // );
       console.log(pdfPoints);
       this.annotationForPage.set(this.page, annotations);
-      this.drawAnnotationsOnPage(this.page);
+      this.drawAnnotationOnPage(this.page,newAnnotation);
     }
   }
 
