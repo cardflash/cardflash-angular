@@ -25,7 +25,7 @@
         <div
           #annotationHelperFront
           class="annotationHelper"
-          *ngFor="let annotation of this.card.annotations"
+          *ngFor="let annotation of this.annotations"
           [id]="'ANNHEL_' + annotation.id"
         >
           <button
@@ -59,7 +59,7 @@
         <div
         #annotationHelperBack
         class="annotationHelper"
-        *ngFor="let annotation of this.card.annotations"
+        *ngFor="let annotation of this.annotations"
       >
         <button
           mat-mini-fab
@@ -125,7 +125,7 @@
         <div>
           <h4>Annotations</h4>
           <div
-            *ngFor="let annotation of this.card.annotations"
+            *ngFor="let annotation of this.annotations"
             class="annotationDiv"
           >
             <button

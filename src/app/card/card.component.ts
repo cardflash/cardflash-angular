@@ -52,6 +52,8 @@ export class CardComponent implements OnInit, AfterViewInit {
     back: '',
     hiddenText: '',
   };
+
+  public annotations: Annotation[] = [];
   @Output('cardChange') cardChange: EventEmitter<Card> =
     new EventEmitter<Card>();
 
@@ -219,7 +221,10 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
-
+    this.annotations = []
+    this.card.annotations?.forEach((annot) => {
+      this.annotations.push(JSON.parse(annot));
+    })
     if (this.card.imgs) {
       // const serverNamingFunc = (i : number) => this.dataService.getFileView(this.card.imgs![i]).href;
       // let newFrontContent = this.replaceImageLinks(this.card.front,this.card.imgs,serverNamingFunc);
@@ -248,7 +253,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   const backSourceEl: HTMLElement =
     this.backEditorComponent.editorInstance.sourceElement;
 
-    this.card.annotations?.forEach((annotation,index) => {
+    this.annotations?.forEach((annotation,index) => {
       const frontEl = frontSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
       const backEl = backSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
       let rect;

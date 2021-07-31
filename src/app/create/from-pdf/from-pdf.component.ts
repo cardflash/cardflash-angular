@@ -25,8 +25,11 @@ import { recognize } from 'tesseract.js';
 import { TesseractLanguages } from '../../data/tesseract-languages';
 import { AnnotationFactory } from 'annotpdf';
 import { Annotation } from 'src/app/types/annotation';
-import {  Router } from '@angular/router';
+import {  ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { PDFDocument } from 'src/app/types/pdf-document';
+import { HttpClient } from '@angular/common/http';
+import { CardService } from 'src/app/card/card.service';
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
@@ -128,12 +131,61 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
 
-  constructor(public dataService: DataService, private router: Router) {}
+  public documentid: string | undefined;
+  public document: PDFDocument | undefined;
+  constructor(public dataService: DataService, private router: Router, private actRoute: ActivatedRoute, private http: HttpClient, private cardService: CardService) {
+    this.documentid = actRoute.snapshot.params.id;
+  }
   async ngOnInit() {
-    this.dataService.init().then(() => {
+    this.dataService.init().then(async () => {
       if (this.dataService.prefs['config']) {
         this.config = this.dataService.prefs['config'];
       }
+      if(this.documentid){
+        const docs = await this.dataService.fetchOnlineCollection('documents');
+        if(docs){
+          this.document = docs.get(this.documentid);
+          if(this.document){
+            this.pdfSrc = '';
+            if(this.document.cards){
+              this.document.cards.forEach((cardID) => {
+                const card = this.cardService.cards$.value.get(cardID)
+                console.log(card);
+                if(card){
+                  this.cards.push(card);
+                }
+              })
+            }
+
+
+          const src = this.dataService.getFileView(this.document?.fileid).href;
+          this.http.get(src,{withCredentials: true, responseType: 'blob'}).toPromise().then((res : any) => {
+            this.pdfSrc = res;
+            if(this.document && this.document.annotations){
+              for (let i = 0; i < this.document.annotations.length; i++) {
+                const annotJSON = this.document.annotations[i];
+                let annot : Annotation = JSON.parse(annotJSON);
+                if(this.annotationForPage.has(annot.page)){
+                  const forPage =  this.annotationForPage.get(annot.page);
+                  forPage!.push(annot)
+                }else{
+                  this.annotationForPage.set(annot.page,[annot]);
+                  
+                }
+              }  
+              
+              setTimeout(() =>{
+                const pages = Array.from(this.annotationForPage.keys());
+                pages.forEach((page)=> {
+                  this.drawAnnotationsOnPage(page);
+                })
+              },1000)
+          }
+          })
+          }
+        }
+      }
+      
     });
   }
 
@@ -178,7 +230,11 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async loadComplete(e: PagesLoadedEvent) {
     this.numPages = e.pagesCount;
-    this.page = 1;
+    if(this.document){
+      this.page = this.document.currentPage;
+    }else{
+      this.page = 1;
+    }
     this.pdfApplication = (window as any).PDFViewerApplication;
     this.titleOptions = [this.title];
     this.title = '';
@@ -415,8 +471,11 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       this.annotationForPage.set(pageNumber, filteredAnnot);
     }
     this.cards.forEach((card) => {
-      card.annotations = card.annotations?.filter((annot) => annot.id !== id);
+      card.annotations = card.annotations?.filter((annot) => JSON.parse(annot).id !== id);
+      this.cardService.updateCard(card);
     });
+
+    this.saveDocument();
 
     if (this.pdfApplication) {
       const context = this.pdfCanvContext[pageNumber];
@@ -507,10 +566,12 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     if (sel && sel.focusNode) {
       if (
         (<Element>sel.focusNode).parentElement?.parentElement?.className ==
+        'textLayer' || (<Element>sel.focusNode).parentElement?.parentElement?.parentElement?.className ==
         'textLayer'
       ) {
         const span = (<Element>sel.focusNode).parentElement;
         // console.log(sel.toString(), span);
+        
         if (
           sel.toString() != '' &&
           this.selectionTools &&
@@ -593,16 +654,18 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         points: pdfPoints,
         page: this.page,
       };
-      if (this.cards[this.currIndex].annotations) {
-        this.cards[this.currIndex].annotations?.push(newAnnotation);
+      const currCard = this.cards[this.currIndex];
+      if (currCard.annotations) {
+        currCard.annotations.push(JSON.stringify(newAnnotation))
       } else {
-        this.cards[this.currIndex].annotations = [newAnnotation];
+        currCard.annotations = [JSON.stringify(newAnnotation)];
       }
 
       annotations.push(newAnnotation);
       this.annotationForPage.set(this.page, annotations);
       this.drawAnnotationOnPage(this.page, newAnnotation);
       this.addTextSelectionToCard(color.marker, newAnnotation.id);
+      this.saveDocument();
     }
   }
 
@@ -698,6 +761,15 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         .forEach((cc: CardComponent) => {
           if (this.config.autoAddServer) {
             cc.saveToServer();
+            if(this.document  && cc.card.localID){
+              if(this.document.cards){
+                this.document.cards.push(cc.card.localID)
+              }else{
+                this.document.cards = [cc.card.localID];
+              }
+              this.saveDocument();
+              
+            }
           }
           if (this.config.autoAddAnki) {
             cc.save(true);
@@ -977,16 +1049,8 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   textLayerRendered(e: any) {
-    let strings: string[] = e.source.textContentItemsStr;
+    // let strings: string[] = e.source.textContentItemsStr;
     this.textDivs[e.pageNumber] = e.source.textDivs;
-    console.log(e);
-    // for (let i = 0; i < strings.length; i++) {
-    //   let s = strings[i];
-    //   if(this.regex.test(s)){
-    //     this.getCanvas();
-    //   }
-
-    // }
   }
 
   async addSelection(text: string = '') {
@@ -1082,6 +1146,10 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         this.currIndex = 0;
       }
     }
+    if(this.document){
+      this.document.cards =  this.document.cards?.filter((cardID) => cardID !== id);
+      this.saveDocument();
+    }
   }
   getCardId(index: number, card: Card) {
     return card.localID;
@@ -1125,5 +1193,21 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     // }).catch((err) => {
     //   console.log("Error saveConfig ",err);
     // })
+  }
+
+  async saveDocument(){
+    if(this.document){
+      this.document.currentPage = this.page;
+      this.annotationForPage.entries
+      const annotations = Array.from(this.annotationForPage.values());
+      const flatAnnotations : Annotation[] = [];
+      for (let i = 0; i < annotations.length; i++) {
+        const annots = annotations[i];
+        flatAnnotations.push(...annots)
+      }
+      const jsonAnnot = flatAnnotations.map((annot) => JSON.stringify(annot))
+      this.document.annotations = jsonAnnot;
+      this.dataService.updateDocumentOnline('documents',this.document)
+    }
   }
 }

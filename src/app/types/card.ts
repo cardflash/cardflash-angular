@@ -13,5 +13,5 @@ export interface Card{
     imgsLocal?: string[],
     $id?: string,
     creationTime? : number,
-    annotations?: Annotation[]
+    annotations?: string[]
 }

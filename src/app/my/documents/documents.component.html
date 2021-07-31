@@ -1,0 +1,45 @@
+<div class="main">
+
+  <h1>Your documents</h1>
+  <div *ngIf="this.documentsCollection.size < 1">
+    <h2 >You currently have no documents stored online.</h2>
+  </div>
+  
+  <div class="documents">
+    <div class="document">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            Upload new
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <input type="file"  accept=".pdf" #fileInput>
+          <br />
+          <button mat-raised-button (click)="uploadDocument()">Upload</button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  <div class="document" *ngFor="let doc of documentsCollection | keyvalue: creationTimeOrder">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          {{doc.value.name}}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{doc.value.creationTime | date}}
+        </mat-card-subtitle>
+        <img mat-card-avatar [src]="this.dataService.getFilePreview(doc.value.fileid)">
+      </mat-card-header>
+      <mat-card-content>
+
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button color="primary" routerLink="/create/from-document/{{doc.value.localID}}">Create cards</button>
+      </mat-card-actions>
+    </mat-card>
+
+ 
+  </div>
+  </div>
+  </div>

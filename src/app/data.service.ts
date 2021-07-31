@@ -136,22 +136,27 @@ export class DataService {
         return JSON.stringify(obj);
       }
 
-    async createDocumentOnline(collectionName: string, data: any, localID: string, notifyOnSuccess : boolean = false) : Promise<string>{
+    async createDocumentOnline(collectionName: string, data: any, localID?: string, notifyOnSuccess : boolean = false) : Promise<string>{
       const apiProm =  this.appwrite.database.createDocument(environment.collectionMap[collectionName],data);
       const apiRes = await this.userNotifierService.notifyForPromiseFlag(apiProm, "(Online) " + collectionName +  " creation",notifyOnSuccess);
       let ID = null;
+      if(localID){
       if(apiRes.success){
+
         ID = apiRes.result.$id;
         data['$id'] = ID;
         const collection = await this.getCollectionFromStorage(collectionName);
         collection.set(localID,data);
         await this.saveCollectionToStorage(collectionName,collection);
+    
       }else{
         this.failedRequests.push({ID: nanoid(), time: Date.now(),type: 'create', dataLocalID: localID, data: data, collectionName: collectionName});
         this.saveFailedRequests();
       }
+    }
       return ID;
       }
+
     
       async updateDocumentOnline(collectionName: string, data : {$id?: string, localID: string}, notifyOnSuccess : boolean = false) : Promise<boolean>{
         if(data.$id){
@@ -242,7 +247,6 @@ export class DataService {
         }
 
   async fetchOnlineCollection(collectionName: string){
-    if(!this.offlineMode){
         let prom = this.appwrite.database.listDocuments(environment.collectionMap[collectionName],[],100,0);
         const list = await this.userNotifierService.notifyOnPromiseReject(prom,"(Online) Fetching "+collectionName);
         let documents : any[] = [].concat(list.result.documents);
@@ -257,14 +261,18 @@ export class DataService {
           offset += res.result.documents.length;
         }
       }
-        let collection = await this.getCollectionFromStorage(collectionName);
-        // collection.clear();
-        documents.forEach((doc) => {
-          collection.set(doc.localID,doc);
-        })
-        this.saveCollectionToStorage(collectionName,collection);
+
+      let collection = await this.getCollectionFromStorage(collectionName);
+      // collection.clear();
+      let serverCollection: Map<string,any> =  new Map<string,any>();
+      documents.forEach((doc) => {
+        serverCollection.set(doc.localID,doc);
+        collection.set(doc.localID,doc);
+      })
+      this.saveCollectionToStorage(collectionName,collection);
+        return serverCollection;
     }
-  }
+
 
   async fetchCollection(collectionName: string){
     console.log("Fetching " + collectionName);
@@ -284,11 +292,11 @@ export class DataService {
     this.saveCollectionToStorage(collectionName,collection);
   }
 
-  async deleteDocumentOnline(collectionName : string, $id : string, data : {localID: string}){
+  async deleteDocumentOnline(collectionName : string, $id : string | undefined, data : {localID?: string}){
     if($id){
       const prom = this.appwrite.database.deleteDocument(environment.collectionMap[collectionName],$id);
       const res = await this.userNotifierService.notifyOnPromiseReject(prom,collectionName + " Deletion");
-      if(!res.success){
+      if(!res.success && data.localID){
         this.failedRequests.push({time: Date.now(), ID: nanoid(), type: "delete", collectionName: collectionName, dataLocalID: data.localID, data: data});
       }
     }
@@ -448,9 +456,21 @@ export class DataService {
       return "";
     }
   }
+  async uploadFile(file: File): Promise<string>{
+    const prom = this.appwrite.storage.createFile(file);
+    const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Uploading File");
+    if(res.success){
+      return res.result.$id;
+    }else{
+      return "";
+    }
+  }
 
   getFileView(fileid: string){
     return this.appwrite.storage.getFileView(fileid);
+  }
+  getFilePreview(filedid: string){
+    return this.appwrite.storage.getFilePreview(filedid,100,100);
   }
 
   getFile(fileid: string){

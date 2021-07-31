@@ -35,12 +35,12 @@ export class CardService {
 
 
   async addCard(card: Card){
-    await this.dataService.createDocument('cards', card);
+    await this.dataService.createDocumentOnline('cards', card);
     this.refresh();
   }
 
   async updateCard(card: Card){
-    await this.dataService.updateDocument('cards', card);
+    await this.dataService.updateDocumentOnline('cards', card);
     this.refresh();
   }
 
@@ -50,14 +50,17 @@ export class CardService {
         const imgSuccess = await this.dataService.deleteImage(card.imgs[i]);
       }
     }
-    await this.dataService.deleteDocument('cards',card);
+    await this.dataService.deleteDocumentOnline('cards',card.$id,card);
     this.refresh();
   }
 
   async refresh(){
-    const cards = await this.dataService.fetchCollection('cards');
-    cards.forEach((card) => this.replaceImageLinksForCard(card));
-    this.cards$.next(cards);
+    const cards = await this.dataService.fetchOnlineCollection('cards');
+    if(cards){
+      cards.forEach((card) => this.replaceImageLinksForCard(card));
+      this.cards$.next(cards);
+    }
+
   }
 
 }

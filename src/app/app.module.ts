@@ -29,6 +29,8 @@ import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
 import { CardsComponent } from './cards/cards.component'; 
 import {MatSidenavModule} from '@angular/material/sidenav'; 
 import {MatTabsModule} from '@angular/material/tabs';
+import { DocumentsComponent } from './my/documents/documents.component';
+import { MatCardModule } from '@angular/material/card';
 @NgModule({
   declarations: [
     AppComponent,
@@ -36,6 +38,7 @@ import {MatTabsModule} from '@angular/material/tabs';
     LoginComponent,
     FromPdfComponent,
     CardsComponent,
+    DocumentsComponent,
   ],
   imports: [
     BrowserModule,
@@ -58,6 +61,7 @@ import {MatTabsModule} from '@angular/material/tabs';
     MatAutocompleteModule,
     MatSidenavModule,
     MatTabsModule,
+    MatCardModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'

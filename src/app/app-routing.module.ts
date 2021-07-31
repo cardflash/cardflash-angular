@@ -4,6 +4,7 @@ import { LoginComponent } from './account/login/login.component';
 import { EditCardComponent } from './card/edit-card/edit-card.component';
 import { CardsComponent } from './cards/cards.component';
 import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
+import { DocumentsComponent } from './my/documents/documents.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/cards', pathMatch: 'full' },
@@ -23,6 +24,14 @@ const routes: Routes = [
     path: 'cards/:id',
     component: EditCardComponent,
   },
+  {
+    path: 'documents',
+    component: DocumentsComponent
+  },
+  {
+    path: 'create/from-document/:id',
+    component: FromPdfComponent
+  }
 ];
 
 const routerOptions: ExtraOptions = {

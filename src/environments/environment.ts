@@ -9,7 +9,7 @@ export const environment = {
   BASE_URL: 'http://localhost:4200',
   MIN_PW_LENGTH: 6,
   MAX_PW_LENGTH: 32,
-  collectionMap: {'cards': '60fbdf8f6f4ee'}  as any,
+  collectionMap: {'cards': '60fbdf8f6f4ee', documents: '610584c85ac26'}  as any,
   dataVersion: '1.0',
   ANNOTATION_DEL_PREFIX: 'fc-DELDIV_',
   ANNOTATION_JMP_PREFIX: 'fc-JMPDIV_',
