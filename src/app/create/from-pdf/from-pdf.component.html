@@ -124,14 +124,22 @@
     (contextmenu)="mouseDown($event)"
   ></canvas>
 
-    <div id="selectionToolTip" #selectionToolTip *ngIf="getSelection()">
+    <div id="selectionTools" #selectionTools *ngIf="getSelection()">
+      <mat-button-toggle-group>
+        <mat-button-toggle [checked]="this.frontSelected" (change)="this.frontSelected = true">
+          Front <mat-icon>flip_to_front</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle [checked]="!this.frontSelected" (change)="this.frontSelected = false">
+          Back <mat-icon>flip_to_back</mat-icon>
+        </mat-button-toggle>
+        </mat-button-toggle-group>
+        <br />
       <mat-button-toggle-group>
         <mat-button-toggle (click)="addHighlightForSelection();addTextSelectionToCard();">
           <mat-icon>text_fields</mat-icon>
         </mat-button-toggle>
-
         <mat-button-toggle *ngFor="let color of availableAnnotationColors" (click)="addHighlightForSelection(color.hex);addTextSelectionToCard(color.marker);">
-          <mat-icon [style]="'color: '+color.hex">circle</mat-icon>
+          <mat-icon [style]="'color: '+color.hex.substr(0,7)+'90'">circle</mat-icon>
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>

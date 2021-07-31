@@ -65,8 +65,8 @@ export class FromPdfComponent implements OnInit {
   @ViewChild('downloadAnchor')
   private downloadAnchor?: ElementRef<HTMLAnchorElement>;
 
-  @ViewChild('selectionToolTip')
-  private selectionToolTip?: ElementRef<HTMLDivElement>;
+  @ViewChild('selectionTools')
+  private selectionTools?: ElementRef<HTMLDivElement>;
 
   public selectionTimeout: NodeJS.Timeout | undefined = undefined;
 
@@ -118,9 +118,10 @@ export class FromPdfComponent implements OnInit {
   >();
 
   public availableAnnotationColors: { hex: string; marker: string }[] = [
-    { hex: '#5eacf97f', marker: 'blue' },
-    { hex: '#5ef98c7f', marker: 'green' },
-    { hex: '#f95ef37f', marker: 'pink' },
+    { hex: '#f3ea504f', marker: 'marker-light-yellow'},
+    { hex: '#5eacf94f', marker: 'marker-light-blue' },
+    { hex: '#5ef98c4f', marker: 'marker-light-green' },
+    { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
 
   constructor(public dataService: DataService) {}
@@ -444,60 +445,29 @@ export class FromPdfComponent implements OnInit {
         // console.log(sel.toString(), span);
         if (
           sel.toString() != '' &&
-          this.selectionToolTip &&
+          this.selectionTools &&
           span &&
-          span.nodeName == 'SPAN'
+          span.nodeName == 'SPAN' &&
+          this.pdfApplication
         ) {
           // span.style.backgroundColor = "red";
-          this.selectionToolTip.nativeElement.style.display = 'none';
-          const rect = span.getBoundingClientRect();
+          this.selectionTools.nativeElement.style.display = 'none';
 
-          this.selectionToolTip.nativeElement.style.top = rect.top + 25 + 'px';
-          this.selectionToolTip.nativeElement.style.left = rect.left + 'px';
-
-          if (this.pdfApplication) {
-            const top = parseFloat(span.style.top);
-            const left = parseFloat(span.style.left);
-            const [pdfX, pdfY] = this.pdfApplication.pdfViewer._pages[
-              this.page - 1
-            ].viewport.convertToPdfPoint(left, top - rect.height);
-            if (!this.selectionBox) {
-              this.selectionBox = {
-                x: pdfX,
-                y: pdfY,
-                absX: left,
-                absY: top - rect.height,
-              };
-            }
-            const [pdfX2, pdfY2] = this.pdfApplication.pdfViewer._pages[
-              this.page - 1
-            ].viewport.convertToPdfPoint(left + rect.width, top + rect.height);
-            console.log(top, left);
+          const page = this.pdfApplication.pdfViewer._pages[
+            this.page - 1
+          ];
             this.selectionTimeout = setTimeout(() => {
-              if (this.selectionToolTip) {
-                this.selectionToolTip.nativeElement.style.display = 'block';
-                // this.getSelectionPoints()
+              if (this.selectionTools) {
+                const bounds = this.calcBoundsOfSelection();
+                if(bounds){
+                  this.selectionTools.nativeElement.style.display = 'block';
+                  this.selectionTools.nativeElement.style.top = (bounds.top - 110) + 'px';
+                  this.selectionTools.nativeElement.style.left = (bounds.left) + 'px';
+                }
               }
-
-              // if(this.selectionBox){
-              //   this.annotationFactory?.createHighlightAnnotation(this.page-1,[this.selectionBox.x,this.selectionBox.y,pdfX2,pdfY2],"test name","test author",{r: 96, g: 227, b: 188})
-              //   const newFile = this.annotationFactory?.write();
-              //   if(newFile){
-              //     this.pdfSrc = newFile;
-
-              //   }
-              //   //TODO: find a better way: remember max/min x and y or save spans that are selected (best approach)
-              //     // and figure out their position from there
-              //   // this.pdfCanvContext[this.page].strokeRect(this.selectionBox.absX,this.selectionBox.absY,
-              //   //   left+rect.width-this.selectionBox.absX,
-              //   //   top+rect.height-this.selectionBox.absY
-              //   // );
-              //   this.selectionBox = undefined;
-              // }
             }, 700);
           }
         }
-      }
     }
   }
 
@@ -505,6 +475,13 @@ export class FromPdfComponent implements OnInit {
     return document.getSelection()?.toString();
   }
 
+  calcBoundsOfSelection() : DOMRect | undefined{
+    const rect = document
+    .getSelection()
+    ?.getRangeAt(0)
+    .getBoundingClientRect();
+  return rect; 
+}
   addHighlightForSelection(color: string = '#45454533') {
     const selectionRects = document
       .getSelection()
@@ -565,13 +542,13 @@ export class FromPdfComponent implements OnInit {
     }
   }
 
-  addTextSelectionToCard(color: string | undefined = undefined) {
+  addTextSelectionToCard(marker: string | undefined = undefined) {
     let toAdd: string = '';
-    console.log(color);
-    if (!color) {
+    console.log(marker);
+    if (!marker) {
       toAdd = `<p>${this.getSelection()}</p><br/>`;
     } else {
-      toAdd = `<mark class="marker-${color}">${this.getSelection()}</mark><br/>`;
+      toAdd = `<mark id="test" class="${marker}">${this.getSelection()}</mark><br/>`;
     }
 
     if (this.frontSelected) {

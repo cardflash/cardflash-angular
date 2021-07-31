@@ -29,6 +29,11 @@
     --ck-image-style-spacing: 1.5em;
     --ck-inline-image-style-spacing: calc(var(--ck-image-style-spacing) / 2);
     --ck-todo-list-checkmark-size: 16px;
+
+    --ck-highlight-marker-light-yellow: #f3ea504f;
+	--ck-highlight-marker-light-blue: #5eacf94f;
+	--ck-highlight-marker-light-green: #5ef98c4f;
+	--ck-highlight-marker-light-pink: #f95ef34f;
 }
 
 /* ckeditor5-font/theme/fontsize.css */
@@ -47,6 +52,29 @@
 .ck-content .text-huge {
     font-size: 1.8em;
 }
+
+/* ckeditor5-highlight/theme/highlight.css */
+.ck-content .marker-light-yellow {
+    background-color: var(--ck-highlight-marker-light-yellow);
+}
+
+/* ckeditor5-highlight/theme/highlight.css */
+.ck-content .marker-light-blue {
+    background-color: var(--ck-highlight-marker-light-blue);
+}
+
+
+/* ckeditor5-highlight/theme/highlight.css */
+.ck-content .marker-light-green {
+    background-color: var(--ck-highlight-marker-light-green);
+}
+
+
+/* ckeditor5-highlight/theme/highlight.css */
+.ck-content .marker-light-pink {
+    background-color: var(--ck-highlight-marker-light-pink);
+}
+
 /* ckeditor5-highlight/theme/highlight.css */
 .ck-content .marker-yellow {
     background-color: var(--ck-highlight-marker-yellow);
@@ -73,6 +101,7 @@
     color: var(--ck-highlight-pen-green);
     background-color: transparent;
 }
+
 /* ckeditor5-image/theme/image.css */
 .ck-content .image {
     display: table;

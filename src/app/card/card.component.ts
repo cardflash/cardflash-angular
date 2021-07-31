@@ -51,7 +51,7 @@ export class CardComponent implements OnInit {
 
   @Input('alreadyOnServer') alreadyOnServer: boolean = false;
 
-  private readonly MODEL_VERSION: string = '2.1b';
+  private readonly MODEL_VERSION: string = '2.1c';
 
   constructor(
     private http: HttpClient,
@@ -61,15 +61,93 @@ export class CardComponent implements OnInit {
   ) {}
 
   public readonly EDITOR_CONFIG = {
-					
+    highlight: {
+      options: [
+        {
+          model: 'yellowMarker',
+          class: 'marker-yellow',
+          title: 'Yellow marker',
+          color: 'var(--ck-highlight-marker-yellow)',
+          type: 'marker',
+        },
+        {
+          model: 'greenMarker',
+          class: 'marker-green',
+          title: 'Green marker',
+          color: 'var(--ck-highlight-marker-green)',
+          type: 'marker',
+        },
+        {
+          model: 'pinkMarker',
+          class: 'marker-pink',
+          title: 'Pink marker',
+          color: 'var(--ck-highlight-marker-pink)',
+          type: 'marker',
+        },
+        {
+          model: 'blueMarker',
+          class: 'marker-blue',
+          title: 'Blue marker',
+          color: 'var(--ck-highlight-marker-blue)',
+          type: 'marker',
+        },
+        {
+          model: 'lightYellowMarker',
+          class: 'marker-light-yellow',
+          title: 'Light yellow marker',
+          color: '#fef8934f',
+          type: 'marker',
+        },
+        {
+          model: 'lightBlueMarker',
+          class: 'marker-light-blue',
+          title: 'Light blue marker',
+          color: '#5eacf94f',
+          type: 'marker',
+        },
+        {
+          model: 'lightGreenMarker',
+          class: 'marker-light-green',
+          title: 'Light green marker',
+          color: '#5ef98c4f',
+          type: 'marker',
+        },
+        {
+          model: 'lightPinkMarker',
+          class: 'marker-light-pink',
+          title: 'Light pink marker',
+          color: '#f95ef34f',
+          type: 'marker',
+        },
+        {
+          model: 'redPen',
+          class: 'pen-red',
+          title: 'Red pen',
+          color: 'var(--ck-highlight-pen-red)',
+          type: 'pen',
+        },
+        {
+          model: 'greenPen',
+          class: 'pen-green',
+          title: 'Green pen',
+          color: 'var(--ck-highlight-pen-green)',
+          type: 'pen',
+        },
+      ],
+    },
+    htmlSupport: {
+      allow: [
+        // Enables all HTML features.
+        {
+          name: /.*/,
+          attributes: true,
+          classes: true,
+          styles: true,
+        },
+      ],
+    },
     toolbar: {
-      items: [
-        'bold',
-        'italic',
-        'highlight',
-        'underline',
-        'strikethrough'
-      ]
+      items: ['bold', 'italic', 'highlight', 'underline', 'strikethrough'],
     },
     language: 'en',
     blockToolbar: [
@@ -97,7 +175,7 @@ export class CardComponent implements OnInit {
       'htmlEmbed',
       'sourceEditing',
       'undo',
-      'redo'
+      'redo',
     ],
     image: {
       toolbar: [
@@ -105,8 +183,8 @@ export class CardComponent implements OnInit {
         'imageStyle:inline',
         'imageStyle:block',
         'imageStyle:side',
-        'linkImage'
-      ]
+        'linkImage',
+      ],
     },
     table: {
       contentToolbar: [
@@ -114,18 +192,14 @@ export class CardComponent implements OnInit {
         'tableRow',
         'mergeTableCells',
         'tableCellProperties',
-        'tableProperties'
-      ]
+        'tableProperties',
+      ],
     },
-      licenseKey: '',
-      
-      
-      
-    };
-
+    licenseKey: '',
+  };
 
   ngOnInit(): void {
-    if(!this.card.creationTime){
+    if (!this.card.creationTime) {
       this.card.creationTime = Date.now();
     }
     this.FrontEditor = CustomBalloonEditor;
@@ -203,27 +277,35 @@ export class CardComponent implements OnInit {
         action: 'findNotes',
         version: 6,
         params: {
-          query: "ID:"+this.card.localID
+          query: 'ID:' + this.card.localID,
         },
       };
       const exProm = this.makeHttpRequest(exReq);
-      const exRes = await this.userNotifierService.notifyOnPromiseReject(exProm,"Getting note info");
+      const exRes = await this.userNotifierService.notifyOnPromiseReject(
+        exProm,
+        'Getting note info'
+      );
       console.log(exRes);
-      const alreadyOnAnki = exRes.success && !exRes.result.error && exRes.result.result.length > 0;
+      const alreadyOnAnki =
+        exRes.success && !exRes.result.error && exRes.result.result.length > 0;
       let ankiID = 0;
-      if(alreadyOnAnki){
-          ankiID = exRes.result.result[0];
+      if (alreadyOnAnki) {
+        ankiID = exRes.result.result[0];
       }
-      console.log(alreadyOnAnki)
-      if(this.card.imgs){
-        for(let i = 0; i < this.card.imgs.length; i++){
+      console.log(alreadyOnAnki);
+      if (this.card.imgs) {
+        for (let i = 0; i < this.card.imgs.length; i++) {
           const src = this.dataService.getFileView(this.card.imgs[i]);
-          const dataURL = await imgSrcToDataURL(src.href,"image/png","use-credentials");
+          const dataURL = await imgSrcToDataURL(
+            src.href,
+            'image/png',
+            'use-credentials'
+          );
           let imgReq = {
             action: 'storeMediaFile',
             version: 6,
             params: {
-              filename: this.card.localID + '-' + i+"_SERVER" + '.png',
+              filename: this.card.localID + '-' + i + '_SERVER' + '.png',
               data: dataURL.substring(22),
             },
           };
@@ -235,9 +317,15 @@ export class CardComponent implements OnInit {
           );
           if (!imgRes.success || imgRes.result.error) {
             return;
-          }else{
-            newBackContent = newBackContent.replace(src.href,this.card.localID + '-' + i+"_SERVER" + '.png');
-            newFrontContent = newFrontContent.replace(src.href,this.card.localID + '-' + i+"_SERVER" + '.png');
+          } else {
+            newBackContent = newBackContent.replace(
+              src.href,
+              this.card.localID + '-' + i + '_SERVER' + '.png'
+            );
+            newFrontContent = newFrontContent.replace(
+              src.href,
+              this.card.localID + '-' + i + '_SERVER' + '.png'
+            );
           }
         }
       }
@@ -246,15 +334,14 @@ export class CardComponent implements OnInit {
       if (!modelCreated) {
         return;
       }
-  
 
-      if(alreadyOnAnki){
+      if (alreadyOnAnki) {
         const delData = {
-          action:  'deleteNotes',
+          action: 'deleteNotes',
           version: 6,
           params: {
-            notes : [ankiID]
-        }
+            notes: [ankiID],
+          },
         };
         const delProm = this.makeHttpRequest(delData);
         const delRes = await this.userNotifierService.notifyOnRejectOrError(
@@ -263,38 +350,37 @@ export class CardComponent implements OnInit {
           'AnkiConnect is not reachable',
           (res) => !res.success || res.result.error
         );
-
       }
 
       let bodyData = {
-          action:  'addNote',
-          version: 6,
-          params: {
-            note: {
-              deckName: this.deckName,
-              modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
-              fields: {
-                ID: this.card.localID,
-                Front: newFrontContent,
-                Back: newBackContent,
-                Title: this.card.title,
-                Page: this.card.page.toString(),
-                Chapter: this.card.chapter,
-                Hidden: this.card.hiddenText,
-              },
-              options: {
-                allowDuplicate: false,
-                duplicateScope: 'deck',
-                duplicateScopeOptions: {
-                  deckName: this.deckName,
-                  checkChildren: false,
-                },
-              },
-              tags: ['flashcards.siter.eu'],
-              picture: [],
+        action: 'addNote',
+        version: 6,
+        params: {
+          note: {
+            deckName: this.deckName,
+            modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
+            fields: {
+              ID: this.card.localID,
+              Front: newFrontContent,
+              Back: newBackContent,
+              Title: this.card.title,
+              Page: this.card.page.toString(),
+              Chapter: this.card.chapter,
+              Hidden: this.card.hiddenText,
             },
+            options: {
+              allowDuplicate: false,
+              duplicateScope: 'deck',
+              duplicateScopeOptions: {
+                deckName: this.deckName,
+                checkChildren: false,
+              },
+            },
+            tags: ['flashcards.siter.eu'],
+            picture: [],
           },
-        };
+        },
+      };
 
       for (let i = 0; i < imagelist.length; i++) {
         const img = imagelist[i];
@@ -341,12 +427,17 @@ export class CardComponent implements OnInit {
       const noteProm = this.makeHttpRequest(bodyData);
       const noteRes = await this.userNotifierService.notifyOnRejectOrError(
         noteProm,
-        alreadyOnAnki? 'Updating Node ' + this.card.localID :'Adding Note' + this.card.localID,
-        'AnkiConnect is not reachable', (res) => res.result['error']
+        alreadyOnAnki
+          ? 'Updating Node ' + this.card.localID
+          : 'Adding Note' + this.card.localID,
+        'AnkiConnect is not reachable',
+        (res) => res.result['error']
       );
-      if(noteRes.success){
+      if (noteRes.success) {
         this.userNotifierService.notify(
-          alreadyOnAnki? 'Updating Node ' + this.card.localID + ' was successfull':'Adding Note' + this.card.localID + ' was successfull',
+          alreadyOnAnki
+            ? 'Updating Node ' + this.card.localID + ' was successfull'
+            : 'Adding Note' + this.card.localID + ' was successfull',
           '',
           'success',
           true
@@ -448,7 +539,7 @@ export class CardComponent implements OnInit {
     }
   }
 
-  deleteCard(){
+  deleteCard() {
     this.deleteEvent.emit(this.card.localID);
   }
 
