@@ -213,10 +213,10 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         );
       }
     }
-    const data = await this.pdfApplication?.pdfDocument.getData();
-    if (!this.annotationFactory) {
-      this.annotationFactory = new AnnotationFactory(data);
-    }
+    // const data = await this.pdfApplication?.pdfDocument.getData();
+    // if (!this.annotationFactory) {
+    //   this.annotationFactory = new AnnotationFactory(data);
+    // }
   }
 
   async addToPdfOutline(
@@ -517,17 +517,17 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             if (!splitHex) {
               splitHex = ['45', '45', '45'];
             }
-            this.annotationFactory?.createHighlightAnnotation(
-              this.page - 1,
-              pdfPoint,
-              'test name',
-              'test author',
-              {
-                r: parseInt(splitHex[0], 16),
-                g: parseInt(splitHex[1], 16),
-                b: parseInt(splitHex[2], 16),
-              }
-            );
+            // this.annotationFactory?.createHighlightAnnotation(
+            //   this.page - 1,
+            //   pdfPoint,
+            //   'test name',
+            //   'test author',
+            //   {
+            //     r: parseInt(splitHex[0], 16),
+            //     g: parseInt(splitHex[1], 16),
+            //     b: parseInt(splitHex[2], 16),
+            //   }
+            // );
           }
         }
       }
@@ -561,11 +561,28 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.frontSelected) {
-      this.cards[this.currIndex].front += toAdd;
+      this.addToCard(this.currIndex,'front',toAdd);
     } else {
-      this.cards[this.currIndex].back += toAdd;
+      this.addToCard(this.currIndex,'back',toAdd);
     }
     document.getSelection()?.empty();
+  }
+
+  addToCard(cardIndex: number, where: 'front' | 'back' | 'hiddenText', toAdd: string){
+    switch (where) {
+      case 'front':
+          this.cards[cardIndex].front += toAdd;
+        break;
+      case 'back':
+        this.cards[cardIndex].back += toAdd;
+      break;
+      default:
+        this.cards[cardIndex].hiddenText += toAdd;
+        break;
+    }
+    setTimeout(() => this.cardCompList?.get(cardIndex)?.cardUpdated(),100)
+
+    
   }
 
   @HostListener('window:resize', ['$event'])
@@ -614,7 +631,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   finishCard() {
-    this.annotationFactory?.download();
+    // this.annotationFactory?.download();
     if (this.cardCompList) {
       this.cardCompList
         .filter((cc: CardComponent) => cc.active)

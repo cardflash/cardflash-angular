@@ -1,11 +1,15 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   OnInit,
   Output,
+  QueryList,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import * as CustomBalloonEditor from 'src/ckeditor/ckeditor.js';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
@@ -23,7 +27,7 @@ import { Annotation } from '../types/annotation';
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
 })
-export class CardComponent implements OnInit {
+export class CardComponent implements OnInit, AfterViewInit {
   FrontEditor: any;
   BackEditor: any;
 
@@ -57,6 +61,9 @@ export class CardComponent implements OnInit {
   @Input('alreadyOnServer') alreadyOnServer: boolean = false;
 
   private readonly MODEL_VERSION: string = '2.1c';
+
+  @ViewChildren('annotationHelperFront') annotationHelperFront? : QueryList<ElementRef<HTMLDivElement>>;
+  @ViewChildren('annotationHelperBack') annotationHelperBack? : QueryList<ElementRef<HTMLDivElement>>;
 
   constructor(
     private http: HttpClient,
@@ -204,6 +211,7 @@ export class CardComponent implements OnInit {
     licenseKey: '',
   };
 
+
   ngOnInit(): void {
     if (!this.card.creationTime) {
       this.card.creationTime = Date.now();
@@ -220,9 +228,58 @@ export class CardComponent implements OnInit {
       // this.card.back = newBackContent;
     }
   }
+  ngAfterViewInit(): void {
+    this.addAnnotationHelpers();
+  }
 
   change() {
     this.cardChange.emit(this.card);
+    this.addAnnotationHelpers();
+  }
+
+  addAnnotationHelpers(){
+    if (
+      this.frontEditorComponent?.editorInstance &&
+      this.backEditorComponent?.editorInstance
+    ) {
+    const frontSourceEl: HTMLElement =
+    this.frontEditorComponent.editorInstance.sourceElement;
+  const backSourceEl: HTMLElement =
+    this.backEditorComponent.editorInstance.sourceElement;
+
+    this.card.annotations?.forEach((annotation,index) => {
+      const frontEl = frontSourceEl.querySelector("#ANNTXT_"+annotation.id);
+      const backEl = backSourceEl.querySelector("#ANNTXT_"+annotation.id);
+      let rect;
+      let ref;
+      if(frontEl){
+        rect = frontEl?.getBoundingClientRect();
+        ref = this.annotationHelperFront?.get(index);
+      }else{
+        rect = backEl?.getBoundingClientRect();
+        ref = this.annotationHelperBack?.get(index);
+      }
+      if(ref){
+        const parentRect = ref?.nativeElement.parentElement?.getBoundingClientRect();
+        if(ref && rect && parentRect){
+          const top = rect.top-parentRect.top;
+          if(top < 0 || top + 15 > parentRect.height ){
+            ref.nativeElement.style.display = "none"
+          }else{
+            ref.nativeElement.style.display = "block"
+            ref.nativeElement.style.top = (rect.top-parentRect.top+40)+ "px";
+            ref.nativeElement.style.left = (-35) + "px";
+          }
+
+        }
+      }
+    })
+  }
+  }
+
+  cardUpdated(){
+    this.addAnnotationHelpers();
+    console.log("updated");
   }
 
   getImages() {
@@ -640,4 +697,10 @@ export class CardComponent implements OnInit {
   deleteAnnotation(annotation: Annotation){
     this.deleteAnnotationEvent.emit({ annotation: annotation});
   }
+
+  @HostListener('window:scroll', ['$event']) 
+    onScroll(event: any) {
+      this.addAnnotationHelpers();
+    }
+
 }

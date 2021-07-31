@@ -1,6 +1,10 @@
 <link href="/assets/card-styles.css" rel="stylesheet" />
 <mat-accordion>
-  <mat-expansion-panel expanded="{{ this.active }}" class="cardAccordion">
+  <mat-expansion-panel
+    #expansionPanel
+    expanded="{{ this.active }}"
+    class="cardAccordion"
+  >
     <mat-expansion-panel-header>
       <mat-panel-title class="cardHeaderText">
         {{ this.card.title || "Title" }}
@@ -14,7 +18,27 @@
         <mat-card-subtitle>Front</mat-card-subtitle>
       </mat-card-header>
       <!-- <mat-card-content> -->
-      <div class="front-div" [ngClass]="{ active: active && frontActive }">
+      <div
+        class="front-div"
+        [ngClass]="{ active: active && frontActive }"
+        (scroll)="onScroll($event)"
+      >
+        <div
+          #annotationHelperFront
+          class="annotationHelper"
+          *ngFor="let annotation of this.card.annotations"
+          [id]="'ANNHEL_' + annotation.id"
+        >
+          <button
+            mat-mini-fab
+            class="navigationButton"
+            title="Scroll to annotation"
+            (click)="scrollToAnnotation(annotation.id)"
+            [ngStyle]="{ 'background-color': annotation.color }"
+          >
+            <mat-icon>navigate_before</mat-icon>
+          </button>
+        </div>
         <ckeditor
           #frontEditor
           [editor]="FrontEditor"
@@ -33,6 +57,21 @@
       </mat-card-header>
       <!-- <mat-card-content> -->
       <div class="back-div" [ngClass]="{ active: active && !frontActive }">
+        <div
+        #annotationHelperBack
+        class="annotationHelper"
+        *ngFor="let annotation of this.card.annotations"
+      >
+        <button
+          mat-mini-fab
+          class="navigationButton"
+          title="Scroll to annotation"
+          (click)="scrollToAnnotation(annotation.id)"
+          [ngStyle]="{ 'background-color': annotation.color }"
+        >
+          <mat-icon>navigate_before</mat-icon>
+        </button>
+      </div>
         <ckeditor
           #backEditor
           [editor]="BackEditor"
@@ -106,8 +145,10 @@
               on page {{ annotation.page }}
               <!-- ; ID: {{ annotation.id }} -->
             </p>
-            <button mat-button>
-              <mat-icon color="warn" (click)="deleteAnnotation(annotation)">delete_outline</mat-icon>
+            <button mat-icon-button>
+              <mat-icon color="warn" (click)="deleteAnnotation(annotation)"
+                >delete_outline</mat-icon
+              >
             </button>
 
             <!-- <button [routerLink]="null" [fragment]="'DIV_'+annotation.id" mat-button>Show in PDF</button>
