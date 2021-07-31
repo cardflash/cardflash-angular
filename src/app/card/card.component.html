@@ -2,7 +2,7 @@
 <mat-accordion>
   <mat-expansion-panel
     #expansionPanel
-    expanded="{{ this.active }}"
+    expanded="true"
     class="cardAccordion"
   >
     <mat-expansion-panel-header>
@@ -33,7 +33,7 @@
             mat-mini-fab
             class="navigationButton"
             title="Scroll to annotation"
-            (click)="scrollToAnnotation(annotation.id)"
+            (click)="scrollToAnnotation(annotation.id,'pdf')"
             [ngStyle]="{ 'background-color': annotation.color }"
           >
             <mat-icon>navigate_before</mat-icon>
@@ -66,7 +66,7 @@
           mat-mini-fab
           class="navigationButton"
           title="Scroll to annotation"
-          (click)="scrollToAnnotation(annotation.id)"
+          (click)="scrollToAnnotation(annotation.id,'pdf')"
           [ngStyle]="{ 'background-color': annotation.color }"
         >
           <mat-icon>navigate_before</mat-icon>
@@ -133,7 +133,7 @@
               mat-mini-fab
               class="navigationButton"
               title="Scroll to annotation"
-              (click)="scrollToAnnotation(annotation.id)"
+              (click)="scrollToAnnotation(annotation.id,'both')"
               [ngStyle]="{ 'background-color': annotation.color }"
             >
               <mat-icon>navigate_next</mat-icon>

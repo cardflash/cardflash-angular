@@ -268,7 +268,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           }else{
             ref.nativeElement.style.display = "block"
             ref.nativeElement.style.top = (rect.top-parentRect.top+40)+ "px";
-            ref.nativeElement.style.left = (-35) + "px";
+            ref.nativeElement.style.left = (-40) + "px";
           }
 
         }
@@ -689,9 +689,22 @@ export class CardComponent implements OnInit, AfterViewInit {
     // });
   }
 
-  async scrollToAnnotation(id: string){
-    await this.router.navigate([],{fragment: 'DIV_'+id});
-    await this.router.navigate([],{fragment: 'ANNTXT_'+id})
+  async scrollToAnnotation(
+    id: string,
+    where: 'pdf' | 'card' | 'both' = 'card'
+  ) {
+    switch (where) {
+      case 'pdf':
+        await this.router.navigate([], { fragment: 'DIV_' + id });
+        break;
+      case 'card':
+        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        break;
+      default:
+        await this.router.navigate([], { fragment: 'DIV_' + id });
+        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        break;
+    }
   }
 
   deleteAnnotation(annotation: Annotation){

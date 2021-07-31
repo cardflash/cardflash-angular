@@ -25,9 +25,7 @@ import { recognize } from 'tesseract.js';
 import { TesseractLanguages } from '../../data/tesseract-languages';
 import { AnnotationFactory } from 'annotpdf';
 import { Annotation } from 'src/app/types/annotation';
-import { ViewportScroller } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {  Router } from '@angular/router';
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
@@ -123,14 +121,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   >();
 
   public availableAnnotationColors: { hex: string; marker: string }[] = [
-    { hex: '#f3ea504f', marker: 'marker-light-yellow'},
+    { hex: '#f3ea504f', marker: 'marker-light-yellow' },
     { hex: '#5eacf94f', marker: 'marker-light-blue' },
     { hex: '#5ef98c4f', marker: 'marker-light-green' },
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
 
-
-  constructor(public dataService: DataService) {}
+  constructor(public dataService: DataService, private router: Router) {}
   async ngOnInit() {
     this.dataService.init().then(() => {
       if (this.dataService.prefs['config']) {
@@ -139,9 +136,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  async ngOnDestroy(){
-
-  }
+  async ngOnDestroy() {}
 
   async ngAfterViewInit() {
     if (this.selCanv) {
@@ -320,101 +315,154 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   drawAnnotationsOnPage(pageNumber: number) {
-      const annotations = this.annotationForPage.get(pageNumber);
-      if (annotations) {
-        annotations.forEach((annotation) => {
-          this.drawAnnotationOnPage(pageNumber,annotation)
-        });
-      }
+    const annotations = this.annotationForPage.get(pageNumber);
+    if (annotations) {
+      annotations.forEach((annotation) => {
+        this.drawAnnotationOnPage(pageNumber, annotation);
+      });
+    }
   }
 
-  drawAnnotationOnPage(pageNumber: number, annotation: Annotation){
+  drawAnnotationOnPage(pageNumber: number, annotation: Annotation) {
     if (this.pdfApplication) {
       const context = this.pdfCanvContext[pageNumber];
       const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
       const viewport = page.viewport;
-      
-    context.fillStyle = annotation.color;
-    annotation.points.forEach((point) => {
-      const rect = viewport.convertToViewportRectangle(point);
-      context.fillRect(
-        rect[0],
-        rect[1],
-        Math.abs(rect[0] - rect[2]),
-        Math.abs(rect[1] - rect[3])
+
+      context.fillStyle = annotation.color;
+      annotation.points.forEach((point) => {
+        const rect = viewport.convertToViewportRectangle(point);
+        context.fillRect(
+          rect[0],
+          rect[1],
+          Math.abs(rect[0] - rect[2]),
+          Math.abs(rect[1] - rect[3])
+        );
+      });
+
+      this.removeDivWithID(annotation.id);
+      const div = document.createElement('div');
+      const bounds = this.getBoundsForAnnotations(annotation);
+      const rect = viewport.convertToViewportRectangle(bounds);
+      // context.fillStyle = "red";
+      // context.fillRect(
+      //   rect[0]+(Math.abs(rect[0]-rect[2])/2),
+      //   Math.min(rect[1],rect[3]),
+      //   10,
+      //   10
+      // );
+      div.setAttribute('id', 'DIV_' + annotation.id);
+      div.setAttribute('class', 'annotationToolOverlay');
+      div.setAttribute('title', 'Delete annotation');
+      div.setAttribute(
+        'style',
+        'position: absolute; left:' +
+          (Math.min(rect[0], rect[2]) - 15) +
+          'px; top:' +
+          (Math.min(rect[1], rect[3]) - 15) +
+          "px; width: 15px; height: 15px; background-image: url('/assets/delete.svg');"
       );
-    });
+      console.log(page);
+      div.onclick = async (event: any) => {
+        this.deleteAnnotation(pageNumber, annotation.id);
+      };
+      page.div.appendChild(div);
 
-    this.removeDivWithID(annotation.id);
-    const div = document.createElement('div');
-    const bounds = this.getBoundsForAnnotations(annotation);
-    const rect = viewport.convertToViewportRectangle(bounds);
-    // context.fillStyle = "red";
-    // context.fillRect(
-    //   rect[0]+(Math.abs(rect[0]-rect[2])/2),
-    //   Math.min(rect[1],rect[3]),
-    //   10,
-    //   10
-    // );
-    div.setAttribute('id',"DIV_"+annotation.id)
-    div.setAttribute('style','position: absolute; left:'+(Math.min(rect[0],rect[2])-15)+"px; top:"+(Math.min(rect[1],rect[3])-15)+"px; width: 15px; height: 15px; background-image: url('/assets/delete.svg'); opacity: 0.7;");
-    console.log(page);
-    div.onclick = async (event: any) => {
-      this.deleteAnnotation(pageNumber, annotation.id);
+      const jumpDiv = document.createElement('div');
+      jumpDiv.setAttribute('id', 'DIV2_' + annotation.id);
+      jumpDiv.setAttribute('class', 'annotationToolOverlay');
+      jumpDiv.setAttribute('title', 'Scroll into view');
+      jumpDiv.setAttribute(
+        'style',
+        'position: absolute; left:' +
+          (Math.min(rect[0], rect[2]) - 15) +
+          'px; top:' +
+          (Math.min(rect[1], rect[3]) - 33) +
+          "px; width: 15px; height: 15px; background-image: url('/assets/right.svg');"
+      );
+      console.log(page);
+      jumpDiv.onclick = async (event: any) => {
+        this.scrollToAnnotation(annotation.id);
+      };
+      page.div.appendChild(jumpDiv);
     }
-    page.div.appendChild(div);
-  }
   }
 
-  async deleteAnnotation(pageNumber: number, id: string){
-    const filteredAnnot = this.annotationForPage.get(pageNumber)?.filter((annot) => annot.id !== id);
-    if(filteredAnnot){
-      this.annotationForPage.set(pageNumber,filteredAnnot);
+  async scrollToAnnotation(
+    id: string,
+    where: 'pdf' | 'card' | 'both' = 'card'
+  ) {
+    switch (where) {
+      case 'pdf':
+        await this.router.navigate([], { fragment: 'DIV_' + id });
+        break;
+      case 'card':
+        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        break;
+      default:
+        await this.router.navigate([], { fragment: 'DIV_' + id });
+        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        break;
+    }
+  }
+
+  async deleteAnnotation(pageNumber: number, id: string) {
+    const filteredAnnot = this.annotationForPage
+      .get(pageNumber)
+      ?.filter((annot) => annot.id !== id);
+    if (filteredAnnot) {
+      this.annotationForPage.set(pageNumber, filteredAnnot);
     }
     this.cards.forEach((card) => {
       card.annotations = card.annotations?.filter((annot) => annot.id !== id);
-    })
+    });
 
-
-    if(this.pdfApplication){
+    if (this.pdfApplication) {
       const context = this.pdfCanvContext[pageNumber];
       const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
       const viewport = page.viewport;
 
-      const pageRef = await (this.pdfApplication.pdfViewer as any).pdfDocument.getPage(this.page);
+      const pageRef = await (
+        this.pdfApplication.pdfViewer as any
+      ).pdfDocument.getPage(this.page);
       console.log(pageRef);
-      const renderRes = await pageRef.render({canvasContext: context, viewport: viewport});
-      console.log("rendered", renderRes);
+      const renderRes = await pageRef.render({
+        canvasContext: context,
+        viewport: viewport,
+      });
+      console.log('rendered', renderRes);
       this.removeDivWithID(id);
-      setTimeout(() =>{
+      setTimeout(() => {
         this.drawAnnotationsOnPage(pageNumber);
-      },300)
+      }, 300);
     }
   }
 
-  removeDivWithID(id: string){
-    const div = document.querySelector('#DIV_'+id);
-    if(div){
+  removeDivWithID(id: string) {
+    const div = document.querySelector('#DIV_' + id);
+    if (div) {
       div.parentNode?.removeChild(div);
     }
   }
 
   getBoundsForAnnotations(annotation: Annotation) {
-    if(annotation.points.length < 1){
-      return [0,0,0,0];
-    }else{
-      let [x,y,x2,y2] = annotation.points[0]
+    if (annotation.points.length < 1) {
+      return [0, 0, 0, 0];
+    } else {
+      let [x, y, x2, y2] = annotation.points[0];
 
       for (let i = 0; i < annotation.points.length; i++) {
         const point = annotation.points[i];
-        if(point[0] === -0){ continue;}
-        if(point[0] < x) x = point[0];
-        if(point[1] < y) y = point[1];
-        if(point[2] > x2) x2 = point[2];
-        if(point[3] > y2) y2 = point[3];
+        if (point[0] === -0) {
+          continue;
+        }
+        if (point[0] < x) x = point[0];
+        if (point[1] < y) y = point[1];
+        if (point[2] > x2) x2 = point[2];
+        if (point[3] > y2) y2 = point[3];
       }
-      console.log(annotation, [x,y,x2,y2])
-      return [x,y,x2,y2];
+      console.log(annotation, [x, y, x2, y2]);
+      return [x, y, x2, y2];
     }
   }
 
@@ -468,21 +516,21 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           // span.style.backgroundColor = "red";
           this.selectionTools.nativeElement.style.display = 'none';
 
-          const page = this.pdfApplication.pdfViewer._pages[
-            this.page - 1
-          ];
-            this.selectionTimeout = setTimeout(() => {
-              if (this.selectionTools) {
-                const bounds = this.calcBoundsOfSelection();
-                if(bounds){
-                  this.selectionTools.nativeElement.style.display = 'block';
-                  this.selectionTools.nativeElement.style.top = (bounds.top - 110) + 'px';
-                  this.selectionTools.nativeElement.style.left = (bounds.left) + 'px';
-                }
+          const page = this.pdfApplication.pdfViewer._pages[this.page - 1];
+          this.selectionTimeout = setTimeout(() => {
+            if (this.selectionTools) {
+              const bounds = this.calcBoundsOfSelection();
+              if (bounds) {
+                this.selectionTools.nativeElement.style.display = 'block';
+                this.selectionTools.nativeElement.style.top =
+                  bounds.top - 110 + 'px';
+                this.selectionTools.nativeElement.style.left =
+                  bounds.left + 'px';
               }
-            }, 700);
-          }
+            }
+          }, 700);
         }
+      }
     }
   }
 
@@ -490,14 +538,16 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     return document.getSelection()?.toString();
   }
 
-  calcBoundsOfSelection() : DOMRect | undefined{
-    const rect = document
-    .getSelection()
-    ?.getRangeAt(0)
-    .getBoundingClientRect();
-  return rect; 
-}
-  addHighlightForSelection(color: {hex: string, marker: string | undefined} = {hex:'#45454533', marker: undefined}) {
+  calcBoundsOfSelection(): DOMRect | undefined {
+    const rect = document.getSelection()?.getRangeAt(0).getBoundingClientRect();
+    return rect;
+  }
+  addHighlightForSelection(
+    color: { hex: string; marker: string | undefined } = {
+      hex: '#45454533',
+      marker: undefined,
+    }
+  ) {
     const selectionRects = document
       .getSelection()
       ?.getRangeAt(0)
@@ -536,22 +586,25 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         type: 'highlight',
         color: color.hex,
         points: pdfPoints,
-        page: this.page
+        page: this.page,
       };
-      if(this.cards[this.currIndex].annotations){
+      if (this.cards[this.currIndex].annotations) {
         this.cards[this.currIndex].annotations?.push(newAnnotation);
-      }else{
+      } else {
         this.cards[this.currIndex].annotations = [newAnnotation];
       }
 
       annotations.push(newAnnotation);
       this.annotationForPage.set(this.page, annotations);
-      this.drawAnnotationOnPage(this.page,newAnnotation);
-      this.addTextSelectionToCard(color.marker,newAnnotation.id);
+      this.drawAnnotationOnPage(this.page, newAnnotation);
+      this.addTextSelectionToCard(color.marker, newAnnotation.id);
     }
   }
 
-  addTextSelectionToCard(marker: string | undefined = undefined,annotationId: string) {
+  addTextSelectionToCard(
+    marker: string | undefined = undefined,
+    annotationId: string
+  ) {
     let toAdd: string = '';
     console.log(marker);
     if (!marker) {
@@ -561,28 +614,30 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.frontSelected) {
-      this.addToCard(this.currIndex,'front',toAdd);
+      this.addToCard(this.currIndex, 'front', toAdd);
     } else {
-      this.addToCard(this.currIndex,'back',toAdd);
+      this.addToCard(this.currIndex, 'back', toAdd);
     }
     document.getSelection()?.empty();
   }
 
-  addToCard(cardIndex: number, where: 'front' | 'back' | 'hiddenText', toAdd: string){
+  addToCard(
+    cardIndex: number,
+    where: 'front' | 'back' | 'hiddenText',
+    toAdd: string
+  ) {
     switch (where) {
       case 'front':
-          this.cards[cardIndex].front += toAdd;
+        this.cards[cardIndex].front += toAdd;
         break;
       case 'back':
         this.cards[cardIndex].back += toAdd;
-      break;
+        break;
       default:
         this.cards[cardIndex].hiddenText += toAdd;
         break;
     }
-    setTimeout(() => this.cardCompList?.get(cardIndex)?.cardUpdated(),100)
-
-    
+    setTimeout(() => this.cardCompList?.get(cardIndex)?.cardUpdated(), 100);
   }
 
   @HostListener('window:resize', ['$event'])

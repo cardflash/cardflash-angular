@@ -19,3 +19,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   height: 100%;
 }
 
+.annotationToolOverlay{
+  opacity: 0.3;
+}
+.annotationToolOverlay:hover{
+  opacity: 1;
+}
