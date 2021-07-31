@@ -6,5 +6,8 @@ export const environment = {
   MIN_PW_LENGTH: 6,
   MAX_PW_LENGTH: 32,
   collectionMap: {'cards': '60fbdf8f6f4ee'} as any,
-  dataVersion: '1.0'
+  dataVersion: '1.0',
+  ANNOTATION_DEL_PREFIX: 'fc-DELDIV_',
+  ANNOTATION_JMP_PREFIX: 'fc-JMPDIV_',
+  ANNOTATION_ON_CARD_PREFIX: 'fc-CRDTXT_'
 };

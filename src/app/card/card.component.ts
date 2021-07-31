@@ -21,6 +21,7 @@ import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
 import { CardService } from './card.service';
 import { Router } from '@angular/router';
 import { Annotation } from '../types/annotation';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-card',
@@ -248,8 +249,8 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.backEditorComponent.editorInstance.sourceElement;
 
     this.card.annotations?.forEach((annotation,index) => {
-      const frontEl = frontSourceEl.querySelector("#ANNTXT_"+annotation.id);
-      const backEl = backSourceEl.querySelector("#ANNTXT_"+annotation.id);
+      const frontEl = frontSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
+      const backEl = backSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
       let rect;
       let ref;
       if(frontEl){
@@ -688,21 +689,21 @@ export class CardComponent implements OnInit, AfterViewInit {
     //   }
     // });
   }
-
+  
   async scrollToAnnotation(
     id: string,
     where: 'pdf' | 'card' | 'both' = 'card'
   ) {
     switch (where) {
       case 'pdf':
-        await this.router.navigate([], { fragment: 'DIV_' + id });
+        await this.router.navigate([], { fragment: environment.ANNOTATION_JMP_PREFIX + id });
         break;
       case 'card':
-        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        await this.router.navigate([], { fragment: environment.ANNOTATION_ON_CARD_PREFIX + id });
         break;
       default:
-        await this.router.navigate([], { fragment: 'DIV_' + id });
-        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        await this.router.navigate([], { fragment:  environment.ANNOTATION_JMP_PREFIX  + id });
+        await this.router.navigate([], { fragment: environment.ANNOTATION_ON_CARD_PREFIX + id });
         break;
     }
   }

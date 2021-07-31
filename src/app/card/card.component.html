@@ -1,18 +1,17 @@
 <link href="/assets/card-styles.css" rel="stylesheet" />
-<mat-accordion>
-  <mat-expansion-panel
+<div>
+  <div
     #expansionPanel
-    expanded="true"
     class="cardAccordion"
   >
-    <mat-expansion-panel-header>
+<!-- <div>
       <mat-panel-title class="cardHeaderText">
         {{ this.card.title || "Title" }}
       </mat-panel-title>
       <mat-panel-description class="cardHeaderText cardDescription">
         {{ this.card.chapter || "Chapter" }}
       </mat-panel-description>
-    </mat-expansion-panel-header>
+    </div> -->
     <mat-card class="front-card">
       <mat-card-header>
         <mat-card-subtitle>Front</mat-card-subtitle>
@@ -143,16 +142,12 @@
                 annotation.type
               }}</span>
               on page {{ annotation.page }}
-              <!-- ; ID: {{ annotation.id }} -->
             </p>
             <button mat-icon-button>
               <mat-icon color="warn" (click)="deleteAnnotation(annotation)"
                 >delete_outline</mat-icon
               >
             </button>
-
-            <!-- <button [routerLink]="null" [fragment]="'DIV_'+annotation.id" mat-button>Show in PDF</button>
-        <button [routerLink]="null" [fragment]="'ANNTXT_'+annotation.id" mat-button>Show in Card</button> -->
           </div>
         </div>
       </mat-expansion-panel>
@@ -203,6 +198,5 @@
         <mat-icon>delete</mat-icon>
       </button>
     </div>
-    <!-- </nb-card> -->
-  </mat-expansion-panel>
-</mat-accordion>
+  </div>
+</div>

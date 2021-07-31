@@ -26,6 +26,7 @@ import { TesseractLanguages } from '../../data/tesseract-languages';
 import { AnnotationFactory } from 'annotpdf';
 import { Annotation } from 'src/app/types/annotation';
 import {  Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
@@ -341,7 +342,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       this.removeDivWithID(annotation.id);
-      const div = document.createElement('div');
+      const delDiv = document.createElement('div');
       const bounds = this.getBoundsForAnnotations(annotation);
       const rect = viewport.convertToViewportRectangle(bounds);
       // context.fillStyle = "red";
@@ -351,10 +352,10 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       //   10,
       //   10
       // );
-      div.setAttribute('id', 'DIV_' + annotation.id);
-      div.setAttribute('class', 'annotationToolOverlay');
-      div.setAttribute('title', 'Delete annotation');
-      div.setAttribute(
+      delDiv.setAttribute('id', environment.ANNOTATION_DEL_PREFIX + annotation.id);
+      delDiv.setAttribute('class', 'annotationToolOverlay');
+      delDiv.setAttribute('title', 'Delete annotation');
+      delDiv.setAttribute(
         'style',
         'position: absolute; left:' +
           (Math.min(rect[0], rect[2]) - 15) +
@@ -363,13 +364,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           "px; width: 15px; height: 15px; background-image: url('/assets/delete.svg');"
       );
       console.log(page);
-      div.onclick = async (event: any) => {
+      delDiv.onclick = async (event: any) => {
         this.deleteAnnotation(pageNumber, annotation.id);
       };
-      page.div.appendChild(div);
+      page.div.appendChild(delDiv);
 
       const jumpDiv = document.createElement('div');
-      jumpDiv.setAttribute('id', 'DIV2_' + annotation.id);
+      jumpDiv.setAttribute('id', environment.ANNOTATION_JMP_PREFIX + annotation.id);
       jumpDiv.setAttribute('class', 'annotationToolOverlay');
       jumpDiv.setAttribute('title', 'Scroll into view');
       jumpDiv.setAttribute(
@@ -394,14 +395,14 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     switch (where) {
       case 'pdf':
-        await this.router.navigate([], { fragment: 'DIV_' + id });
+        await this.router.navigate([], { fragment: environment.ANNOTATION_JMP_PREFIX + id });
         break;
       case 'card':
-        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        await this.router.navigate([], { fragment: environment.ANNOTATION_ON_CARD_PREFIX + id });
         break;
       default:
-        await this.router.navigate([], { fragment: 'DIV_' + id });
-        await this.router.navigate([], { fragment: 'ANNTXT_' + id });
+        await this.router.navigate([], { fragment:  environment.ANNOTATION_JMP_PREFIX  + id });
+        await this.router.navigate([], { fragment: environment.ANNOTATION_ON_CARD_PREFIX + id });
         break;
     }
   }
@@ -439,9 +440,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   removeDivWithID(id: string) {
-    const div = document.querySelector('#DIV_' + id);
-    if (div) {
-      div.parentNode?.removeChild(div);
+    const jmpDiv = document.querySelector('#'+ environment.ANNOTATION_JMP_PREFIX + id);
+    if (jmpDiv) {
+      jmpDiv.parentNode?.removeChild(jmpDiv);
+    }
+    const delDiv = document.querySelector('#'+ environment.ANNOTATION_DEL_PREFIX + id);
+    if (delDiv) {
+      delDiv.parentNode?.removeChild(delDiv);
     }
   }
 
@@ -608,9 +613,9 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     let toAdd: string = '';
     console.log(marker);
     if (!marker) {
-      toAdd = `<p id="ANNTXT_${annotationId}">${this.getSelection()}</p><br/>`;
+      toAdd = `<p id="${environment.ANNOTATION_ON_CARD_PREFIX}${annotationId}">${this.getSelection()}</p><br/>`;
     } else {
-      toAdd = `<mark id="ANNTXT_${annotationId}" class="${marker}">${this.getSelection()}</mark><br/>`;
+      toAdd = `<mark id="${environment.ANNOTATION_ON_CARD_PREFIX}${annotationId}" class="${marker}">${this.getSelection()}</mark><br/>`;
     }
 
     if (this.frontSelected) {
