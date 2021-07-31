@@ -1,3 +1,3 @@
 export interface Annotation{
-  id: string, type: string, color: string ,points: [number,number,number,number][]
+  id: string, page: number, type: string, color: string ,points: [number,number,number,number][]
 }

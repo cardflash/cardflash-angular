@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { ExtraOptions, RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './account/login/login.component';
 import { EditCardComponent } from './card/edit-card/edit-card.component';
 import { CardsComponent } from './cards/cards.component';
@@ -9,24 +9,30 @@ const routes: Routes = [
   { path: '', redirectTo: '/cards', pathMatch: 'full' },
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
   },
   {
     path: 'create/from-pdf',
-    component: FromPdfComponent
+    component: FromPdfComponent,
   },
   {
     path: 'cards',
-    component: CardsComponent
+    component: CardsComponent,
   },
   {
     path: 'cards/:id',
-    component: EditCardComponent
+    component: EditCardComponent,
   },
 ];
 
+const routerOptions: ExtraOptions = {
+  anchorScrolling: 'enabled',
+  onSameUrlNavigation: 'reload',
+  scrollPositionRestoration: 'enabled',
+};
+
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes, routerOptions)],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

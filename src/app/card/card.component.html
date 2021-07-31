@@ -1,89 +1,167 @@
-<link href="/assets/card-styles.css" rel="stylesheet">
+<link href="/assets/card-styles.css" rel="stylesheet" />
 <mat-accordion>
-  <mat-expansion-panel expanded="{{this.active}}" class="cardAccordion">
+  <mat-expansion-panel expanded="{{ this.active }}" class="cardAccordion">
     <mat-expansion-panel-header>
       <mat-panel-title class="cardHeaderText">
-        {{this.card.title || "Title"}}
+        {{ this.card.title || "Title" }}
       </mat-panel-title>
-      <mat-panel-description  class="cardHeaderText cardDescription">
-        {{this.card.chapter || "Chapter"}}
+      <mat-panel-description class="cardHeaderText cardDescription">
+        {{ this.card.chapter || "Chapter" }}
       </mat-panel-description>
-      </mat-expansion-panel-header>
-        <mat-card class="front-card">
-          <mat-card-header>
-            <mat-card-subtitle>Front</mat-card-subtitle>
-            </mat-card-header>
+    </mat-expansion-panel-header>
+    <mat-card class="front-card">
+      <mat-card-header>
+        <mat-card-subtitle>Front</mat-card-subtitle>
+      </mat-card-header>
       <!-- <mat-card-content> -->
-        <div class="front-div" [ngClass]="{'active': (active && frontActive)}"> 
-          <ckeditor #frontEditor [editor]="FrontEditor" [(ngModel)]="card.front" (change)="change()"
+      <div class="front-div" [ngClass]="{ active: active && frontActive }">
+        <ckeditor
+          #frontEditor
+          [editor]="FrontEditor"
+          [(ngModel)]="card.front"
+          (change)="change()"
           [config]="EDITOR_CONFIG"
-          ></ckeditor>
-    </div>
-    <!-- </mat-card-content>     -->
+        ></ckeditor>
+      </div>
+      <!-- </mat-card-content>     -->
     </mat-card>
     <!-- <hr class="solid"> -->
-    <br>
+    <br />
     <mat-card class="back-card">
       <mat-card-header>
         <mat-card-subtitle>Back</mat-card-subtitle>
-        </mat-card-header>
+      </mat-card-header>
       <!-- <mat-card-content> -->
-    <div class="back-div" [ngClass]="{'active': (active && !frontActive)}">
-      <ckeditor #backEditor [editor]="BackEditor" [(ngModel)]="card.back" (change)="change()" [config]="EDITOR_CONFIG"></ckeditor>
-</div>
-<!-- </mat-card-content>     -->
-</mat-card>
-<br>
-<mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>Edit Metadata</mat-panel-title>
-      <mat-panel-description>Title, Chapter, Hidden Text</mat-panel-description>
-    </mat-expansion-panel-header>
-    <div class="cardMetaFields">
-      <mat-form-field class="titleField" appearance="fill" style="margin-bottom: -1.25em">
-        <mat-label>Title</mat-label>
-        <input matInput placeholder="Document Title" [(ngModel)]="this.card.title">
-        <mat-icon matSuffix>book</mat-icon>
-      </mat-form-field>
-      <mat-form-field class="chapterField" appearance="fill" style="margin-bottom: -1.0em">
-        <mat-label>Chapter</mat-label>
-        <input matInput placeholder="Chapter"  [(ngModel)]="this.card.chapter">
-        <mat-icon matSuffix>bookmark</mat-icon>
-      </mat-form-field>
-    </div>
-    <mat-form-field appearance="outline" class="hiddenText">
-      <mat-label>Hidden Text</mat-label>
-      <textarea matInput [(ngModel)]="this.card.hiddenText"></textarea>
-    </mat-form-field>
-  </mat-expansion-panel>
-</mat-accordion>
-      <a #downloadAnchor href="#" download="selection.png"></a>
-      <div class="cardActions">
-        <mat-form-field class="" appearance="standard" style="margin-bottom: -1.25em" class="smallField">
-          <mat-label>Card ID</mat-label>
-          <input matInput type="text" readonly [ngModel]="this.card.localID">
-        </mat-form-field>
-        <mat-form-field class="miniField" appearance="standard" style="margin-bottom: -1.25em">
-          <mat-label>Page #</mat-label>
-          <!-- <span matPrefix>p.</span> -->
-          <input matInput type="number" [(ngModel)]="this.card.page">
-        </mat-form-field>
-        <button mat-stroked-button aria-label="Save to Anki" (click)="save(true)">
-          <mat-icon>save</mat-icon> Anki
-        </button>
-        <button mat-stroked-button aria-label="Save to Server" (click)="saveToServer()">
-          <mat-icon>save</mat-icon> Server
-        </button>
-        <button mat-stroked-button aria-label="Download card" (click)="save(false)">
-          <mat-icon>file_download</mat-icon>
-        </button>
-        <button mat-stroked-button aria-label="Delete card" color="warn" (click)="deleteCard()">
-          <mat-icon>delete</mat-icon>
-        </button>
+      <div class="back-div" [ngClass]="{ active: active && !frontActive }">
+        <ckeditor
+          #backEditor
+          [editor]="BackEditor"
+          [(ngModel)]="card.back"
+          (change)="change()"
+          [config]="EDITOR_CONFIG"
+        ></ckeditor>
       </div>
+      <!-- </mat-card-content>     -->
+    </mat-card>
+    <br />
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>Edit Metadata</mat-panel-title>
+          <mat-panel-description
+            >Title, Chapter, Hidden Text</mat-panel-description
+          >
+        </mat-expansion-panel-header>
+        <div class="cardMetaFields">
+          <mat-form-field
+            class="titleField"
+            appearance="fill"
+            style="margin-bottom: -1.25em"
+          >
+            <mat-label>Title</mat-label>
+            <input
+              matInput
+              placeholder="Document Title"
+              [(ngModel)]="this.card.title"
+            />
+            <mat-icon matSuffix>book</mat-icon>
+          </mat-form-field>
+          <mat-form-field
+            class="chapterField"
+            appearance="fill"
+            style="margin-bottom: -1em"
+          >
+            <mat-label>Chapter</mat-label>
+            <input
+              matInput
+              placeholder="Chapter"
+              [(ngModel)]="this.card.chapter"
+            />
+            <mat-icon matSuffix>bookmark</mat-icon>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="hiddenText">
+          <mat-label>Hidden Text</mat-label>
+          <textarea matInput [(ngModel)]="this.card.hiddenText"></textarea>
+        </mat-form-field>
+        <div>
+          <h4>Annotations</h4>
+          <div
+            *ngFor="let annotation of this.card.annotations"
+            class="annotationDiv"
+          >
+            <button
+              mat-mini-fab
+              class="navigationButton"
+              title="Scroll to annotation"
+              (click)="scrollToAnnotation(annotation.id)"
+              [ngStyle]="{ 'background-color': annotation.color }"
+            >
+              <mat-icon>navigate_next</mat-icon>
+            </button>
+            <p>
+              <span [ngStyle]="{ 'background-color': annotation.color }">{{
+                annotation.type
+              }}</span>
+              on page {{ annotation.page }}
+              <!-- ; ID: {{ annotation.id }} -->
+            </p>
+            <button mat-button>
+              <mat-icon color="warn" (click)="deleteAnnotation(annotation)">delete_outline</mat-icon>
+            </button>
+
+            <!-- <button [routerLink]="null" [fragment]="'DIV_'+annotation.id" mat-button>Show in PDF</button>
+        <button [routerLink]="null" [fragment]="'ANNTXT_'+annotation.id" mat-button>Show in Card</button> -->
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <a #downloadAnchor href="#" download="selection.png"></a>
+    <div class="cardActions">
+      <mat-form-field
+        class=""
+        appearance="standard"
+        style="margin-bottom: -1.25em"
+        class="smallField"
+      >
+        <mat-label>Card ID</mat-label>
+        <input matInput type="text" readonly [ngModel]="this.card.localID" />
+      </mat-form-field>
+      <mat-form-field
+        class="miniField"
+        appearance="standard"
+        style="margin-bottom: -1.25em"
+      >
+        <mat-label>Page #</mat-label>
+        <!-- <span matPrefix>p.</span> -->
+        <input matInput type="number" [(ngModel)]="this.card.page" />
+      </mat-form-field>
+      <button mat-stroked-button aria-label="Save to Anki" (click)="save(true)">
+        <mat-icon>save</mat-icon> Anki
+      </button>
+      <button
+        mat-stroked-button
+        aria-label="Save to Server"
+        (click)="saveToServer()"
+      >
+        <mat-icon>save</mat-icon> Server
+      </button>
+      <button
+        mat-stroked-button
+        aria-label="Download card"
+        (click)="save(false)"
+      >
+        <mat-icon>file_download</mat-icon>
+      </button>
+      <button
+        mat-stroked-button
+        aria-label="Delete card"
+        color="warn"
+        (click)="deleteCard()"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
     <!-- </nb-card> -->
   </mat-expansion-panel>
-    </mat-accordion>
-  
-
+</mat-accordion>

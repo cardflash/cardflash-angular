@@ -1,3 +1,6 @@
+import { Annotation } from "./annotation";
+
+
 export interface Card{
     localID: string,
     front: string,
@@ -9,6 +12,6 @@ export interface Card{
     imgs?: string[],
     imgsLocal?: string[],
     $id?: string,
-    creationTime? : number
-    
+    creationTime? : number,
+    annotations?: Annotation[]
 }

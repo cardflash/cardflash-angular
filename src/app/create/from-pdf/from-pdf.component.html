@@ -135,10 +135,10 @@
         </mat-button-toggle-group>
         <br />
       <mat-button-toggle-group>
-        <mat-button-toggle (click)="addHighlightForSelection();addTextSelectionToCard();">
+        <mat-button-toggle (click)="addHighlightForSelection()">
           <mat-icon>text_fields</mat-icon>
         </mat-button-toggle>
-        <mat-button-toggle *ngFor="let color of availableAnnotationColors" (click)="addHighlightForSelection(color.hex);addTextSelectionToCard(color.marker);">
+        <mat-button-toggle *ngFor="let color of availableAnnotationColors" (click)="addHighlightForSelection(color);">
           <mat-icon [style]="'color: '+color.hex.substr(0,7)+'90'">circle</mat-icon>
         </mat-button-toggle>
       </mat-button-toggle-group>
@@ -213,6 +213,7 @@
         [active]="cards[currIndex].localID == card.localID"
         [frontActive]="this.frontSelected"
         (delete)="deleteCard($event)"
+        (deleteAnnotation)="deleteAnnotation($event.annotation.page,$event.annotation.id)"
         [deckName]="config.deckName"
         *ngFor="let card of cards; trackBy: getCardId; let i = index"
       ></app-card>

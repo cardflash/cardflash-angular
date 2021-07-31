@@ -1,7 +1,9 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   OnInit,
   QueryList,
   ViewChild,
@@ -23,12 +25,15 @@ import { recognize } from 'tesseract.js';
 import { TesseractLanguages } from '../../data/tesseract-languages';
 import { AnnotationFactory } from 'annotpdf';
 import { Annotation } from 'src/app/types/annotation';
+import { ViewportScroller } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
   styleUrls: ['./from-pdf.component.scss'],
 })
-export class FromPdfComponent implements OnInit {
+export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   pdfSrc: string | Uint8Array = '/assets/pdfs/flashcards_siter_eu.pdf';
   numPages = 1;
   page = 1;
@@ -124,6 +129,7 @@ export class FromPdfComponent implements OnInit {
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
 
+
   constructor(public dataService: DataService) {}
   async ngOnInit() {
     this.dataService.init().then(() => {
@@ -131,6 +137,10 @@ export class FromPdfComponent implements OnInit {
         this.config = this.dataService.prefs['config'];
       }
     });
+  }
+
+  async ngOnDestroy(){
+
   }
 
   async ngAfterViewInit() {
@@ -361,6 +371,11 @@ export class FromPdfComponent implements OnInit {
     if(filteredAnnot){
       this.annotationForPage.set(pageNumber,filteredAnnot);
     }
+    this.cards.forEach((card) => {
+      card.annotations = card.annotations?.filter((annot) => annot.id !== id);
+    })
+
+
     if(this.pdfApplication){
       const context = this.pdfCanvContext[pageNumber];
       const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
@@ -373,7 +388,7 @@ export class FromPdfComponent implements OnInit {
       this.removeDivWithID(id);
       setTimeout(() =>{
         this.drawAnnotationsOnPage(pageNumber);
-      },100)
+      },300)
     }
   }
 
@@ -482,7 +497,7 @@ export class FromPdfComponent implements OnInit {
     .getBoundingClientRect();
   return rect; 
 }
-  addHighlightForSelection(color: string = '#45454533') {
+  addHighlightForSelection(color: {hex: string, marker: string | undefined} = {hex:'#45454533', marker: undefined}) {
     const selectionRects = document
       .getSelection()
       ?.getRangeAt(0)
@@ -496,7 +511,9 @@ export class FromPdfComponent implements OnInit {
           const pdfPoint = this.getPDFPoint(r);
           if (pdfPoint) {
             pdfPoints.push(pdfPoint);
-            var splitHex = color.substring(1).match(/.{1,2}/g);
+
+            // Add annotations to pdf
+            var splitHex = color.hex.substring(1).match(/.{1,2}/g);
             if (!splitHex) {
               splitHex = ['45', '45', '45'];
             }
@@ -517,38 +534,30 @@ export class FromPdfComponent implements OnInit {
       const newAnnotation = {
         id: this.nanoid(),
         type: 'highlight',
-        color: color,
+        color: color.hex,
         points: pdfPoints,
+        page: this.page
       };
+      if(this.cards[this.currIndex].annotations){
+        this.cards[this.currIndex].annotations?.push(newAnnotation);
+      }else{
+        this.cards[this.currIndex].annotations = [newAnnotation];
+      }
+
       annotations.push(newAnnotation);
-      // var splitHex = color.substring(1).match(/.{1,2}/g);
-      // if (!splitHex) {
-      //   splitHex = ['45', '45', '45'];
-      // }
-      // this.annotationFactory?.createHighlightAnnotation(
-      //   this.page - 1,
-      //   this.getBoundsForAnnotations(newAnnotation),
-      //   'test name',
-      //   'test author',
-      //   {
-      //     r: parseInt(splitHex[0], 16),
-      //     g: parseInt(splitHex[1], 16),
-      //     b: parseInt(splitHex[2], 16),
-      //   }
-      // );
-      console.log(pdfPoints);
       this.annotationForPage.set(this.page, annotations);
       this.drawAnnotationOnPage(this.page,newAnnotation);
+      this.addTextSelectionToCard(color.marker,newAnnotation.id);
     }
   }
 
-  addTextSelectionToCard(marker: string | undefined = undefined) {
+  addTextSelectionToCard(marker: string | undefined = undefined,annotationId: string) {
     let toAdd: string = '';
     console.log(marker);
     if (!marker) {
-      toAdd = `<p>${this.getSelection()}</p><br/>`;
+      toAdd = `<p id="ANNTXT_${annotationId}">${this.getSelection()}</p><br/>`;
     } else {
-      toAdd = `<mark id="test" class="${marker}">${this.getSelection()}</mark><br/>`;
+      toAdd = `<mark id="ANNTXT_${annotationId}" class="${marker}">${this.getSelection()}</mark><br/>`;
     }
 
     if (this.frontSelected) {

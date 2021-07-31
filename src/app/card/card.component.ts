@@ -15,6 +15,8 @@ import { UserNotifierService } from '../services/notifier/user-notifier.service'
 import { DataService } from '../data.service';
 import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
 import { CardService } from './card.service';
+import { Router } from '@angular/router';
+import { Annotation } from '../types/annotation';
 
 @Component({
   selector: 'app-card',
@@ -32,6 +34,9 @@ export class CardComponent implements OnInit {
 
   @Output('delete') deleteEvent: EventEmitter<string> =
     new EventEmitter<string>();
+
+  @Output('deleteAnnotation') deleteAnnotationEvent: EventEmitter<{ annotation: Annotation}> =
+  new EventEmitter<{ annotation: Annotation}>();
 
   @Input('card') card: Card = {
     localID: '0',
@@ -57,7 +62,8 @@ export class CardComponent implements OnInit {
     private http: HttpClient,
     private userNotifierService: UserNotifierService,
     private dataService: DataService,
-    private cardService: CardService
+    private cardService: CardService,
+    private router: Router
   ) {}
 
   public readonly EDITOR_CONFIG = {
@@ -624,5 +630,14 @@ export class CardComponent implements OnInit {
     //     );
     //   }
     // });
+  }
+
+  async scrollToAnnotation(id: string){
+    await this.router.navigate([],{fragment: 'DIV_'+id});
+    await this.router.navigate([],{fragment: 'ANNTXT_'+id})
+  }
+
+  deleteAnnotation(annotation: Annotation){
+    this.deleteAnnotationEvent.emit({ annotation: annotation});
   }
 }
