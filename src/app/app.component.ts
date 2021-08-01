@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CardService } from './card/card.service';
 import { DataService } from './data.service';
+import { DocumentService } from './document.service';
 import { AccountService } from './services/account.service';
 
 @Component({
@@ -13,10 +14,11 @@ import { AccountService } from './services/account.service';
 export class AppComponent implements AfterViewInit, OnDestroy {
   anchorSubscription: Subscription | undefined;
   
-  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router){
+  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService){
     this.accountService.updateAcc();
     this.dataService.init();
     this.cardService.refresh();
+    this.documentService.refresh();
   }
   ngOnDestroy(): void {
       if(this.anchorSubscription){

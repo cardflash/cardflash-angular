@@ -1,0 +1,22 @@
+<div class="main">
+
+  <h1>Your cards for {{this.document?.name}}</h1>
+  <button class="backButton" mat-flat-button routerLink="/documents" color="accent">
+    <mat-icon>arrow_back_ios</mat-icon>Go back to documents
+    </button>
+    <br />
+    <br />
+    <button class="backButton" mat-flat-button routerLink="/create/from-document/{{document?.$id}}" color="primary">
+      Create new
+      <mat-icon>add_circle</mat-icon>
+      </button>
+  <div *ngIf="!this.document?.cards?.length">
+    <h2 >You currently have no cards for this document.</h2>
+  </div>
+  
+  <link href="/assets/card-styles.css" rel="stylesheet">
+  <div class="cards">
+  <app-static-card class="flexChild" *ngFor="let card of this.document?.cards"
+  [card]="card"></app-static-card>
+  </div>
+  </div>

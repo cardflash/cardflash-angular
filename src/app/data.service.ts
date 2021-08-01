@@ -41,6 +41,10 @@ export class DataService {
     this.appwrite = new Appwrite();
     this.appwrite.setEndpoint(environment.API_ENDPOINT);
     this.appwrite.setProject(environment.API_PROJECT);
+    this.appwrite.account.createJWT().then((res: any) => {
+      this.appwrite.setJWT(res.jwt);
+    });
+
     this.loadFailedRequests();
     // this.init();
 } 
@@ -136,44 +140,47 @@ export class DataService {
         return JSON.stringify(obj);
       }
 
-    async createDocumentOnline(collectionName: string, data: any, localID?: string, notifyOnSuccess : boolean = false) : Promise<string>{
+    async createDocumentOnline(collectionName: string, data: any, localID?: string, notifyOnSuccess : boolean = false) : Promise<any | undefined>{
       const apiProm =  this.appwrite.database.createDocument(environment.collectionMap[collectionName],data);
       const apiRes = await this.userNotifierService.notifyForPromiseFlag(apiProm, "(Online) " + collectionName +  " creation",notifyOnSuccess);
-      let ID = null;
-      if(localID){
-      if(apiRes.success){
+    //   if(localID){
+    if(apiRes.success){
 
-        ID = apiRes.result.$id;
-        data['$id'] = ID;
-        const collection = await this.getCollectionFromStorage(collectionName);
-        collection.set(localID,data);
-        await this.saveCollectionToStorage(collectionName,collection);
+    //     ID = apiRes.result.$id;
+    //     data['$id'] = ID;
+    //     const collection = await this.getCollectionFromStorage(collectionName);
+    //     collection.set(localID,data);
+    //     await this.saveCollectionToStorage(collectionName,collection);
     
-      }else{
-        this.failedRequests.push({ID: nanoid(), time: Date.now(),type: 'create', dataLocalID: localID, data: data, collectionName: collectionName});
-        this.saveFailedRequests();
-      }
-    }
-      return ID;
+    //   }else{
+    //     this.failedRequests.push({ID: nanoid(), time: Date.now(),type: 'create', dataLocalID: localID, data: data, collectionName: collectionName});
+    //     this.saveFailedRequests();
+    //   }
+
+    return apiRes.result;
+    }else{
+      return undefined;
+    } 
+    
       }
 
     
-      async updateDocumentOnline(collectionName: string, data : {$id?: string, localID: string}, notifyOnSuccess : boolean = false) : Promise<boolean>{
+      async updateDocumentOnline(collectionName: string, data : {$id?: string, localID?: string}, notifyOnSuccess : boolean = false) : Promise<any>{
         if(data.$id){
           const apiProm =  this.appwrite.database.updateDocument(environment.collectionMap[collectionName],data.$id,data);
           const apiRes = await this.userNotifierService.notifyForPromiseFlag(apiProm, "(Online) " + collectionName +  " Update",notifyOnSuccess);
           if(!apiRes.success){
-            this.failedRequests.push({ID: nanoid(), time: Date.now(), type: 'update', dataLocalID: data['localID'], dataID: data['$id'], data: data, collectionName: collectionName});
+            this.failedRequests.push({ID: nanoid(), time: Date.now(), type: 'update', dataLocalID: data['localID'] || '', dataID: data['$id'], data: data, collectionName: collectionName});
             this.saveFailedRequests();
-            return false;
+            return undefined;
           }else{
-            return true;
+            return apiRes.result;
           }
         }else{
           this.userNotifierService.notify("Object "+ data.localID + " does not exist on server.","","danger");
-          this.failedRequests.push({ID: nanoid(), time: Date.now(), type: 'update', dataLocalID: data['localID'], dataID: data['$id'], data: data, collectionName: collectionName});
+          this.failedRequests.push({ID: nanoid(), time: Date.now(), type: 'update', dataLocalID: data['localID'] || '', dataID: data['$id'], data: data, collectionName: collectionName});
           this.saveFailedRequests();
-          return false;
+          return undefined;
         }
       }
 
@@ -262,14 +269,14 @@ export class DataService {
         }
       }
 
-      let collection = await this.getCollectionFromStorage(collectionName);
+      // let collection = await this.getCollectionFromStorage(collectionName);
       // collection.clear();
       let serverCollection: Map<string,any> =  new Map<string,any>();
       documents.forEach((doc) => {
-        serverCollection.set(doc.localID,doc);
-        collection.set(doc.localID,doc);
+        serverCollection.set(doc.$id,doc);
+        // collection.set(doc.localID,doc);
       })
-      this.saveCollectionToStorage(collectionName,collection);
+      // this.saveCollectionToStorage(collectionName,collection);
         return serverCollection;
     }
 
@@ -477,10 +484,21 @@ export class DataService {
     return this.appwrite.storage.getFileDownload(fileid);
   }
 
-  async deleteImage(id: string){
+  async deleteFile(id: string){
     const prom = this.appwrite.storage.deleteFile(id);
-    const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Uploading Image");
+    const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Deleting File");
     return res.success;
+  }
+
+
+  async getOnlineDocument(collectionName: string, $id: string){
+    const prom = this.appwrite.database.getDocument(environment.collectionMap[collectionName],$id);
+    const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Retrieving by id for "+collectionName);
+    return res.result;
+  }
+
+  getHeaders(){
+    return this.appwrite.headers;
   }
 
 

@@ -61,7 +61,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Input('active') active: boolean = false;
   @Input('deckName') deckName?: string = this.dataService.config.deckName;
 
-  @Input('alreadyOnServer') alreadyOnServer: boolean = false;
+  @Input('alreadyOnServer') alreadyOnServer?: boolean;
 
   private readonly MODEL_VERSION: string = '2.1c';
 
@@ -221,21 +221,20 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
+
+    this.alreadyOnServer = (this.card.$id != undefined)
+
     this.annotations = []
-    this.card.annotations?.forEach((annot) => {
-      this.annotations.push(JSON.parse(annot));
-    })
-    if (this.card.imgs) {
-      // const serverNamingFunc = (i : number) => this.dataService.getFileView(this.card.imgs![i]).href;
-      // let newFrontContent = this.replaceImageLinks(this.card.front,this.card.imgs,serverNamingFunc);
-      // let newBackContent = this.replaceImageLinks(this.card.back,this.card.imgs,serverNamingFunc);
-      // console.log(newFrontContent);
-      // this.card.front = newFrontContent;
-      // this.card.back = newBackContent;
+    if( this.card.annotations){
+      for (let i = 0; i < this.card.annotations.length; i++) {
+        const annot = this.card.annotations[i];
+        this.annotations.push(JSON.parse(annot));
+        
+      }
     }
   }
   ngAfterViewInit(): void {
-    this.addAnnotationHelpers();
+    this.cardUpdated();
   }
 
   change() {
@@ -252,8 +251,8 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.frontEditorComponent.editorInstance.sourceElement;
   const backSourceEl: HTMLElement =
     this.backEditorComponent.editorInstance.sourceElement;
-
-    this.annotations?.forEach((annotation,index) => {
+      console.log("ADDING ANNOT",this.annotations);
+    this.annotations.forEach((annotation,index) => {
       const frontEl = frontSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
       const backEl = backSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
       let rect;
@@ -265,6 +264,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         rect = backEl?.getBoundingClientRect();
         ref = this.annotationHelperBack?.get(index);
       }
+      console.log(annotation,ref);
       if(ref){
         const parentRect = ref?.nativeElement.parentElement?.getBoundingClientRect();
         if(ref && rect && parentRect){
@@ -284,7 +284,16 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   cardUpdated(){
-    this.addAnnotationHelpers();
+    this.annotations = []
+    if( this.card.annotations){
+      for (let i = 0; i < this.card.annotations.length; i++) {
+        const annot = this.card.annotations[i];
+        this.annotations.push(JSON.parse(annot));
+        
+      }
+    }
+    setTimeout(() => this.addAnnotationHelpers(), 100);
+    
     console.log("updated");
   }
 
@@ -547,7 +556,6 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   async saveToServer() {
-    if (!this.dataService.offlineMode) {
       const imagelist = this.getImages();
       let promises = [];
       for (let i = 0; i < imagelist.length; i++) {
@@ -561,7 +569,6 @@ export class CardComponent implements OnInit, AfterViewInit {
         );
       }
       const imgRes = await Promise.all(promises);
-      console.log(this.card.imgs);
       const saveNamingFunc = (i: number) =>
         this.dataService.getFileView(imgRes[i]).href;
       this.card.front = this.replaceImageLinks(
@@ -575,8 +582,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         saveNamingFunc
       );
 
-      console.log(this.card.imgs);
-      if (this.alreadyOnServer) {
+      if (this.alreadyOnServer || this.card.$id) {
         if (this.card.imgs) {
           const copy = [...this.card.imgs];
           for (let i = 0; i < copy.length; i++) {
@@ -587,7 +593,7 @@ export class CardComponent implements OnInit, AfterViewInit {
               this.card.back.indexOf(id) < 0
             ) {
               // Image reference was deleted
-              await this.dataService.deleteImage(id);
+              await this.dataService.deleteFile(id);
               this.card.imgs?.splice(i, 1);
             }
           }
@@ -599,13 +605,18 @@ export class CardComponent implements OnInit, AfterViewInit {
       } else {
         this.card.imgs = imgRes;
       }
-      if (this.alreadyOnServer) {
+      if (this.alreadyOnServer || this.card.$id) {
         const res = await this.cardService.updateCard(this.card);
+        this.card = res;
+        this.cardChange.emit(this.card);
+        this.alreadyOnServer = true;
       } else {
         const res = await this.cardService.addCard(this.card);
+        this.card = res;
+        this.cardChange.emit(this.card);
         this.alreadyOnServer = true;
       }
-    }
+
   }
 
   deleteCard() {

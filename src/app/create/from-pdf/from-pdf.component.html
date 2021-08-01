@@ -158,6 +158,7 @@
     [(sidebarVisible)]="sidebarVisible"
     (sidebarVisibleChange)="calcScaling()"
     (pagesLoaded)="loadComplete($event)"
+    (pdfLoaded)="pdfLoadComplete($event)"
     (pageRendered)="pageRendered($event)"
     [ignoreKeys]="['1', '2', 'w', 's','space']"
     [enablePinchOnMobile]="true"
@@ -165,6 +166,8 @@
     [pageViewMode]="config.singlePageMode ? 'single' : 'multiple'"
     [height]="'100%'"
     [handTool]="false"
+    [authorization]="false"
+    [httpHeaders]="this.dataService.getHeaders()"
   ></ngx-extended-pdf-viewer>
   </div>
   </div>
@@ -191,7 +194,7 @@
   </div>
   <div class="currentCardActions">
     <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()">
-      Finish this card
+      New Card
     </button>
       <br>
     <mat-button-toggle-group class="currentCardSideToggle">
@@ -210,13 +213,13 @@
   </div>
     <div class="cards">
       <app-card
-        [(card)]="cards[i]"
-        [active]="cards[currIndex].localID == card.localID"
+        [(card)]="getCards()[i]"
+        [active]="getCards()[currIndex].localID == card.localID"
         [frontActive]="this.frontSelected"
         (delete)="deleteCard($event)"
         (deleteAnnotation)="deleteAnnotation($event.annotation.page,$event.annotation.id)"
         [deckName]="config.deckName"
-        *ngFor="let card of cards; trackBy: getCardId; let i = index"
+        *ngFor="let card of getCards(); trackBy: getCardId; let i = index"
       ></app-card>
     </div>
   </div>

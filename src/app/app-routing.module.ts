@@ -4,6 +4,7 @@ import { LoginComponent } from './account/login/login.component';
 import { EditCardComponent } from './card/edit-card/edit-card.component';
 import { CardsComponent } from './cards/cards.component';
 import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
+import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { DocumentsComponent } from './my/documents/documents.component';
 
 const routes: Routes = [
@@ -31,6 +32,10 @@ const routes: Routes = [
   {
     path: 'create/from-document/:id',
     component: FromPdfComponent
+  },
+  {
+    path: 'documents/:id/cards',
+    component: CardsForDocumentComponent
   }
 ];
 

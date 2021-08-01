@@ -1,8 +1,16 @@
 import { KeyValue } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { nanoid } from 'nanoid';
 import { Subscription } from 'rxjs';
 import { DataService } from 'src/app/data.service';
+import { DocumentService } from 'src/app/document.service';
+import { Card } from 'src/app/types/card';
 import { PDFDocument } from 'src/app/types/pdf-document';
 
 @Component({
@@ -10,26 +18,57 @@ import { PDFDocument } from 'src/app/types/pdf-document';
   templateUrl: './documents.component.html',
   styleUrls: ['./documents.component.scss'],
 })
-export class DocumentsComponent implements OnInit {
+export class DocumentsComponent implements OnInit, OnDestroy {
   public documentsCollection: Map<string, PDFDocument> = new Map<
     string,
     PDFDocument
   >();
+
+  public allTags: Map<string,Map<string,PDFDocument>> = new Map<string,Map<string,PDFDocument>>();
+
+  public filteredDocs: Map<string, PDFDocument> = new Map<
+  string,
+  PDFDocument
+>();
+
+  public selectedTag: string | undefined = '';
+  subscription: Subscription | undefined;
+
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
-  constructor(public dataService: DataService) {}
+  constructor(
+    public dataService: DataService,
+    public documentsService: DocumentService
+  ) {}
 
   async ngOnInit() {
-    this.updateData();
+    this.subscription = this.documentsService.documents$.subscribe((docs) =>
+      this.updateData(docs)
+    );
   }
 
-  async updateData(){
-    const res = await this.dataService.fetchOnlineCollection('documents');
-    if(res){
-      this.documentsCollection = res;
+  async updateData(docs: Map<string, PDFDocument>) {
+    if (docs) {
+      this.documentsCollection = docs;
+      this.allTags.clear();
+      this.documentsCollection.forEach((doc) => {
+        doc.tags?.forEach((tag) => {
+          if(doc.$id && this.allTags.has(tag)){
+            const vals = this.allTags.get(tag);
+            if(vals && !vals.has(doc.$id)){
+              vals.set(doc.$id,doc);
+            }
+          }else if(doc.$id){
+            this.allTags.set(tag,new Map<string,PDFDocument>([[doc.$id,doc]]));
+          }
+        })
+      })
+      this.filterByTags();
     }
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
+  }
 
   creationTimeOrder(
     a: KeyValue<string, PDFDocument>,
@@ -68,23 +107,70 @@ export class DocumentsComponent implements OnInit {
     }
   }
 
-  async uploadDocument(){
+  async uploadDocument() {
     const file = this.getFile();
-    if(file){
+    if (file) {
       const res = await this.dataService.uploadFile(file);
-      if(res){
-        const newDoc : PDFDocument = {
+      if (res) {
+        const newDoc: PDFDocument = {
           fileid: res,
           name: file.name,
           localID: nanoid(),
           creationTime: Date.now(),
           currentPage: 1,
           annotations: [],
-          cards: []
-        }
-        const doc = await this.dataService.createDocumentOnline('documents',newDoc,newDoc.localID,true);
-    this.updateData();
+          cards: [],
+          tags: [],
+        };
+        await this.documentsService.addDocument(newDoc);
       }
+    }
+  }
+
+  deleteDocument(doc: PDFDocument) {
+    this.documentsService.deleteDocument(doc);
+  }
+
+  addTagToDoc(doc: PDFDocument, tag: string) {
+    if (!doc.tags) {
+      doc.tags = [];
+    }
+    if(doc.tags.indexOf(tag) < 0){
+      doc.tags.push(tag);
+      this.documentsService.updateDocument(doc);
+    }
+  }
+
+  removeTagFromDoc(doc: PDFDocument, newTag: string) {
+    if (!doc.tags) {
+      doc.tags = [];
+    }
+    doc.tags = doc.tags.filter((tag) => tag !== newTag);
+    this.documentsService.updateDocument(doc);
+  }
+
+  updateNameForDoc(doc: PDFDocument, newName: string){
+    doc.name = newName;
+    this.documentsService.updateDocument(doc);
+  }
+
+  tagClicked(value: string){
+    if(this.selectedTag === value){
+      this.selectedTag  = undefined;
+    }else{
+      this.selectedTag  = value;
+    }
+    this.filterByTags()
+  }
+
+  filterByTags(){
+    if(this.selectedTag){
+      const filtered = this.allTags.get(this.selectedTag);
+      if(filtered){
+        this.filteredDocs = filtered
+      }
+    }else{
+      this.filteredDocs = this.documentsCollection;
     }
   }
 }

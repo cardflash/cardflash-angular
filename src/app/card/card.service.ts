@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { DataService } from '../data.service';
+import { DocumentService } from '../document.service';
 import { Card } from '../types/card';
 
 @Injectable({
@@ -10,7 +11,7 @@ export class CardService {
 
   public cards$ : BehaviorSubject<Map<string,Card>> = new BehaviorSubject<Map<string,Card>>(new Map<string,Card>());
 
-  constructor(private dataService: DataService) { 
+  constructor(private dataService: DataService, private documentService: DocumentService) { 
   }
 
   public static replaceImageLinks(content: string, imagelist : string[], naming : (index :number) => string){
@@ -35,19 +36,21 @@ export class CardService {
 
 
   async addCard(card: Card){
-    await this.dataService.createDocumentOnline('cards', card);
+    const res =await this.dataService.createDocumentOnline('cards', card);
     this.refresh();
+    return res;
   }
 
   async updateCard(card: Card){
-    await this.dataService.updateDocumentOnline('cards', card);
+    const res = await this.dataService.updateDocumentOnline('cards', card);
     this.refresh();
+    return res;
   }
 
   async deleteCard(card: Card){
     if(card.imgs){
       for(let i = 0; i<card.imgs.length; i++){
-        const imgSuccess = await this.dataService.deleteImage(card.imgs[i]);
+        const imgSuccess = await this.dataService.deleteFile(card.imgs[i]);
       }
     }
     await this.dataService.deleteDocumentOnline('cards',card.$id,card);
@@ -55,6 +58,7 @@ export class CardService {
   }
 
   async refresh(){
+    this.documentService.refresh();
     const cards = await this.dataService.fetchOnlineCollection('cards');
     if(cards){
       cards.forEach((card) => this.replaceImageLinksForCard(card));

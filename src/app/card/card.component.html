@@ -160,8 +160,10 @@
         style="margin-bottom: -1.25em"
         class="smallField"
       >
-        <mat-label>Card ID</mat-label>
-        <input matInput type="text" readonly [ngModel]="this.card.localID" />
+        <mat-label *ngIf="!this.card.$id">Card ID</mat-label>
+        <mat-label *ngIf="this.card.$id">Server ID</mat-label>
+        <input matInput *ngIf="!this.card.$id" type="text" readonly [ngModel]="this.card.localID" />
+        <input matInput *ngIf="this.card.$id" type="text" readonly [ngModel]="this.card.$id" />
       </mat-form-field>
       <mat-form-field
         class="miniField"

@@ -31,6 +31,8 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatTabsModule} from '@angular/material/tabs';
 import { DocumentsComponent } from './my/documents/documents.component';
 import { MatCardModule } from '@angular/material/card';
+import {MatChipsModule} from '@angular/material/chips'; 
+import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -39,6 +41,7 @@ import { MatCardModule } from '@angular/material/card';
     FromPdfComponent,
     CardsComponent,
     DocumentsComponent,
+    CardsForDocumentComponent,
   ],
   imports: [
     BrowserModule,
@@ -62,6 +65,7 @@ import { MatCardModule } from '@angular/material/card';
     MatSidenavModule,
     MatTabsModule,
     MatCardModule,
+    MatChipsModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'
