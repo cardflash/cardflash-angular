@@ -4,19 +4,11 @@
     #expansionPanel
     class="cardAccordion"
   >
-<!-- <div>
-      <mat-panel-title class="cardHeaderText">
-        {{ this.card.title || "Title" }}
-      </mat-panel-title>
-      <mat-panel-description class="cardHeaderText cardDescription">
-        {{ this.card.chapter || "Chapter" }}
-      </mat-panel-description>
-    </div> -->
+    <div class="cardSides">
     <mat-card class="front-card">
       <mat-card-header>
         <mat-card-subtitle>Front</mat-card-subtitle>
       </mat-card-header>
-      <!-- <mat-card-content> -->
       <div
         class="front-div"
         [ngClass]="{ active: active && frontActive }"
@@ -32,7 +24,7 @@
             mat-mini-fab
             class="navigationButton"
             title="Scroll to annotation"
-            (click)="scrollToAnnotation(annotation.id,'pdf')"
+            (click)="scrollToAnnotation(annotation,'pdf')"
             [ngStyle]="{ 'background-color': annotation.color }"
           >
             <mat-icon>navigate_before</mat-icon>
@@ -46,15 +38,12 @@
           [config]="EDITOR_CONFIG"
         ></ckeditor>
       </div>
-      <!-- </mat-card-content>     -->
     </mat-card>
-    <!-- <hr class="solid"> -->
-    <br />
+
     <mat-card class="back-card">
       <mat-card-header>
         <mat-card-subtitle>Back</mat-card-subtitle>
       </mat-card-header>
-      <!-- <mat-card-content> -->
       <div class="back-div" [ngClass]="{ active: active && !frontActive }">
         <div
         #annotationHelperBack
@@ -65,7 +54,7 @@
           mat-mini-fab
           class="navigationButton"
           title="Scroll to annotation"
-          (click)="scrollToAnnotation(annotation.id,'pdf')"
+          (click)="scrollToAnnotation(annotation,'pdf')"
           [ngStyle]="{ 'background-color': annotation.color }"
         >
           <mat-icon>navigate_before</mat-icon>
@@ -79,8 +68,8 @@
           [config]="EDITOR_CONFIG"
         ></ckeditor>
       </div>
-      <!-- </mat-card-content>     -->
     </mat-card>
+  </div>
     <br />
     <mat-accordion>
       <mat-expansion-panel>
@@ -132,7 +121,7 @@
               mat-mini-fab
               class="navigationButton"
               title="Scroll to annotation"
-              (click)="scrollToAnnotation(annotation.id,'both')"
+              (click)="scrollToAnnotation(annotation,'both')"
               [ngStyle]="{ 'background-color': annotation.color }"
             >
               <mat-icon>navigate_next</mat-icon>

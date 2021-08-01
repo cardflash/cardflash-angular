@@ -1,9 +1,9 @@
 #pdf-column{
-  width: 60%;
+  width: 55%;
   float: left;
 }
 #cards-column{
-  width: 40%;
+  width: 45%;
   float: right;
 }
 
@@ -72,11 +72,12 @@
 .cards{
   overflow-y: scroll;
   max-height: 70vh;
-  margin: 5px;
   padding: 10px;
-  max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .mat-button-toggle-checked {
@@ -96,4 +97,12 @@
   z-index: 3;
   text-align: center;
   display: none;
+}
+
+.staticCards{
+  flex: 0 0 300px;
+  margin: 10px;
+}
+.currentCard{
+  flex: 0 0 100%;
 }

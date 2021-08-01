@@ -43,6 +43,9 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Output('deleteAnnotation') deleteAnnotationEvent: EventEmitter<{ annotation: Annotation}> =
   new EventEmitter<{ annotation: Annotation}>();
 
+  @Output('scrollToAnnotation') scrollToAnnotationEvent: EventEmitter<{ annotation: Annotation, where: 'pdf' | 'card' | 'both'}> =
+  new EventEmitter<{ annotation: Annotation, where: 'pdf' | 'card' | 'both'}>();
+
   @Input('card') card: Card = {
     localID: '0',
     page: 0,
@@ -50,7 +53,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     chapter: '',
     front: '',
     back: '',
-    hiddenText: '',
+    hiddenText: '' ,
   };
 
   public annotations: Annotation[] = [];
@@ -232,9 +235,11 @@ export class CardComponent implements OnInit, AfterViewInit {
         
       }
     }
+    setTimeout(() => this.cardUpdated(),300);
   }
   ngAfterViewInit(): void {
-    this.cardUpdated();
+    setTimeout(() => this.cardUpdated(),300);
+    
   }
 
   change() {
@@ -251,7 +256,6 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.frontEditorComponent.editorInstance.sourceElement;
   const backSourceEl: HTMLElement =
     this.backEditorComponent.editorInstance.sourceElement;
-      console.log("ADDING ANNOT",this.annotations);
     this.annotations.forEach((annotation,index) => {
       const frontEl = frontSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
       const backEl = backSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
@@ -264,13 +268,12 @@ export class CardComponent implements OnInit, AfterViewInit {
         rect = backEl?.getBoundingClientRect();
         ref = this.annotationHelperBack?.get(index);
       }
-      console.log(annotation,ref);
       if(ref){
         const parentRect = ref?.nativeElement.parentElement?.getBoundingClientRect();
         if(ref && rect && parentRect){
           const top = rect.top-parentRect.top;
           if(top < 0 || top + 15 > parentRect.height ){
-            ref.nativeElement.style.display = "none"
+            // ref.nativeElement.style.display = "none"
           }else{
             ref.nativeElement.style.display = "block"
             ref.nativeElement.style.top = (rect.top-parentRect.top+40)+ "px";
@@ -284,17 +287,20 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   cardUpdated(){
-    this.annotations = []
-    if( this.card.annotations){
-      for (let i = 0; i < this.card.annotations.length; i++) {
-        const annot = this.card.annotations[i];
-        this.annotations.push(JSON.parse(annot));
-        
+    setTimeout( () => {
+      const annotations = []
+      if( this.card.annotations){
+        for (let i = 0; i < this.card.annotations.length; i++) {
+          const annot = this.card.annotations[i];
+          annotations.push(JSON.parse(annot));
+        }
       }
-    }
-    setTimeout(() => this.addAnnotationHelpers(), 100);
-    
-    console.log("updated");
+      this.annotations = annotations;
+      console.log(annotations);
+      setTimeout( () => {
+      this.addAnnotationHelpers();
+    },300) 
+  },300);
   }
 
   getImages() {
@@ -608,13 +614,13 @@ export class CardComponent implements OnInit, AfterViewInit {
       if (this.alreadyOnServer || this.card.$id) {
         const res = await this.cardService.updateCard(this.card);
         this.card = res;
-        this.cardChange.emit(this.card);
         this.alreadyOnServer = true;
+        return this.card;
       } else {
         const res = await this.cardService.addCard(this.card);
         this.card = res;
-        this.cardChange.emit(this.card);
         this.alreadyOnServer = true;
+        return this.card;
       }
 
   }
@@ -707,21 +713,10 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
   
   async scrollToAnnotation(
-    id: string,
+    annotation: Annotation,
     where: 'pdf' | 'card' | 'both' = 'card'
   ) {
-    switch (where) {
-      case 'pdf':
-        await this.router.navigate([], { fragment: environment.ANNOTATION_JMP_PREFIX + id });
-        break;
-      case 'card':
-        await this.router.navigate([], { fragment: environment.ANNOTATION_ON_CARD_PREFIX + id });
-        break;
-      default:
-        await this.router.navigate([], { fragment:  environment.ANNOTATION_JMP_PREFIX  + id });
-        await this.router.navigate([], { fragment: environment.ANNOTATION_ON_CARD_PREFIX + id });
-        break;
-    }
+    this.scrollToAnnotationEvent.emit({annotation: annotation, where: where})
   }
 
   deleteAnnotation(annotation: Annotation){

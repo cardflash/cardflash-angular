@@ -6,13 +6,15 @@
   <div  class="cardChapter">
     {{this.card.chapter || "-"}}
   </div>
-  <app-static-card-side [content]="card.front" name="Front"></app-static-card-side>
+  <app-static-card-side [content]="card.front" name="Front">
+    
+  </app-static-card-side>
 <app-static-card-side [content]="card.back" name="Back"></app-static-card-side>
 <div class="cardActions">
-<button mat-icon-button color="warn" aria-label="Delete icon button" (click)="deleteCard()" title="delete">
+<button mat-icon-button color="warn" aria-label="Delete icon button" (click)="deleteEmitter.emit(this.card)" title="delete">
   <mat-icon>delete</mat-icon>
 </button>
-<button mat-icon-button aria-label="Delete icon button" title="edit" routerLink="/cards/{{this.card.$id}}">
+<button mat-icon-button aria-label="Delete icon button" title="edit" (click)="editEmitter.emit(this.card)">
   <mat-icon>edit</mat-icon>
 </button>
 </div>

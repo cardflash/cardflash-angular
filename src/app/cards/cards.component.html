@@ -9,6 +9,6 @@
 <link href="/assets/card-styles.css" rel="stylesheet">
 <div class="cards">
 <app-static-card class="flexChild" *ngFor="let card of this.cardsCollection | keyvalue: creationTimeOrder"
-[card]="card.value"></app-static-card>
+[card]="card.value" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
 </div>
 </div>

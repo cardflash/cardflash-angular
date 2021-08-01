@@ -1,6 +1,6 @@
 import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CardService } from 'src/app/card/card.service';
 import { DataService } from 'src/app/data.service';
@@ -18,7 +18,7 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
   public document?: PDFDocument;
   private documentsSubscription : Subscription | undefined;
   public id: string;
-  constructor(private dataService: DataService, private cardService: CardService, private actRoute: ActivatedRoute, private documentService: DocumentService){
+  constructor(private dataService: DataService, private cardService: CardService, private actRoute: ActivatedRoute, private documentService: DocumentService, private router: Router){
     this.id = actRoute.snapshot.params.id
    }
 
@@ -52,6 +52,14 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
         return 0;
       }
     }
+  }
+
+  deleteCard(card: Card){
+    this.cardService.deleteCard(card);
+  }
+
+  editCard(card: Card){
+    this.router.navigate(["/cards/"+card.$id])
   }
 
 

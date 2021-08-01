@@ -1,5 +1,6 @@
 import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CardService } from '../card/card.service';
 import { DataService } from '../data.service';
@@ -13,7 +14,7 @@ import { Card } from '../types/card';
 export class CardsComponent implements OnInit, OnDestroy {
   public cardsCollection: Map<string,Card> = new Map<string,Card>();
   private subscription : Subscription | undefined;
-  constructor(private dataService: DataService, private cardService: CardService) { }
+  constructor(private dataService: DataService, private cardService: CardService, private router: Router) { }
 
   async ngOnInit() {
     this.subscription = this.cardService.cards$.subscribe((cards)=> this.loadCards(cards))
@@ -50,6 +51,14 @@ export class CardsComponent implements OnInit, OnDestroy {
         return 0;
       }
     }
+  }
+
+  deleteCard(card: Card){
+    this.cardService.deleteCard(card);
+  }
+
+  editCard(card: Card){
+    this.router.navigate(["/cards/"+card.$id])
   }
 
 

@@ -85,19 +85,18 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     | { x: number; y: number; absX: number; absY: number }
     | undefined = undefined;
   //cards
-  public cards: Card[] = [
-    {
-      localID: this.nanoid(),
-      front: '',
-      back: '',
-      page: this.page,
-      hiddenText: '',
-      chapter: '',
-      title: '',
-    },
-  ];
+  public cards: Card[] = [];
 
-  public currIndex = 0;
+  public currentCard: Card = {
+    localID: this.nanoid(),
+    front: '',
+    back: '',
+    page: this.page,
+    hiddenText: '',
+    chapter: '',
+    title: '',
+  };
+
   public frontSelected: boolean = true;
 
   public scale: number = 1;
@@ -119,7 +118,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public readonly OCR_LANGUAGES: { short: string; long: string }[] =
     TesseractLanguages.LANGS;
 
-  @ViewChildren(CardComponent) cardCompList?: QueryList<CardComponent>;
+  @ViewChild(CardComponent) cardComp?: CardComponent;
 
   public annotationFactory?: AnnotationFactory;
 
@@ -150,7 +149,9 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   async ngOnInit() {
     if (this.documentid) {
-      this.documentSub = this.documentService.documents$.subscribe((docs) => this.loadFromDocs(docs))
+      this.documentSub = this.documentService.documents$.subscribe((docs) =>
+        this.loadFromDocs(docs)
+      );
     }
 
     this.dataService.init().then(async () => {
@@ -160,33 +161,32 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  loadFromDocs(docs: Map<string,PDFDocument>){
-    if(this.documentid){
-    const doc = docs.get(this.documentid);
-    if (doc) {
-      this.documentSub?.unsubscribe();
-      this.document = doc;
+  loadFromDocs(docs: Map<string, PDFDocument>) {
+    if (this.documentid) {
+      const doc = docs.get(this.documentid);
+      if (doc) {
+        this.documentSub?.unsubscribe();
+        this.document = doc;
         this.pdfSrc = '';
         if (this.document.cards) {
         }
-        const src = this.dataService.getFileView(
-          this.document?.fileid
-        ).href;
+        const src = this.dataService.getFileView(this.document?.fileid).href;
         this.pdfSrc = src;
+        this.title = doc.name;
+        this.titleOptions = [this.title]
 
-if (this.document && this.document.annotations) {
-  for (let i = 0; i < this.document.annotations.length; i++) {
-    const annotJSON = this.document.annotations[i];
-    let annot: Annotation = JSON.parse(annotJSON);
-    if (this.annotationForPage.has(annot.page)) {
-      const forPage = this.annotationForPage.get(annot.page);
-      forPage!.push(annot);
-    } else {
-      this.annotationForPage.set(annot.page, [annot]);
-    }
-  }
-}
-      
+        if (this.document && this.document.annotations) {
+          for (let i = 0; i < this.document.annotations.length; i++) {
+            const annotJSON = this.document.annotations[i];
+            let annot: Annotation = JSON.parse(annotJSON);
+            if (this.annotationForPage.has(annot.page)) {
+              const forPage = this.annotationForPage.get(annot.page);
+              forPage!.push(annot);
+            } else {
+              this.annotationForPage.set(annot.page, [annot]);
+            }
+          }
+        }
       }
     }
   }
@@ -240,7 +240,9 @@ if (this.document && this.document.annotations) {
       this.page = 1;
     }
     this.pdfApplication = (window as any).PDFViewerApplication;
+    if(!this.document){
     this.titleOptions = [this.title];
+
     this.title = '';
     const pdfTitle = (this.pdfApplication as any).documentInfo?.Title;
     if (pdfTitle) {
@@ -255,6 +257,7 @@ if (this.document && this.document.annotations) {
         this.title = fileTitle;
       }
     }
+  }
 
     const outline = await this.pdfApplication?.pdfDocument.getOutline();
     this.pdfOutline = [];
@@ -457,44 +460,45 @@ if (this.document && this.document.annotations) {
       );
       console.log(page);
       jumpDiv.onclick = async (event: any) => {
-        this.scrollToAnnotation(annotation.id);
+        this.scrollToAnnotation({annotation: annotation, where: 'pdf'});
       };
       page.div.appendChild(jumpDiv);
     }
   }
 
-  async scrollToAnnotation(
-    id: string,
-    where: 'pdf' | 'card' | 'both' = 'card'
+  async scrollToAnnotation( event: { annotation: Annotation,   where: 'pdf' | 'card' | 'both' }
   ) {
-    switch (where) {
+    this.page = event.annotation.page;
+    setTimeout( async () => {
+    switch (event.where) {
       case 'pdf':
         await this.router.navigate([], {
-          fragment: environment.ANNOTATION_JMP_PREFIX + id,
+          fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
         });
         break;
       case 'card':
         await this.router.navigate([], {
-          fragment: environment.ANNOTATION_ON_CARD_PREFIX + id,
+          fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
         });
         break;
       default:
         await this.router.navigate([], {
-          fragment: environment.ANNOTATION_JMP_PREFIX + id,
+          fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
         });
         await this.router.navigate([], {
-          fragment: environment.ANNOTATION_ON_CARD_PREFIX + id,
+          fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
         });
         break;
     }
+  }, 300);
   }
 
-  getCards(){
-    if(this.document){
-      if(this.document.cards){
+  getCards() {
+    if (this.document) {
+      if (this.document.cards) {
         return this.document.cards;
-      }else{
-        const newCard : Card = {
+      } else {
+        const newCard: Card = {
           localID: this.nanoid(),
           front: '',
           back: '',
@@ -502,17 +506,17 @@ if (this.document && this.document.annotations) {
           chapter: '',
           title: this.title,
           hiddenText: '',
-          creationTime: Date.now()
+          creationTime: Date.now(),
         };
-        this.cardService.addCard(newCard).then((card)=> {
+        this.cardService.addCard(newCard).then((card) => {
           newCard.$id = card.$id;
           newCard.$permissions = card.$permissions;
           newCard.$collection = card.$collection;
-        })
+        });
         this.document.cards = [newCard];
         return this.document.cards;
       }
-    }else{
+    } else {
       return this.cards;
     }
   }
@@ -525,7 +529,7 @@ if (this.document && this.document.annotations) {
       this.annotationForPage.set(pageNumber, filteredAnnot);
     }
     this.getCards().forEach((card) => {
-      if(card.annotations && 'length' in card.annotations){
+      if (card.annotations && 'length' in card.annotations) {
         card.annotations = card.annotations?.filter(
           (annot) => JSON.parse(annot).id !== id
         );
@@ -636,10 +640,7 @@ if (this.document && this.document.annotations) {
           span.nodeName == 'SPAN' &&
           this.pdfApplication
         ) {
-          // span.style.backgroundColor = "red";
           this.selectionTools.nativeElement.style.display = 'none';
-
-          const page = this.pdfApplication.pdfViewer._pages[this.page - 1];
           this.selectionTimeout = setTimeout(() => {
             if (this.selectionTools) {
               const bounds = this.calcBoundsOfSelection();
@@ -711,7 +712,7 @@ if (this.document && this.document.annotations) {
         points: pdfPoints,
         page: this.page,
       };
-      const currCard = this.getCards()[this.currIndex];
+      const currCard = this.currentCard;
       if (currCard.annotations) {
         currCard.annotations.push(JSON.stringify(newAnnotation));
       } else {
@@ -741,30 +742,26 @@ if (this.document && this.document.annotations) {
     }
 
     if (this.frontSelected) {
-      this.addToCard(this.currIndex, 'front', toAdd);
+      this.addToCard('front', toAdd);
     } else {
-      this.addToCard(this.currIndex, 'back', toAdd);
+      this.addToCard('back', toAdd);
     }
     document.getSelection()?.empty();
   }
 
-  addToCard(
-    cardIndex: number,
-    where: 'front' | 'back' | 'hiddenText',
-    toAdd: string
-  ) {
+  addToCard(where: 'front' | 'back' | 'hiddenText', toAdd: string) {
     switch (where) {
       case 'front':
-        this.getCards()[cardIndex].front += toAdd;
+        this.currentCard.front += toAdd;
         break;
       case 'back':
-        this.getCards()[cardIndex].back += toAdd;
+        this.currentCard.back += toAdd;
         break;
       default:
-        this.getCards()[cardIndex].hiddenText += toAdd;
+        this.currentCard.hiddenText += toAdd;
         break;
     }
-    setTimeout(() => this.cardCompList?.get(cardIndex)?.cardUpdated(), 200);
+    this.cardComp?.cardUpdated();
   }
 
   @HostListener('window:resize', ['$event'])
@@ -812,28 +809,14 @@ if (this.document && this.document.annotations) {
       }
     }
   }
-  finishCard() {
-      if (this.cardCompList) {
-        this.cardCompList
-          .filter((cc: CardComponent) => cc.active)
-          .forEach(async (cc: CardComponent) => {
-            if (this.config.autoAddServer) {
-              await cc.saveToServer();
-              if (this.document && cc.card) {
-                this.saveDocument();
-              }
-            }
-            if (this.config.autoAddAnki) {
-              cc.save(true);
-            }
-          });
-      }
-    this.nextCard();
+  async finishCard() {
+    await this.saveCurrentCard();
+    await this.nextCard();
   }
 
   async nextCard() {
-    console.log("NEXT CARD")
-    const newCard : Card = {
+    console.log('NEXT CARD');
+    const newCard: Card = {
       localID: this.nanoid(),
       front: '',
       back: '',
@@ -841,25 +824,12 @@ if (this.document && this.document.annotations) {
       chapter: '',
       title: this.title,
       hiddenText: '',
-      creationTime: Date.now()
+      creationTime: Date.now(),
     };
-    this.currIndex = 0;
+
     this.frontSelected = true;
-    if(this.document){
-      this.getCards().unshift(newCard);
-      console.log("CARD ADDED local")
-      // this.cardService.addCard(newCard).then((card) => {
-      //   console.log("CARD ADDED with service")
-      //   this.getCards()[this.currIndex].$id = card.$id;
-      //   this.getCards()[this.currIndex].$collection = card.$collection;
-      //   this.getCards()[this.currIndex].$permissions = card.$permissions;
-      //   console.log("CARD updated after service")
-      // });
-      this.saveDocument();
-      
-    }else{
-      this.getCards().unshift(newCard);
-    }
+    this.currentCard = newCard;
+    this.cardComp?.cardUpdated();
   }
 
   mouseDown(event: MouseEvent) {
@@ -1092,22 +1062,17 @@ if (this.document && this.document.annotations) {
   async addSelection(text: string = '') {
     this.saveConfig();
     if (this.previewCanvas) {
-      if (
-        this.getCards()[this.currIndex].front === '' &&
-        this.getCards()[this.currIndex].back === ''
-      ) {
-        this.getCards()[this.currIndex].page = this.page;
+      if (this.currentCard.front === '' && this.currentCard.back === '') {
+        this.currentCard.page = this.page;
         this.chapter = this.getOutlineForPage(this.page);
       }
 
-      this.getCards()[this.currIndex].chapter =
-        this.getCards()[this.currIndex].chapter || this.getOutlineForPage(this.page);
-      this.getCards()[this.currIndex].title =
-        this.getCards()[this.currIndex].title || this.title;
+      this.currentCard.chapter =
+        this.currentCard.chapter || this.getOutlineForPage(this.page);
+      this.currentCard.title = this.currentCard.title || this.title;
 
       let dataURL: string =
         this.previewCanvas.nativeElement.toDataURL('image/png');
-      let saveIndex = this.currIndex;
 
       let toAdd: string = '';
 
@@ -1118,7 +1083,7 @@ if (this.document && this.document.annotations) {
 
       if (this.config.addTextOption && !this.config.addOcrTextOption) {
         if (this.config.addTextAsHidden) {
-          this.getCards()[this.currIndex].hiddenText += text + '\n';
+          this.currentCard.hiddenText += text + '\n';
         } else {
           toAdd += text;
         }
@@ -1127,12 +1092,12 @@ if (this.document && this.document.annotations) {
       toAdd += '\n <br>';
 
       if (this.frontSelected) {
-        this.getCards()[this.currIndex].front += toAdd;
+        this.currentCard.front += toAdd;
       } else {
-        this.getCards()[this.currIndex].back += toAdd;
+        this.currentCard.back += toAdd;
       }
 
-      let saveCardId: string = this.getCards()[this.currIndex].localID;
+      let saveCardId: string = this.currentCard.localID;
       let saveFrontSel = this.frontSelected;
       if (this.config.addTextOption && this.config.addOcrTextOption) {
         this.ocrLoadingNum++;
@@ -1171,6 +1136,31 @@ if (this.document && this.document.annotations) {
     }
   }
 
+  async saveCurrentCard(){
+      if (this.document) {
+        const cardIndex = this.getCards().findIndex((card) => card.localID === this.currentCard.localID);
+        console.log(cardIndex);
+        if (this.cardComp) {
+            if (this.config.autoAddAnki) {
+            await  this.cardComp.save(true);
+            }
+        if(cardIndex >= 0){
+          await this.cardComp.saveToServer();
+          this.getCards()[cardIndex] = this.currentCard;
+        }else if(this.currentCard.front != '' || this.currentCard.back != '' || this.currentCard.hiddenText != ''){
+          await this.cardComp.saveToServer().then((card) => {
+            this.getCards().unshift(card);
+          });
+        }
+        await this.saveDocument();
+      }
+    }
+  }
+
+  async deleteCurrentCard(){
+    this.deleteCard(this.currentCard.localID);
+    this.nextCard();
+  }
   async deleteCard(id: string) {
     let i = this.getCards().findIndex((c, i) => c.localID === id);
     if (i >= 0) {
@@ -1179,12 +1169,17 @@ if (this.document && this.document.annotations) {
         // await this.nextCard();
       } else {
         this.getCards().splice(i, 1);
-        this.currIndex = 0;
       }
     }
     if (this.document) {
       this.saveDocument();
     }
+  }
+
+  async editCard(card: Card) {
+    await this.saveCurrentCard();
+    this.currentCard = card;
+    this.cardComp?.cardUpdated();
   }
   getCardId(index: number, card: Card) {
     return card.localID;
@@ -1227,11 +1222,6 @@ if (this.document && this.document.annotations) {
 
   async saveDocument() {
     if (this.document) {
-      if(this.cardCompList){
-        for(let i = 0; i < this.cardCompList.length; i++)
-          await this.cardCompList.get(i)?.saveToServer();
-      }
-
       this.document.currentPage = this.page;
       this.annotationForPage.entries;
       const annotations = Array.from(this.annotationForPage.values());
@@ -1243,7 +1233,7 @@ if (this.document && this.document.annotations) {
       const jsonAnnot = flatAnnotations.map((annot) => JSON.stringify(annot));
       this.document.annotations = jsonAnnot;
       console.log(this.document);
-      this.documentService.updateDocument(this.document)
+      await this.documentService.updateDocument(this.document);
     }
   }
 }

@@ -17,6 +17,6 @@
   <link href="/assets/card-styles.css" rel="stylesheet">
   <div class="cards">
   <app-static-card class="flexChild" *ngFor="let card of this.document?.cards"
-  [card]="card"></app-static-card>
+  [card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
   </div>
   </div>

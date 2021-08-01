@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-static-card-side',
@@ -13,7 +14,9 @@ export class StaticCardSideComponent implements OnInit {
   
   @Input('content') public content: string = "";
   
-  constructor() { }
+
+  constructor() {
+  }
 
   ngOnInit(): void {
   }
