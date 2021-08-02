@@ -59,7 +59,7 @@
     <br />
     <br />
     <button *ngIf="this.accountService.isLoggedIn()"
-        (click)="accountService.logout()"
+        (click)="logout()"
         mat-stroked-button
         color="warn"
         routerLink="/login"

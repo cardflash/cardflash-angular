@@ -26,7 +26,7 @@
         mat-mini-fab
         class="navigationButton"
         title="Scroll to annotation"
-        (click)="scrollToAnnotation(annotation,'pdf')"
+        (click)="scrollToAnnotation(annotation.id,'pdf')"
         [ngStyle]="{ 'background-color': annotation.color }"
       >
         <mat-icon>navigate_before</mat-icon>
@@ -56,7 +56,7 @@
       mat-mini-fab
       class="navigationButton"
       title="Scroll to annotation"
-      (click)="scrollToAnnotation(annotation,'pdf')"
+      (click)="scrollToAnnotation(annotation.id)"
       [ngStyle]="{ 'background-color': annotation.color }"
     >
       <mat-icon>navigate_before</mat-icon>

@@ -24,7 +24,7 @@
             mat-mini-fab
             class="navigationButton"
             title="Scroll to annotation"
-            (click)="scrollToAnnotation(annotation,'pdf')"
+            (click)="scrollToAnnotation(annotation.id,'pdf')"
             [ngStyle]="{ 'background-color': annotation.color }"
           >
             <mat-icon>navigate_before</mat-icon>
@@ -54,7 +54,7 @@
           mat-mini-fab
           class="navigationButton"
           title="Scroll to annotation"
-          (click)="scrollToAnnotation(annotation,'pdf')"
+          (click)="scrollToAnnotation(annotation.id,'pdf')"
           [ngStyle]="{ 'background-color': annotation.color }"
         >
           <mat-icon>navigate_before</mat-icon>
@@ -121,19 +121,18 @@
               mat-mini-fab
               class="navigationButton"
               title="Scroll to annotation"
-              (click)="scrollToAnnotation(annotation,'both')"
+              (click)="scrollToAnnotation(annotation.id,'both')"
               [ngStyle]="{ 'background-color': annotation.color }"
             >
               <mat-icon>navigate_next</mat-icon>
             </button>
             <p>
               <span [ngStyle]="{ 'background-color': annotation.color }">{{
-                annotation.type
+                annotation.id
               }}</span>
-              on page {{ annotation.page }}
             </p>
             <button mat-icon-button>
-              <mat-icon color="warn" (click)="deleteAnnotation(annotation)"
+              <mat-icon color="warn" (click)="deleteAnnotation(annotation.id)"
                 >delete_outline</mat-icon
               >
             </button>

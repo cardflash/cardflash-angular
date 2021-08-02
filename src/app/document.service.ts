@@ -35,8 +35,6 @@ export class DocumentService {
 
   async refresh(){
     const documents = await this.dataService.fetchOnlineCollection('documents');
-    if(documents){
       this.documents$.next(documents);
-    }
   }
   }

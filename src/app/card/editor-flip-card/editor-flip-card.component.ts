@@ -35,10 +35,10 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
   };
 
   @Output('scrollToAnnotation') scrollToAnnotationEvent: EventEmitter<{
-    annotation: Annotation;
+    annotationID: string;
     where: 'pdf' | 'card' | 'both';
   }> = new EventEmitter<{
-    annotation: Annotation;
+    annotationID: string;
     where: 'pdf' | 'card' | 'both';
   }>();
 
@@ -59,7 +59,8 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
   @ViewChild('backEditor') backEditorComponent?: CKEditorComponent;
 
   public flipped: boolean = false;
-  public annotations: Annotation[] = [];
+  public annotations: { id: string; color: string }[] = [];
+
   public readonly EDITOR_CONFIG = {
     highlight: {
       options: [
@@ -196,18 +197,15 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
   };
 
   constructor() {}
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.cardUpdated();
+    }, 800);
+  }
 
   ngOnInit(): void {
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
-    this.annotations = [];
-    if (this.card.annotations) {
-      for (let i = 0; i < this.card.annotations.length; i++) {
-        const annot = this.card.annotations[i];
-        this.annotations.push(JSON.parse(annot));
-      }
-    }
     setTimeout(() => this.cardUpdated(), 300);
   }
 
@@ -257,26 +255,54 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
 
   cardUpdated() {
     setTimeout(() => {
-      const annotations = [];
-      if (this.card.annotations) {
-        for (let i = 0; i < this.card.annotations.length; i++) {
-          const annot = this.card.annotations[i];
-          annotations.push(JSON.parse(annot));
-        }
-      }
-      this.annotations = annotations;
-      console.log(annotations);
+      this.retrieveAnnotations();
       setTimeout(() => {
         this.addAnnotationHelpers();
       }, 300);
     }, 300);
   }
 
+  retrieveAnnotations() {
+    if (
+      this.frontEditorComponent?.editorInstance &&
+      this.backEditorComponent?.editorInstance
+    ) {
+      const frontSourceEl: HTMLElement =
+        this.frontEditorComponent.editorInstance.sourceElement;
+      const backSourceEl: HTMLElement =
+        this.backEditorComponent.editorInstance.sourceElement;
+
+      let frontSpans = frontSourceEl.querySelectorAll('span');
+      let backSpans = backSourceEl.querySelectorAll('span');
+
+      const annotations: { id: string; color: string }[] = [];
+      frontSpans.forEach((span) => {
+        if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
+          annotations.push({
+            id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
+            color: span.getAttribute('annotationColor') || '#45454513',
+          });
+        }
+      });
+
+      backSpans.forEach((span) => {
+        if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
+          annotations.push({
+            id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
+            color: span.getAttribute('annotationColor') || '#45454513',
+          });
+        }
+      });
+      console.log('annotations:)', annotations);
+      this.annotations = annotations;
+    }
+  }
+
   async scrollToAnnotation(
-    annotation: Annotation,
+    annotationID: string,
     where: 'pdf' | 'card' | 'both' = 'card'
   ) {
-    this.scrollToAnnotationEvent.emit({ annotation: annotation, where: where });
+    this.scrollToAnnotationEvent.emit({ annotationID: annotationID, where: where });
   }
 
   @HostListener('window:scroll', ['$event'])

@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CardService } from 'src/app/card/card.service';
+import { DocumentService } from 'src/app/document.service';
 import { AccountService } from 'src/app/services/account.service';
+import { UserNotifierService } from 'src/app/services/notifier/user-notifier.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -21,7 +24,7 @@ export class LoginComponent implements OnInit {
   public verifySecret: string = '';
   public verifyUserid: string = '';
 
-  constructor(private formBuilder : FormBuilder, public accountService: AccountService,private route: ActivatedRoute, private router: Router) {
+  constructor(private formBuilder : FormBuilder, public accountService: AccountService,private route: ActivatedRoute, private router: Router, private cardService: CardService, private documentService: DocumentService, private userNotifierService: UserNotifierService) {
     this.loginForm = formBuilder.group({
       email: ['',[Validators.required,Validators.email]],
       password: ['',[Validators.required,Validators.minLength(environment.MIN_PW_LENGTH),Validators.maxLength(environment.MAX_PW_LENGTH)]]
@@ -55,6 +58,10 @@ export class LoginComponent implements OnInit {
       if(success){
         this.loginForm.get('password')?.setValue("");
         this.loginForm.get('repeatPassword')?.setValue("");
+        this.userNotifierService.notify("Login successfull!","","success",true);
+        this.cardService.refresh();
+        this.documentService.refresh();
+        this.router.navigate(['/documents']);
       }
     }
   }
@@ -65,6 +72,10 @@ export class LoginComponent implements OnInit {
       if(success){
         this.registerForm.get('password')?.setValue("");
         this.registerForm.get('repeatPassword')?.setValue("");
+        this.userNotifierService.notify("Registration successfull!","","success",true);
+        this.cardService.refresh();
+        this.documentService.refresh();
+        this.router.navigate(['/documents']);
       }
     }
   }

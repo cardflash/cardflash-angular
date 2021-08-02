@@ -40,11 +40,17 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Output('delete') deleteEvent: EventEmitter<string> =
     new EventEmitter<string>();
 
-  @Output('deleteAnnotation') deleteAnnotationEvent: EventEmitter<{ annotation: Annotation}> =
-  new EventEmitter<{ annotation: Annotation}>();
+  @Output('deleteAnnotation') deleteAnnotationEvent: EventEmitter<{
+    annotationID: string;
+  }> = new EventEmitter<{ annotationID: string }>();
 
-  @Output('scrollToAnnotation') scrollToAnnotationEvent: EventEmitter<{ annotation: Annotation, where: 'pdf' | 'card' | 'both'}> =
-  new EventEmitter<{ annotation: Annotation, where: 'pdf' | 'card' | 'both'}>();
+  @Output('scrollToAnnotation') scrollToAnnotationEvent: EventEmitter<{
+    annotationID: string;
+    where: 'pdf' | 'card' | 'both';
+  }> = new EventEmitter<{
+    annotationID: string;
+    where: 'pdf' | 'card' | 'both';
+  }>();
 
   @Input('card') card: Card = {
     localID: '0',
@@ -53,10 +59,11 @@ export class CardComponent implements OnInit, AfterViewInit {
     chapter: '',
     front: '',
     back: '',
-    hiddenText: '' ,
+    hiddenText: '',
   };
 
-  public annotations: Annotation[] = [];
+  public annotations: { id: string; color: string }[] = [];
+
   @Output('cardChange') cardChange: EventEmitter<Card> =
     new EventEmitter<Card>();
 
@@ -68,8 +75,12 @@ export class CardComponent implements OnInit, AfterViewInit {
 
   private readonly MODEL_VERSION: string = '2.1d';
 
-  @ViewChildren('annotationHelperFront') annotationHelperFront? : QueryList<ElementRef<HTMLDivElement>>;
-  @ViewChildren('annotationHelperBack') annotationHelperBack? : QueryList<ElementRef<HTMLDivElement>>;
+  @ViewChildren('annotationHelperFront') annotationHelperFront?: QueryList<
+    ElementRef<HTMLDivElement>
+  >;
+  @ViewChildren('annotationHelperBack') annotationHelperBack?: QueryList<
+    ElementRef<HTMLDivElement>
+  >;
 
   constructor(
     private http: HttpClient,
@@ -213,7 +224,6 @@ export class CardComponent implements OnInit, AfterViewInit {
     licenseKey: '',
   };
 
-
   ngOnInit(): void {
     if (!this.card.creationTime) {
       this.card.creationTime = Date.now();
@@ -221,23 +231,14 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
 
-    
+    this.alreadyOnServer = this.card.$id != undefined;
 
-    this.alreadyOnServer = (this.card.$id != undefined)
-
-    this.annotations = []
-    if( this.card.annotations){
-      for (let i = 0; i < this.card.annotations.length; i++) {
-        const annot = this.card.annotations[i];
-        this.annotations.push(JSON.parse(annot));
-        
-      }
-    }
-    setTimeout(() => this.cardUpdated(),300);
+    setTimeout(() => this.cardUpdated(), 300);
   }
   ngAfterViewInit(): void {
-    setTimeout(() => this.cardUpdated(),300);
-    
+    setTimeout(() => {
+      this.cardUpdated();
+    }, 800);
   }
 
   change() {
@@ -245,61 +246,93 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.addAnnotationHelpers();
   }
 
-
-  addAnnotationHelpers(){
+  addAnnotationHelpers() {
     if (
       this.frontEditorComponent?.editorInstance &&
       this.backEditorComponent?.editorInstance
     ) {
-    const frontSourceEl: HTMLElement =
-    this.frontEditorComponent.editorInstance.sourceElement;
-  const backSourceEl: HTMLElement =
-    this.backEditorComponent.editorInstance.sourceElement;
-    this.annotations.forEach((annotation,index) => {
-      const frontEl = frontSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
-      const backEl = backSourceEl.querySelector("#"+environment.ANNOTATION_ON_CARD_PREFIX+annotation.id);
-      let rect;
-      let ref;
-      if(frontEl){
-        rect = frontEl?.getBoundingClientRect();
-        ref = this.annotationHelperFront?.get(index);
-      }else{
-        rect = backEl?.getBoundingClientRect();
-        ref = this.annotationHelperBack?.get(index);
-      }
-      if(ref){
-        const parentRect = ref?.nativeElement.parentElement?.getBoundingClientRect();
-        if(ref && rect && parentRect){
-          const top = rect.top-parentRect.top;
-          if(top < 0 || top + 15 > parentRect.height ){
-            // ref.nativeElement.style.display = "none"
-          }else{
-            ref.nativeElement.style.display = "block"
-            ref.nativeElement.style.top = (rect.top-parentRect.top+40)+ "px";
-            ref.nativeElement.style.left = (-20) + "px";
+      const frontSourceEl: HTMLElement =
+        this.frontEditorComponent.editorInstance.sourceElement;
+      const backSourceEl: HTMLElement =
+        this.backEditorComponent.editorInstance.sourceElement;
+      this.annotations.forEach((annotation, index) => {
+        const frontEl = frontSourceEl.querySelector(
+          '#' + environment.ANNOTATION_ON_CARD_PREFIX + annotation.id
+        );
+        const backEl = backSourceEl.querySelector(
+          '#' + environment.ANNOTATION_ON_CARD_PREFIX + annotation.id
+        );
+        let rect;
+        let ref;
+        if (frontEl) {
+          rect = frontEl?.getBoundingClientRect();
+          ref = this.annotationHelperFront?.get(index);
+        } else {
+          rect = backEl?.getBoundingClientRect();
+          ref = this.annotationHelperBack?.get(index);
+        }
+        if (ref) {
+          const parentRect =
+            ref?.nativeElement.parentElement?.getBoundingClientRect();
+          if (ref && rect && parentRect) {
+            const top = rect.top - parentRect.top;
+            if (top < 0 || top + 15 > parentRect.height) {
+              ref.nativeElement.style.display = "none"
+            } else {
+              ref.nativeElement.style.display = 'block';
+              ref.nativeElement.style.top =
+                rect.top - parentRect.top + 40 + 'px';
+              ref.nativeElement.style.left = -20 + 'px';
+            }
           }
-
         }
-      }
-    })
-  }
+      });
+    }
   }
 
-  cardUpdated(){
-    setTimeout( () => {
-      const annotations = []
-      if( this.card.annotations){
-        for (let i = 0; i < this.card.annotations.length; i++) {
-          const annot = this.card.annotations[i];
-          annotations.push(JSON.parse(annot));
+  cardUpdated() {
+    setTimeout(() => {
+      this.retrieveAnnotations();
+      setTimeout(() => {
+        this.addAnnotationHelpers();
+      }, 300);
+    }, 300);
+  }
+
+  retrieveAnnotations() {
+    if (
+      this.frontEditorComponent?.editorInstance &&
+      this.backEditorComponent?.editorInstance
+    ) {
+      const frontSourceEl: HTMLElement =
+        this.frontEditorComponent.editorInstance.sourceElement;
+      const backSourceEl: HTMLElement =
+        this.backEditorComponent.editorInstance.sourceElement;
+
+      let frontSpans = frontSourceEl.querySelectorAll('span');
+      let backSpans = backSourceEl.querySelectorAll('span');
+
+      const annotations: { id: string; color: string }[] = [];
+      frontSpans.forEach((span) => {
+        if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
+          annotations.push({
+            id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
+            color: span.getAttribute('annotationColor') || '#45454513',
+          });
         }
-      }
+      });
+
+      backSpans.forEach((span) => {
+        if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
+          annotations.push({
+            id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
+            color: span.getAttribute('annotationColor') || '#45454513',
+          });
+        }
+      });
+      console.log('annotations:)', annotations);
       this.annotations = annotations;
-      console.log(annotations);
-      setTimeout( () => {
-      this.addAnnotationHelpers();
-    },300) 
-  },300);
+    }
   }
 
   getImages() {
@@ -450,7 +483,7 @@ export class CardComponent implements OnInit, AfterViewInit {
               Page: this.card.page.toString(),
               Chapter: this.card.chapter,
               Hidden: this.card.hiddenText,
-              URL: environment.BASE_URL+"/cards/"+this.card.$id
+              URL: environment.BASE_URL + '/cards/' + this.card.$id,
             },
             options: {
               allowDuplicate: false,
@@ -562,67 +595,66 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   async saveToServer() {
-      const imagelist = this.getImages();
-      let promises = [];
-      for (let i = 0; i < imagelist.length; i++) {
-        const img = imagelist[i];
-        // img: data:image/png;base64,...
-        const blob: Blob = await imgSrcToBlob(img);
-        promises.push(
-          this.dataService.saveImage(
-            new File([blob], this.card.localID + '-' + i + '.png')
-          )
-        );
-      }
-      const imgRes = await Promise.all(promises);
-      const saveNamingFunc = (i: number) =>
-        this.dataService.getFileView(imgRes[i]).href;
-      this.card.front = this.replaceImageLinks(
-        this.card.front,
-        imagelist,
-        saveNamingFunc
+    const imagelist = this.getImages();
+    let promises = [];
+    for (let i = 0; i < imagelist.length; i++) {
+      const img = imagelist[i];
+      // img: data:image/png;base64,...
+      const blob: Blob = await imgSrcToBlob(img);
+      promises.push(
+        this.dataService.saveImage(
+          new File([blob], this.card.localID + '-' + i + '.png')
+        )
       );
-      this.card.back = this.replaceImageLinks(
-        this.card.back,
-        imagelist,
-        saveNamingFunc
-      );
+    }
+    const imgRes = await Promise.all(promises);
+    const saveNamingFunc = (i: number) =>
+      this.dataService.getFileView(imgRes[i]).href;
+    this.card.front = this.replaceImageLinks(
+      this.card.front,
+      imagelist,
+      saveNamingFunc
+    );
+    this.card.back = this.replaceImageLinks(
+      this.card.back,
+      imagelist,
+      saveNamingFunc
+    );
 
-      if (this.alreadyOnServer || this.card.$id) {
-        if (this.card.imgs) {
-          const copy = [...this.card.imgs];
-          for (let i = 0; i < copy.length; i++) {
-            const id = copy[i];
-            console.log(id);
-            if (
-              this.card.front.indexOf(id) < 0 &&
-              this.card.back.indexOf(id) < 0
-            ) {
-              // Image reference was deleted
-              await this.dataService.deleteFile(id);
-              this.card.imgs?.splice(i, 1);
-            }
+    if (this.alreadyOnServer || this.card.$id) {
+      if (this.card.imgs) {
+        const copy = [...this.card.imgs];
+        for (let i = 0; i < copy.length; i++) {
+          const id = copy[i];
+          console.log(id);
+          if (
+            this.card.front.indexOf(id) < 0 &&
+            this.card.back.indexOf(id) < 0
+          ) {
+            // Image reference was deleted
+            await this.dataService.deleteFile(id);
+            this.card.imgs?.splice(i, 1);
           }
         }
       }
+    }
 
-      if (this.card.imgs) {
-        this.card.imgs = this.card.imgs.concat(imgRes);
-      } else {
-        this.card.imgs = imgRes;
-      }
-      if (this.alreadyOnServer || this.card.$id) {
-        const res = await this.cardService.updateCard(this.card);
-        this.card = res;
-        this.alreadyOnServer = true;
-        return this.card;
-      } else {
-        const res = await this.cardService.addCard(this.card);
-        this.card = res;
-        this.alreadyOnServer = true;
-        return this.card;
-      }
-
+    if (this.card.imgs) {
+      this.card.imgs = this.card.imgs.concat(imgRes);
+    } else {
+      this.card.imgs = imgRes;
+    }
+    if (this.alreadyOnServer || this.card.$id) {
+      const res = await this.cardService.updateCard(this.card);
+      this.card = res;
+      this.alreadyOnServer = true;
+      return this.card;
+    } else {
+      const res = await this.cardService.addCard(this.card);
+      this.card = res;
+      this.alreadyOnServer = true;
+      return this.card;
+    }
   }
 
   deleteCard() {
@@ -651,7 +683,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           'Title',
           'Page',
           'Chapter',
-          "URL",
+          'URL',
           'Hidden',
         ],
         css: ckEditorCss,
@@ -712,21 +744,26 @@ export class CardComponent implements OnInit, AfterViewInit {
     //   }
     // });
   }
-  
+
   async scrollToAnnotation(
-    annotation: Annotation,
+    annotationID: string,
     where: 'pdf' | 'card' | 'both' = 'card'
   ) {
-    this.scrollToAnnotationEvent.emit({annotation: annotation, where: where})
+    this.scrollToAnnotationEvent.emit({
+      annotationID: annotationID,
+      where: where,
+    });
   }
 
-  deleteAnnotation(annotation: Annotation){
-    this.deleteAnnotationEvent.emit({ annotation: annotation});
+  deleteAnnotation(annotationID: string) {
+    this.annotations = this.annotations.filter(
+      (annot) => annot.id !== annotationID
+    );
+    this.deleteAnnotationEvent.emit({ annotationID: annotationID });
   }
 
-  @HostListener('window:scroll', ['$event']) 
-    onScroll(event: any) {
-      this.addAnnotationHelpers();
-    }
-
+  @HostListener('window:scroll', ['$event'])
+  onScroll(event: any) {
+    this.addAnnotationHelpers();
+  }
 }

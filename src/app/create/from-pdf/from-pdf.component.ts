@@ -444,7 +444,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           "px; width: 15px; height: 15px; background-image: url('/assets/delete.svg');"
       );
       delDiv.onclick = async (event: any) => {
-        this.deleteAnnotation(pageNumber, annotation.id);
+        this.deleteAnnotation(annotation.id);
       };
       page.div.appendChild(delDiv);
 
@@ -464,17 +464,31 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           "px; width: 15px; height: 15px; background-image: url('/assets/right.svg');"
       );
       jumpDiv.onclick = async (event: any) => {
-        this.scrollToAnnotation({annotation: annotation, where: 'card'});
+        this.scrollToAnnotation({annotationID: annotation.id, where: 'card'});
       };
       page.div.appendChild(jumpDiv);
     }
   }
 
-  async scrollToAnnotation( event: { annotation: Annotation,   where: 'pdf' | 'card' | 'both' }
+  getAnnotationByID(annotationID: string){
+    for (const annots of  this.annotationForPage.values()) {
+      for (const annot of annots) {
+          if(annot.id === annotationID){
+            return annot;
+          }
+      }
+    }
+    return undefined;
+  }
+
+  async scrollToAnnotation( event: { annotationID: string,   where: 'pdf' | 'card' | 'both' }
   ) {
-    this.page = event.annotation.page;
+    const annotation : Annotation | undefined = this.getAnnotationByID(event.annotationID)
+    if(annotation){
+      this.page = annotation.page;
+    }
     if(event.where === 'card' || event.where === 'both'){
-      this.flipCardChilds?.forEach((fc) => fc.flipToSideForAnnotation(event.annotation.id));
+      this.flipCardChilds?.forEach((fc) => fc.flipToSideForAnnotation(event.annotationID));
     }
     setTimeout( async () => {
     switch (event.where) {
@@ -482,20 +496,20 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         // await this.router.navigate([], {
         //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
         // });
-        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotation.id);
+        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
         break;
       case 'card':
         // await this.router.navigate([], {
         //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
         // });
-        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id);
+        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
         break;
       default:
         // await this.router.navigate([], {
         //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
         // });
-        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotation.id);
-        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id);
+        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
+        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
         // await this.router.navigate([], {
         //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
         // });
@@ -522,27 +536,21 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async deleteAnnotation(pageNumber: number, id: string) {
-    const filteredAnnot = this.annotationForPage
-      .get(pageNumber)
+  async deleteAnnotation(id: string) {
+    const annotation = this.getAnnotationByID(id);
+    if(annotation){
+      const filteredAnnot = this.annotationForPage
+      .get(annotation.page)
       ?.filter((annot) => annot.id !== id);
     if (filteredAnnot) {
-      this.annotationForPage.set(pageNumber, filteredAnnot);
+      this.annotationForPage.set(annotation.page, filteredAnnot);
     }
-    this.getCards().forEach((card) => {
-      if (card.annotations && 'length' in card.annotations) {
-        card.annotations = card.annotations?.filter(
-          (annot) => JSON.parse(annot).id !== id
-        );
-        this.cardService.updateCard(card);
-      }
-    });
 
     this.saveDocument();
 
     if (this.pdfApplication) {
-      const context = this.pdfCanvContext[pageNumber];
-      const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
+      const context = this.pdfCanvContext[annotation.page];
+      const page = this.pdfApplication.pdfViewer._pages[annotation.page - 1];
       const viewport = page.viewport;
 
       const pageRef = await (
@@ -554,9 +562,11 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.removeDivWithID(id);
       setTimeout(() => {
-        this.drawAnnotationsOnPage(pageNumber);
+        this.drawAnnotationsOnPage(annotation.page);
       }, 300);
     }
+    }
+
   }
 
   removeDivWithID(id: string) {
@@ -669,7 +679,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   addHighlightForSelection(
     color: { hex: string; marker: string | undefined } = {
-      hex: '#45454533',
+      hex: '#45454513',
       marker: undefined,
     }
   ) {
@@ -713,33 +723,27 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         points: pdfPoints,
         page: this.page,
       };
-      const currCard = this.currentCard;
-      if (currCard.annotations) {
-        currCard.annotations.push(JSON.stringify(newAnnotation));
-      } else {
-        currCard.annotations = [JSON.stringify(newAnnotation)];
-      }
       annotations.push(newAnnotation);
       this.annotationForPage.set(this.page, annotations);
       this.drawAnnotationOnPage(this.page, newAnnotation);
-      this.addTextSelectionToCard(color.marker, newAnnotation.id);
+      this.addTextSelectionToCard(color.marker, newAnnotation);
       this.saveDocument();
     }
   }
 
   addTextSelectionToCard(
     marker: string | undefined = undefined,
-    annotationId: string
+    annotation: Annotation
   ) {
     let toAdd: string = '';
     if (!marker) {
-      toAdd = `<p id="${
+      toAdd = `<span id="${
         environment.ANNOTATION_ON_CARD_PREFIX
-      }${annotationId}">${this.getSelection()}</p><br/>`;
+      }${annotation.id}" annotationColor="${annotation.color}">${this.getSelection()}</span><br/>`;
     } else {
       toAdd = `<mark class="${marker}"><span id="${
         environment.ANNOTATION_ON_CARD_PREFIX
-      }${annotationId}">${this.getSelection()}</span></mark><br/>`;
+      }${annotation.id}" annotationColor="${annotation.color}">${this.getSelection()}</span></mark><br/>`;
     }
 
     if (this.frontSelected) {
@@ -751,6 +755,15 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addToCard(where: 'front' | 'back' | 'hiddenText', toAdd: string) {
+    if (this.currentCard.front === '' && this.currentCard.back === '') {
+      this.currentCard.page = this.page;
+      this.chapter = this.getOutlineForPage(this.page);
+    }
+
+    this.currentCard.chapter =
+      this.currentCard.chapter || this.getOutlineForPage(this.page);
+    this.currentCard.title = this.currentCard.title || this.title;
+
     switch (where) {
       case 'front':
         this.currentCard.front += toAdd;
@@ -762,6 +775,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         this.currentCard.hiddenText += toAdd;
         break;
     }
+
     this.cardComp?.cardUpdated();
   }
 
@@ -1142,12 +1156,12 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         const cardIndex = this.getCards().findIndex((card) => card.localID === this.currentCard.localID);
         console.log(cardIndex);
         if (this.cardComp) {
-        if(cardIndex >= 0){
-          await this.cardComp.saveToServer();
+          if(cardIndex >= 0){
+          const card = await this.cardComp.saveToServer();
           if (this.config.autoAddAnki) {
             await  this.cardComp?.save(true);
             }
-          this.getCards()[cardIndex] = this.currentCard;
+          this.getCards()[cardIndex] = card;
         }else if(this.currentCard.front != '' || this.currentCard.back != '' || this.currentCard.hiddenText != ''){
           const card = await this.cardComp.saveToServer();
             if (this.config.autoAddAnki) {

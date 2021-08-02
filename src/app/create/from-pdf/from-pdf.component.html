@@ -218,7 +218,7 @@
         [active]="true"
         [frontActive]="this.frontSelected"
         (delete)="deleteCurrentCard()"
-        (deleteAnnotation)="deleteAnnotation($event.annotation.page,$event.annotation.id)"
+        (deleteAnnotation)="deleteAnnotation($event.annotationID)"
         [deckName]="config.deckName"
         (scrollToAnnotation)="scrollToAnnotation($event)"
       ></app-card>

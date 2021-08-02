@@ -45,4 +45,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     } 
       );
   }
+
+
+  async logout(){
+    await this.accountService.logout();
+    this.cardService.refresh();
+    this.documentService.refresh();
+  }
 }
