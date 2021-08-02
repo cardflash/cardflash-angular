@@ -138,7 +138,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('flipCard')
   public flipCardChilds? : QueryList<EditorFlipCardComponent>;
 
-
+  public busy: boolean = false;
   public documentid: string | undefined;
   public document: PDFDocument | undefined;
   public documentSub: Subscription | undefined;
@@ -169,14 +169,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   loadFromDocs(docs: Map<string, PDFDocument>) {
     if (this.documentid) {
       const doc = docs.get(this.documentid);
+      this.busy = true;
       if (doc) {
         this.documentSub?.unsubscribe();
         this.document = doc;
         this.pdfSrc = '';
         if (this.document.cards) {
         }
-        const src = this.dataService.getFileView(this.document?.fileid).href;
-        this.pdfSrc = src;
         this.title = doc.name;
         this.titleOptions = [this.title]
 
@@ -192,6 +191,8 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }
+        const src = this.dataService.getFileView(this.document?.fileid).href;
+        this.pdfSrc = src;
       }
     }
   }
@@ -283,11 +284,16 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   pdfLoadComplete(event: any) {
-    // const pages = Array.from(this.annotationForPage.keys());
-    // pages.forEach((page) => {
-    //   console.log('drawing annotations for page', page);
-    //   this.drawAnnotationsOnPage(page);
-    // });
+    this.busy = false;
+    console.log("LOAD COMPLETE",event,this.annotationForPage);
+    const pages = Array.from(this.annotationForPage.keys());
+    setTimeout(() => {
+      pages.forEach((page) => {
+        console.log('drawing annotations for page', page);
+        this.drawAnnotationsOnPage(page);
+      });
+    },800);
+    
   }
 
   async addToPdfOutline(
@@ -368,6 +374,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       let reader = new FileReader();
 
       reader.onload = (e: any) => {
+        this.busy = true;
         this.pdfSrc = e.target.result;
       };
 
@@ -406,7 +413,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       const context = this.pdfCanvContext[pageNumber];
       const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
       const viewport = page.viewport;
-
+      if(context){
       context.fillStyle = annotation.color;
       annotation.points.forEach((point) => {
         const rect = viewport.convertToViewportRectangle(point);
@@ -467,6 +474,8 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         this.scrollToAnnotation({annotationID: annotation.id, where: 'card'});
       };
       page.div.appendChild(jumpDiv);
+              
+    }
     }
   }
 

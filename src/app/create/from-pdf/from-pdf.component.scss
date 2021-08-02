@@ -106,3 +106,30 @@
 .currentCard{
   flex: 0 0 100%;
 }
+
+.loadingIndicator{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 15%;
+  z-index: 3;
+  padding: 50px;
+  background: rgb(92,232,237);
+  background: linear-gradient(30deg, rgba(92,232,237,0.7077031496192228) 0%, rgba(29,65,253,0.4640056706276261) 60%, rgba(179,115,245,0.7973390039609594) 100%);
+  border-radius: 20px;
+}
+
+.loadingSpinner{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.closeLoadingButton{
+  position: absolute;
+  top: 0;
+  right: 3px;
+  padding: 5px;
+  color: whitesmoke;
+}
+
+

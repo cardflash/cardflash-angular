@@ -106,6 +106,12 @@
   </div>
   </mat-toolbar-row>
   </mat-toolbar>
+  <div class="loadingIndicator" *ngIf="busy">
+    <button mat-icon-button class="closeLoadingButton" (click)="busy = false"><mat-icon>close</mat-icon></button>
+    <h2>Loading document...</h2>
+    <p>Please wait a moment while we load your document and cards.</p>
+    <mat-spinner class="loadingSpinner"></mat-spinner>
+  </div>
   <div id="pdf-column">
   <canvas style="display: none" #previewCanvas></canvas>
   
@@ -144,8 +150,6 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
-
-  
   <div *ngIf="!disablePDFViewer">
   <ngx-extended-pdf-viewer 
   #ngxPdfViewer

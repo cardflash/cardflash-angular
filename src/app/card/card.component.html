@@ -44,7 +44,9 @@
       <mat-card-header>
         <mat-card-subtitle>Back</mat-card-subtitle>
       </mat-card-header>
-      <div class="back-div" [ngClass]="{ active: active && !frontActive }">
+      <div class="back-div"
+      [ngClass]="{ active: active && !frontActive }"
+      (scroll)="onScroll($event)">
         <div
         #annotationHelperBack
         class="annotationHelper"

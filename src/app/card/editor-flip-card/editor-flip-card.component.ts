@@ -244,8 +244,8 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
             } else {
               ref.nativeElement.style.display = 'block';
               ref.nativeElement.style.top =
-                rect.top - parentRect.top + 40 + 'px';
-              ref.nativeElement.style.left = -10 + 'px';
+                rect.top - parentRect.top + 40+10*index + 'px';
+              ref.nativeElement.style.left = -10  + 'px';
             }
           }
         }
@@ -275,10 +275,10 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
       let frontSpans = frontSourceEl.querySelectorAll('span');
       let backSpans = backSourceEl.querySelectorAll('span');
 
-      const annotations: { id: string; color: string }[] = [];
+      const annotations: Map<string,{ id: string; color: string }> = new Map<string,{id: string, color: string}>();
       frontSpans.forEach((span) => {
         if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
-          annotations.push({
+          annotations.set(span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
             id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
             color: span.getAttribute('annotationColor') || '#45454513',
           });
@@ -287,14 +287,13 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
 
       backSpans.forEach((span) => {
         if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
-          annotations.push({
+          annotations.set(span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
             id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
             color: span.getAttribute('annotationColor') || '#45454513',
           });
         }
       });
-      console.log('annotations:)', annotations);
-      this.annotations = annotations;
+      this.annotations = Array.from(annotations.values());
     }
   }
 
