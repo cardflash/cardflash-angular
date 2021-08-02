@@ -34,6 +34,7 @@ import { timeStamp } from 'console';
 import { threadId } from 'worker_threads';
 import { DocumentService } from 'src/app/document.service';
 import { Subscription } from 'rxjs';
+import { EditorFlipCardComponent } from 'src/app/card/editor-flip-card/editor-flip-card.component';
 @Component({
   selector: 'app-from-pdf',
   templateUrl: './from-pdf.component.html',
@@ -133,6 +134,10 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     { hex: '#5ef98c4f', marker: 'marker-light-green' },
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
+
+  @ViewChildren('flipCard')
+  public flipCardChilds? : QueryList<EditorFlipCardComponent>;
+
 
   public documentid: string | undefined;
   public document: PDFDocument | undefined;
@@ -458,9 +463,8 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           (Math.min(rect[1], rect[3]) - 33) +
           "px; width: 15px; height: 15px; background-image: url('/assets/right.svg');"
       );
-      console.log(page);
       jumpDiv.onclick = async (event: any) => {
-        this.scrollToAnnotation({annotation: annotation, where: 'pdf'});
+        this.scrollToAnnotation({annotation: annotation, where: 'card'});
       };
       page.div.appendChild(jumpDiv);
     }
@@ -469,51 +473,48 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   async scrollToAnnotation( event: { annotation: Annotation,   where: 'pdf' | 'card' | 'both' }
   ) {
     this.page = event.annotation.page;
+    if(event.where === 'card' || event.where === 'both'){
+      this.flipCardChilds?.forEach((fc) => fc.flipToSideForAnnotation(event.annotation.id));
+    }
     setTimeout( async () => {
     switch (event.where) {
       case 'pdf':
-        await this.router.navigate([], {
-          fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
-        });
+        // await this.router.navigate([], {
+        //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
+        // });
+        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotation.id);
         break;
       case 'card':
-        await this.router.navigate([], {
-          fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
-        });
+        // await this.router.navigate([], {
+        //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
+        // });
+        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id);
         break;
       default:
-        await this.router.navigate([], {
-          fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
-        });
-        await this.router.navigate([], {
-          fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
-        });
+        // await this.router.navigate([], {
+        //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
+        // });
+        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotation.id);
+        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id);
+        // await this.router.navigate([], {
+        //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
+        // });
         break;
     }
-  }, 300);
+  }, 400);
   }
+
+  scrollIDIntoView(id: string){
+    document.querySelector('#'+id)?.scrollIntoView({behavior: 'smooth'});
+  }
+
 
   getCards() {
     if (this.document) {
       if (this.document.cards) {
         return this.document.cards;
       } else {
-        const newCard: Card = {
-          localID: this.nanoid(),
-          front: '',
-          back: '',
-          page: this.page,
-          chapter: '',
-          title: this.title,
-          hiddenText: '',
-          creationTime: Date.now(),
-        };
-        this.cardService.addCard(newCard).then((card) => {
-          newCard.$id = card.$id;
-          newCard.$permissions = card.$permissions;
-          newCard.$collection = card.$collection;
-        });
-        this.document.cards = [newCard];
+        this.document.cards = [];
         return this.document.cards;
       }
     } else {

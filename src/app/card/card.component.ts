@@ -75,8 +75,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private userNotifierService: UserNotifierService,
     private dataService: DataService,
-    private cardService: CardService,
-    private router: Router
+    private cardService: CardService
   ) {}
 
   public readonly EDITOR_CONFIG = {
@@ -277,7 +276,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           }else{
             ref.nativeElement.style.display = "block"
             ref.nativeElement.style.top = (rect.top-parentRect.top+40)+ "px";
-            ref.nativeElement.style.left = (-40) + "px";
+            ref.nativeElement.style.left = (-20) + "px";
           }
 
         }
