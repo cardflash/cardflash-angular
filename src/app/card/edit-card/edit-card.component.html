@@ -4,6 +4,21 @@
 <button class="backButton" mat-flat-button routerLink="/cards" color="accent">
 <mat-icon>arrow_back_ios</mat-icon>Go back to all cards
 </button>
+<div *ngIf="this.document">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{this.document.name}}</mat-card-title>
+          <mat-card-subtitle>Linked Document</mat-card-subtitle>
+          <img mat-card-sm-image  mat-card-avatar [src]="this.dataService.getFilePreview(this.document.fileid)">
+        </mat-card-header>
+        <mat-card-actions class="cardActions">
+          <a mat-flat-button target="_blank" [href]="this.dataService.getFileView(this.document.fileid).href">View document</a>
+          <button mat-flat-button color="accent" routerLink="/documents/{{this.document.$id}}/cards/">View cards <mat-icon>inventory</mat-icon></button>
+          <button mat-flat-button color="primary" routerLink="/create/from-document/{{this.document.$id}}/" fragment="CARD_{{this.card?.$id}}">View with annotations <mat-icon>picture_as_pdf</mat-icon></button>
+        </mat-card-actions>
+        </mat-card>
+</div>
+<br />
 <app-card *ngIf="this.card" [card]="this.card" [alreadyOnServer]="true" [active]="true" (delete)="this.deleteCard()"></app-card>
 
 <h3>Preview:</h3>

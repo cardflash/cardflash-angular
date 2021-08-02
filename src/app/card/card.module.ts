@@ -18,6 +18,7 @@ import { EditCardComponent } from './edit-card/edit-card.component';
 import { AppRoutingModule } from '../app-routing.module';
 import { FlipCardComponent } from './flip-card/flip-card.component';
 import { EditorFlipCardComponent } from './editor-flip-card/editor-flip-card.component';
+import { MatChipsModule } from '@angular/material/chips';
 @NgModule({
   declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent, FlipCardComponent, EditorFlipCardComponent],
   imports: [
@@ -31,7 +32,8 @@ import { EditorFlipCardComponent } from './editor-flip-card/editor-flip-card.com
     MatIconModule,
     MatExpansionModule,
     MatStepperModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatChipsModule
   ],
   exports: [CardComponent,StaticCardSideComponent, StaticCardComponent, FlipCardComponent,EditorFlipCardComponent]
 })

@@ -27,13 +27,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // this.anchorSubscription = this.route.fragment.subscribe(fragment => {
-    //   if(fragment){
-    //     console.log(fragment)
-    //     document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
-    //     this.router.navigate([],{fragment: undefined})
-    //   }
-    // } 
-    //   );
+    this.anchorSubscription = this.route.fragment.subscribe(fragment => {
+      if(fragment){
+        console.log(fragment)
+        if(document.querySelector('#'+fragment)){
+          document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
+          this.router.navigate([],{fragment: undefined})
+        }else{
+          setTimeout(() => {
+            if(document.querySelector('#'+fragment)){
+              document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
+              this.router.navigate([],{fragment: undefined})
+            }
+          },6000)
+        }
+      }
+    } 
+      );
   }
 }

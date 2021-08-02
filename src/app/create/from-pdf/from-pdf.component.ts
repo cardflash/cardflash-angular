@@ -737,9 +737,9 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         environment.ANNOTATION_ON_CARD_PREFIX
       }${annotationId}">${this.getSelection()}</p><br/>`;
     } else {
-      toAdd = `<mark id="${
+      toAdd = `<mark class="${marker}"><span id="${
         environment.ANNOTATION_ON_CARD_PREFIX
-      }${annotationId}" class="${marker}">${this.getSelection()}</mark><br/>`;
+      }${annotationId}">${this.getSelection()}</span></mark><br/>`;
     }
 
     if (this.frontSelected) {
@@ -1142,18 +1142,21 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         const cardIndex = this.getCards().findIndex((card) => card.localID === this.currentCard.localID);
         console.log(cardIndex);
         if (this.cardComp) {
-            if (this.config.autoAddAnki) {
-            await  this.cardComp.save(true);
-            }
         if(cardIndex >= 0){
           await this.cardComp.saveToServer();
+          if (this.config.autoAddAnki) {
+            await  this.cardComp?.save(true);
+            }
           this.getCards()[cardIndex] = this.currentCard;
         }else if(this.currentCard.front != '' || this.currentCard.back != '' || this.currentCard.hiddenText != ''){
-          await this.cardComp.saveToServer().then((card) => {
+          const card = await this.cardComp.saveToServer();
+            if (this.config.autoAddAnki) {
+              await  this.cardComp?.save(true);
+              }
             this.getCards().unshift(card);
-          });
         }
         await this.saveDocument();
+        
       }
     }
   }

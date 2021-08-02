@@ -31,6 +31,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   PDFDocument
 >();
 
+  public isBusy: boolean = false;
   public selectedTag: string | undefined = '';
   subscription: Subscription | undefined;
 
@@ -110,11 +111,12 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   async uploadDocument() {
     const file = this.getFile();
     if (file) {
+      this.isBusy = true;
       const res = await this.dataService.uploadFile(file);
       if (res) {
         const newDoc: PDFDocument = {
           fileid: res,
-          name: file.name,
+          name: file.name.replace('.pdf',''),
           localID: nanoid(),
           creationTime: Date.now(),
           currentPage: 1,
@@ -124,6 +126,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
         };
         await this.documentsService.addDocument(newDoc);
       }
+      this.isBusy = false;
     }
   }
 

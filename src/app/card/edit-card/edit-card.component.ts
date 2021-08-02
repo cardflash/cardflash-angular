@@ -1,7 +1,11 @@
+import { stringify } from '@angular/compiler/src/util';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { DataService } from 'src/app/data.service';
+import { DocumentService } from 'src/app/document.service';
 import { Card } from 'src/app/types/card';
+import { PDFDocument } from 'src/app/types/pdf-document';
 import { CardService } from '../card.service';
 
 @Component({
@@ -17,16 +21,36 @@ export class EditCardComponent implements OnInit, OnDestroy {
 
   private id: string;
 
-  constructor(private actRoute: ActivatedRoute, private cardService: CardService) {
+  public document: PDFDocument | undefined;
+
+  private documentSubscription: Subscription | undefined;
+
+  constructor(private actRoute: ActivatedRoute, private cardService: CardService, private documentService: DocumentService, public dataService: DataService) {
     this.id = actRoute.snapshot.params.id
   }
 
   ngOnInit(): void {
     this.subscription = this.cardService.cards$.subscribe((cards)=> this.refresh(cards))
+    this.documentSubscription = this.documentService.documents$.subscribe((docs) => this.refreshDocuments(docs));
+
   } 
 
   ngOnDestroy(){
     this.subscription?.unsubscribe();
+    this.documentSubscription?.unsubscribe();
+  }
+
+  refreshDocuments(docs: Map<string,PDFDocument>){
+    docs.forEach((doc) => {
+      if(doc.cards){
+        const index = doc.cards.findIndex((card) => (card.$id  && card.$id == this.id));
+        if(index >= 0){
+          this.document = doc;
+          return;
+        }
+      }
+    })
+
   }
 
   refresh(cards: Map<string,Card>){

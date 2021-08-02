@@ -66,7 +66,7 @@ export class CardComponent implements OnInit, AfterViewInit {
 
   @Input('alreadyOnServer') alreadyOnServer?: boolean;
 
-  private readonly MODEL_VERSION: string = '2.1c';
+  private readonly MODEL_VERSION: string = '2.1d';
 
   @ViewChildren('annotationHelperFront') annotationHelperFront? : QueryList<ElementRef<HTMLDivElement>>;
   @ViewChildren('annotationHelperBack') annotationHelperBack? : QueryList<ElementRef<HTMLDivElement>>;
@@ -155,12 +155,9 @@ export class CardComponent implements OnInit, AfterViewInit {
     },
     htmlSupport: {
       allow: [
-        // Enables all HTML features.
         {
-          name: /.*/,
+          name: 'span',
           attributes: true,
-          classes: true,
-          styles: true,
         },
       ],
     },
@@ -224,6 +221,8 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
 
+    
+
     this.alreadyOnServer = (this.card.$id != undefined)
 
     this.annotations = []
@@ -245,6 +244,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.cardChange.emit(this.card);
     this.addAnnotationHelpers();
   }
+
 
   addAnnotationHelpers(){
     if (
@@ -450,6 +450,7 @@ export class CardComponent implements OnInit, AfterViewInit {
               Page: this.card.page.toString(),
               Chapter: this.card.chapter,
               Hidden: this.card.hiddenText,
+              URL: environment.BASE_URL+"/cards/"+this.card.$id
             },
             options: {
               allowDuplicate: false,
@@ -650,6 +651,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           'Title',
           'Page',
           'Chapter',
+          "URL",
           'Hidden',
         ],
         css: ckEditorCss,
@@ -658,7 +660,7 @@ export class CardComponent implements OnInit, AfterViewInit {
             Name: 'flashcards.siter.eu Card-V' + this.MODEL_VERSION,
             Front:
               "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}}</div>",
-            Back: "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}} <hr id=answer> {{Back}} <br><br> ID: {{ID}}; Page: {{Page}}</div>",
+            Back: "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}} <hr id=answer> {{Back}} <br><br> ID: {{ID}}; Page: {{Page}}  <a href=\"{{URL}}\">View online</a></div>",
           },
         ],
       },

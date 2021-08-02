@@ -137,12 +137,9 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
     },
     htmlSupport: {
       allow: [
-        // Enables all HTML features.
         {
-          name: /.*/,
+          name: 'span',
           attributes: true,
-          classes: true,
-          styles: true,
         },
       ],
     },

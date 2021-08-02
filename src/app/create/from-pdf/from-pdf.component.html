@@ -224,7 +224,7 @@
       ></app-card>
       <!-- <app-card *ngFor="let card of getCards()" [card]="card"  (scrollToAnnotation)="scrollToAnnotation($event)"></app-card> -->
   
-      <app-editor-flip-card #flipCard class="staticCards" *ngFor="let card of getCards()"[card]="card" (edit)="this.editCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card.localID)" (scrollToAnnotation)="scrollToAnnotation($event)"></app-editor-flip-card>
+      <app-editor-flip-card [id]="'CARD_'+card.$id" #flipCard class="staticCards" *ngFor="let card of getCards()"[card]="card" (edit)="this.editCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card.localID)" (scrollToAnnotation)="scrollToAnnotation($event)"></app-editor-flip-card>
     </div>
   </div>
   </div>

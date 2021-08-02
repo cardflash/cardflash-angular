@@ -17,6 +17,8 @@
           <input type="file"  accept=".pdf" #fileInput>
           <br />
           <button mat-raised-button (click)="uploadDocument()">Upload</button>
+          <br />
+          <mat-progress-spinner class="centerSpinner" mode="indeterminate" *ngIf="this.isBusy"></mat-progress-spinner>
         </mat-card-content>
       </mat-card>
     </div>
