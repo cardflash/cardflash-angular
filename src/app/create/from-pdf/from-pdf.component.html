@@ -164,6 +164,7 @@
     (sidebarVisibleChange)="calcScaling()"
     (pagesLoaded)="loadComplete($event)"
     (pdfLoaded)="pdfLoadComplete($event)"
+    (pdfLoadingFailed)="pdfLoadFailed($event)"
     (pageRendered)="pageRendered($event)"
     [ignoreKeys]="['1', '2', 'w', 's','space']"
     [enablePinchOnMobile]="true"
