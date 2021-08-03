@@ -1102,7 +1102,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (this.config.addImageOption) {
         toAdd +=
-          '<figure class="image"><img src="' + dataURL + '"alt=""></figure>\n';
+          '<span class="image-inline"><img src="' + dataURL + '"alt=""></span>\n';
       }
 
       if (this.config.addTextOption && !this.config.addOcrTextOption) {

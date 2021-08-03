@@ -145,11 +145,19 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
       ],
     },
     toolbar: {
-      items: ['bold', 'italic', 'highlight', 'underline', 'strikethrough'],
+      items: [
+        'bold',
+        'italic',
+        'highlight',
+        'underline',
+        'strikethrough',
+        'removeFormat'
+      ]
     },
     language: 'en',
     blockToolbar: [
       'heading',
+      'horizontalLine',
       'alignment',
       'bulletedList',
       'numberedList',
@@ -159,21 +167,19 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
       'blockQuote',
       'specialCharacters',
       'fontSize',
-      'fontColor',
       'fontBackgroundColor',
+      'fontColor',
       'subscript',
       'superscript',
       'code',
-      'removeFormat',
-      'horizontalLine',
+      'codeBlock',
       'insertTable',
+      'imageUpload',
       'imageInsert',
       'mediaEmbed',
-      'codeBlock',
       'htmlEmbed',
-      'sourceEditing',
       'undo',
-      'redo',
+      'redo'
     ],
     image: {
       toolbar: [
@@ -181,21 +187,19 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
         'imageStyle:inline',
         'imageStyle:block',
         'imageStyle:side',
-        'linkImage',
-      ],
+        'linkImage'
+      ]
     },
     table: {
       contentToolbar: [
         'tableColumn',
         'tableRow',
-        'mergeTableCells',
-        'tableCellProperties',
-        'tableProperties',
-      ],
+        'mergeTableCells'
+      ]
     },
     licenseKey: '',
   };
-
+  
   constructor() {}
   ngAfterViewInit(): void {
     setTimeout(() => {
