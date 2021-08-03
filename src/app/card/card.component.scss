@@ -157,6 +157,7 @@ hr.solid {
   background: linear-gradient(30deg, rgba(92,232,237,0.7077031496192228) 0%, rgba(29,65,253,0.4640056706276261) 60%, rgba(179,115,245,0.7973390039609594) 100%);
   border-radius: 20px;
   padding-top: 5px;
+  opacity: 1;
 }
 
 
@@ -178,6 +179,7 @@ hr.solid {
   z-index: -1;
   height: 0;
   width: 0;
+  opacity: 0;
 
 }
 

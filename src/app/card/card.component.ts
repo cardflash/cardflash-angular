@@ -247,6 +247,7 @@ export class CardComponent implements OnInit, AfterViewInit {
 
     setTimeout(() => this.cardUpdated(), 300);
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.cardUpdated();
@@ -446,7 +447,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         ankiID = exRes.result.result[0];
       }
       console.log(alreadyOnAnki);
-      if (this.card.imgs) {
+      if (this.alreadyOnServer && this.card.imgs) {
         for (let i = 0; i < this.card.imgs.length; i++) {
           const src = this.dataService.getFileView(this.card.imgs[i]);
           const dataURL = await imgSrcToDataURL(
@@ -499,7 +500,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         const delProm = this.makeHttpRequest(delData);
         const delRes = await this.userNotifierService.notifyOnRejectOrError(
           delProm,
-          'Image Upload',
+          'Deleting Note',
           'AnkiConnect is not reachable',
           (res) => !res.success || res.result.error
         );
@@ -644,6 +645,9 @@ export class CardComponent implements OnInit, AfterViewInit {
         )
       );
     }
+
+    const originalFront : string = this.card.front;
+    const originalBack : string = this.card.back;
     const imgRes = await Promise.all(promises);
     const saveNamingFunc = (i: number) =>
       this.dataService.getFileView(imgRes[i]).href;
@@ -681,16 +685,21 @@ export class CardComponent implements OnInit, AfterViewInit {
     } else {
       this.card.imgs = imgRes;
     }
+    let res;
     if (this.alreadyOnServer || this.card.$id) {
-      const res = await this.cardService.updateCard(this.card);
-      this.card = res;
-      this.alreadyOnServer = true;
-      return this.card;
+      res = await this.cardService.updateCard(this.card);
     } else {
-      const res = await this.cardService.addCard(this.card);
+      res = await this.cardService.addCard(this.card);
+    }
+      if(res){
       this.card = res;
       this.alreadyOnServer = true;
       return this.card;
+    }else{
+      this.card.front = originalFront;
+      this.card.back = originalBack;
+      this.cardChange.emit(this.card);
+      return undefined;
     }
   }
 
@@ -806,20 +815,24 @@ export class CardComponent implements OnInit, AfterViewInit {
 
 
   onDragOver(event: any){
-    event.dataTransfer.dropEffect = "move";
+    event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   }
 
-  onDrop(event: any){
-    console.log(this.card);
-    console.log(event.dataTransfer);
-    this.imageInEditingURL = event.dataTransfer.getData("URL");
+  async onDrop(event: any){
+    event.preventDefault();
+    const src = event.dataTransfer.getData("URL");
+    const dataURL = await imgSrcToDataURL(
+      src,
+      'image/png',
+      'use-credentials'
+    );
+    this.imageInEditingURL = dataURL;
     this.imageEditorInstance.loadImageFromURL(this.imageInEditingURL,'Flashcard  Image');
     this.showimageEditOverlay = true;
   }
 
   finishImageEditing(saveResult: boolean = false){
-    console.log(this.card);
     this.showimageEditOverlay = false;
     let url;
     if(saveResult){
@@ -827,10 +840,5 @@ export class CardComponent implements OnInit, AfterViewInit {
     }else{
       url = this.imageInEditingURL;
     }
-    // if(this.frontActive){
-    //   this.card.front += `<figure class="image"><img src="${url}" alt=""></figure>`
-    // }else{
-    //   this.card.back += `<figure class="image"><img src="${url}" alt=""></figure>`
-    // }
   }
 }

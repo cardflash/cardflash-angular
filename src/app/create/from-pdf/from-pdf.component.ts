@@ -136,7 +136,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   @ViewChildren('flipCard')
-  public flipCardChilds? : QueryList<EditorFlipCardComponent>;
+  public flipCardChilds?: QueryList<EditorFlipCardComponent>;
 
   public busy: boolean = false;
   public documentid: string | undefined;
@@ -177,7 +177,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.document.cards) {
         }
         this.title = doc.name;
-        this.titleOptions = [this.title]
+        this.titleOptions = [this.title];
 
         if (this.document && this.document.annotations) {
           for (let i = 0; i < this.document.annotations.length; i++) {
@@ -246,24 +246,24 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       this.page = 1;
     }
     this.pdfApplication = (window as any).PDFViewerApplication;
-    if(!this.document){
-    this.titleOptions = [this.title];
+    if (!this.document) {
+      this.titleOptions = [this.title];
 
-    this.title = '';
-    const pdfTitle = (this.pdfApplication as any).documentInfo?.Title;
-    if (pdfTitle) {
-      this.titleOptions.push(pdfTitle);
-      this.title = pdfTitle;
-    }
-    const files = this.fileSelector?.nativeElement.files;
-    if (files && files.length >= 1) {
-      const fileTitle = files[0].name;
-      this.titleOptions.push(fileTitle.replace('.pdf', ''));
-      if (!this.title) {
-        this.title = fileTitle;
+      this.title = '';
+      const pdfTitle = (this.pdfApplication as any).documentInfo?.Title;
+      if (pdfTitle) {
+        this.titleOptions.push(pdfTitle);
+        this.title = pdfTitle;
+      }
+      const files = this.fileSelector?.nativeElement.files;
+      if (files && files.length >= 1) {
+        const fileTitle = files[0].name;
+        this.titleOptions.push(fileTitle.replace('.pdf', ''));
+        if (!this.title) {
+          this.title = fileTitle;
+        }
       }
     }
-  }
 
     const outline = await this.pdfApplication?.pdfDocument.getOutline();
     this.pdfOutline = [];
@@ -285,15 +285,14 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   pdfLoadComplete(event: any) {
     this.busy = false;
-    console.log("LOAD COMPLETE",event,this.annotationForPage);
+    console.log('LOAD COMPLETE', event, this.annotationForPage);
     const pages = Array.from(this.annotationForPage.keys());
     setTimeout(() => {
       pages.forEach((page) => {
         console.log('drawing annotations for page', page);
         this.drawAnnotationsOnPage(page);
       });
-    },800);
-    
+    }, 800);
   }
 
   async addToPdfOutline(
@@ -413,124 +412,139 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       const context = this.pdfCanvContext[pageNumber];
       const page = this.pdfApplication.pdfViewer._pages[pageNumber - 1];
       const viewport = page.viewport;
-      if(context){
-      context.fillStyle = annotation.color;
-      annotation.points.forEach((point) => {
-        const rect = viewport.convertToViewportRectangle(point);
-        context.fillRect(
-          rect[0],
-          rect[1],
-          Math.abs(rect[0] - rect[2]),
-          Math.abs(rect[1] - rect[3])
+      if (context) {
+        context.fillStyle = annotation.color;
+        annotation.points.forEach((point) => {
+          const rect = viewport.convertToViewportRectangle(point);
+          context.fillRect(
+            rect[0],
+            rect[1],
+            Math.abs(rect[0] - rect[2]),
+            Math.abs(rect[1] - rect[3])
+          );
+        });
+
+        this.removeDivWithID(annotation.id);
+        const delDiv = document.createElement('div');
+        const bounds = this.getBoundsForAnnotations(annotation);
+        const rect = viewport.convertToViewportRectangle(bounds);
+        // context.fillStyle = "red";
+        // context.fillRect(
+        //   rect[0]+(Math.abs(rect[0]-rect[2])/2),
+        //   Math.min(rect[1],rect[3]),
+        //   10,
+        //   10
+        // );
+        delDiv.setAttribute(
+          'id',
+          environment.ANNOTATION_DEL_PREFIX + annotation.id
         );
-      });
+        delDiv.setAttribute('class', 'annotationToolOverlay');
+        delDiv.setAttribute('title', 'Delete annotation');
+        delDiv.setAttribute(
+          'style',
+          'position: absolute; left:' +
+            (Math.min(rect[0], rect[2]) - 15) +
+            'px; top:' +
+            (Math.min(rect[1], rect[3]) - 15) +
+            "px; width: 15px; height: 15px; background-image: url('/assets/delete.svg');"
+        );
+        delDiv.onclick = async (event: any) => {
+          this.deleteAnnotation(annotation.id);
+        };
+        page.div.appendChild(delDiv);
 
-      this.removeDivWithID(annotation.id);
-      const delDiv = document.createElement('div');
-      const bounds = this.getBoundsForAnnotations(annotation);
-      const rect = viewport.convertToViewportRectangle(bounds);
-      // context.fillStyle = "red";
-      // context.fillRect(
-      //   rect[0]+(Math.abs(rect[0]-rect[2])/2),
-      //   Math.min(rect[1],rect[3]),
-      //   10,
-      //   10
-      // );
-      delDiv.setAttribute(
-        'id',
-        environment.ANNOTATION_DEL_PREFIX + annotation.id
-      );
-      delDiv.setAttribute('class', 'annotationToolOverlay');
-      delDiv.setAttribute('title', 'Delete annotation');
-      delDiv.setAttribute(
-        'style',
-        'position: absolute; left:' +
-          (Math.min(rect[0], rect[2]) - 15) +
-          'px; top:' +
-          (Math.min(rect[1], rect[3]) - 15) +
-          "px; width: 15px; height: 15px; background-image: url('/assets/delete.svg');"
-      );
-      delDiv.onclick = async (event: any) => {
-        this.deleteAnnotation(annotation.id);
-      };
-      page.div.appendChild(delDiv);
-
-      const jumpDiv = document.createElement('div');
-      jumpDiv.setAttribute(
-        'id',
-        environment.ANNOTATION_JMP_PREFIX + annotation.id
-      );
-      jumpDiv.setAttribute('class', 'annotationToolOverlay');
-      jumpDiv.setAttribute('title', 'Scroll into view');
-      jumpDiv.setAttribute(
-        'style',
-        'position: absolute; left:' +
-          (Math.min(rect[0], rect[2]) - 15) +
-          'px; top:' +
-          (Math.min(rect[1], rect[3]) - 33) +
-          "px; width: 15px; height: 15px; background-image: url('/assets/right.svg');"
-      );
-      jumpDiv.onclick = async (event: any) => {
-        this.scrollToAnnotation({annotationID: annotation.id, where: 'card'});
-      };
-      page.div.appendChild(jumpDiv);
-              
-    }
+        const jumpDiv = document.createElement('div');
+        jumpDiv.setAttribute(
+          'id',
+          environment.ANNOTATION_JMP_PREFIX + annotation.id
+        );
+        jumpDiv.setAttribute('class', 'annotationToolOverlay');
+        jumpDiv.setAttribute('title', 'Scroll into view');
+        jumpDiv.setAttribute(
+          'style',
+          'position: absolute; left:' +
+            (Math.min(rect[0], rect[2]) - 15) +
+            'px; top:' +
+            (Math.min(rect[1], rect[3]) - 33) +
+            "px; width: 15px; height: 15px; background-image: url('/assets/right.svg');"
+        );
+        jumpDiv.onclick = async (event: any) => {
+          this.scrollToAnnotation({
+            annotationID: annotation.id,
+            where: 'card',
+          });
+        };
+        page.div.appendChild(jumpDiv);
+      }
     }
   }
 
-  getAnnotationByID(annotationID: string){
-    for (const annots of  this.annotationForPage.values()) {
+  getAnnotationByID(annotationID: string) {
+    for (const annots of this.annotationForPage.values()) {
       for (const annot of annots) {
-          if(annot.id === annotationID){
-            return annot;
-          }
+        if (annot.id === annotationID) {
+          return annot;
+        }
       }
     }
     return undefined;
   }
 
-  async scrollToAnnotation( event: { annotationID: string,   where: 'pdf' | 'card' | 'both' }
-  ) {
-    const annotation : Annotation | undefined = this.getAnnotationByID(event.annotationID)
-    if(annotation){
+  async scrollToAnnotation(event: {
+    annotationID: string;
+    where: 'pdf' | 'card' | 'both';
+  }) {
+    const annotation: Annotation | undefined = this.getAnnotationByID(
+      event.annotationID
+    );
+    if (annotation) {
       this.page = annotation.page;
     }
-    if(event.where === 'card' || event.where === 'both'){
-      this.flipCardChilds?.forEach((fc) => fc.flipToSideForAnnotation(event.annotationID));
+    if (event.where === 'card' || event.where === 'both') {
+      this.flipCardChilds?.forEach((fc) =>
+        fc.flipToSideForAnnotation(event.annotationID)
+      );
     }
-    setTimeout( async () => {
-    switch (event.where) {
-      case 'pdf':
-        // await this.router.navigate([], {
-        //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
-        // });
-        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
-        break;
-      case 'card':
-        // await this.router.navigate([], {
-        //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
-        // });
-        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-        break;
-      default:
-        // await this.router.navigate([], {
-        //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
-        // });
-        this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
-        this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-        // await this.router.navigate([], {
-        //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
-        // });
-        break;
-    }
-  }, 400);
+    setTimeout(async () => {
+      switch (event.where) {
+        case 'pdf':
+          // await this.router.navigate([], {
+          //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
+          // });
+          this.scrollIDIntoView(
+            environment.ANNOTATION_JMP_PREFIX + event.annotationID
+          );
+          break;
+        case 'card':
+          // await this.router.navigate([], {
+          //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
+          // });
+          this.scrollIDIntoView(
+            environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID
+          );
+          break;
+        default:
+          // await this.router.navigate([], {
+          //   fragment: environment.ANNOTATION_JMP_PREFIX + event.annotation.id,
+          // });
+          this.scrollIDIntoView(
+            environment.ANNOTATION_JMP_PREFIX + event.annotationID
+          );
+          this.scrollIDIntoView(
+            environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID
+          );
+          // await this.router.navigate([], {
+          //   fragment: environment.ANNOTATION_ON_CARD_PREFIX + event.annotation.id,
+          // });
+          break;
+      }
+    }, 400);
   }
 
-  scrollIDIntoView(id: string){
-    document.querySelector('#'+id)?.scrollIntoView({behavior: 'smooth'});
+  scrollIDIntoView(id: string) {
+    document.querySelector('#' + id)?.scrollIntoView({ behavior: 'smooth' });
   }
-
 
   getCards() {
     if (this.document) {
@@ -547,35 +561,34 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async deleteAnnotation(id: string) {
     const annotation = this.getAnnotationByID(id);
-    if(annotation){
+    if (annotation) {
       const filteredAnnot = this.annotationForPage
-      .get(annotation.page)
-      ?.filter((annot) => annot.id !== id);
-    if (filteredAnnot) {
-      this.annotationForPage.set(annotation.page, filteredAnnot);
+        .get(annotation.page)
+        ?.filter((annot) => annot.id !== id);
+      if (filteredAnnot) {
+        this.annotationForPage.set(annotation.page, filteredAnnot);
+      }
+
+      this.saveDocument();
+
+      if (this.pdfApplication) {
+        const context = this.pdfCanvContext[annotation.page];
+        const page = this.pdfApplication.pdfViewer._pages[annotation.page - 1];
+        const viewport = page.viewport;
+
+        const pageRef = await (
+          this.pdfApplication.pdfViewer as any
+        ).pdfDocument.getPage(this.page);
+        const renderRes = await pageRef.render({
+          canvasContext: context,
+          viewport: viewport,
+        });
+        this.removeDivWithID(id);
+        setTimeout(() => {
+          this.drawAnnotationsOnPage(annotation.page);
+        }, 300);
+      }
     }
-
-    this.saveDocument();
-
-    if (this.pdfApplication) {
-      const context = this.pdfCanvContext[annotation.page];
-      const page = this.pdfApplication.pdfViewer._pages[annotation.page - 1];
-      const viewport = page.viewport;
-
-      const pageRef = await (
-        this.pdfApplication.pdfViewer as any
-      ).pdfDocument.getPage(this.page);
-      const renderRes = await pageRef.render({
-        canvasContext: context,
-        viewport: viewport,
-      });
-      this.removeDivWithID(id);
-      setTimeout(() => {
-        this.drawAnnotationsOnPage(annotation.page);
-      }, 300);
-    }
-    }
-
   }
 
   removeDivWithID(id: string) {
@@ -746,13 +759,17 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     let toAdd: string = '';
     if (!marker) {
-      toAdd = `<span id="${
-        environment.ANNOTATION_ON_CARD_PREFIX
-      }${annotation.id}" annotationColor="${annotation.color}">${this.getSelection()}</span><br/>`;
+      toAdd = `<span id="${environment.ANNOTATION_ON_CARD_PREFIX}${
+        annotation.id
+      }" annotationColor="${
+        annotation.color
+      }">${this.getSelection()}</span><br/>`;
     } else {
       toAdd = `<mark class="${marker}"><span id="${
         environment.ANNOTATION_ON_CARD_PREFIX
-      }${annotation.id}" annotationColor="${annotation.color}">${this.getSelection()}</span></mark><br/>`;
+      }${annotation.id}" annotationColor="${
+        annotation.color
+      }">${this.getSelection()}</span></mark><br/>`;
     }
 
     if (this.frontSelected) {
@@ -1102,7 +1119,9 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (this.config.addImageOption) {
         toAdd +=
-          '<span class="image-inline"><img src="' + dataURL + '"alt=""></span>\n';
+          '<span class="image-inline"><img src="' +
+          dataURL +
+          '"alt=""></span><br />';
       }
 
       if (this.config.addTextOption && !this.config.addOcrTextOption) {
@@ -1160,31 +1179,56 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async saveCurrentCard(){
-      if (this.document) {
-        const cardIndex = this.getCards().findIndex((card) => card.localID === this.currentCard.localID);
-        console.log(cardIndex);
-        if (this.cardComp) {
-          if(cardIndex >= 0){
-          const card = await this.cardComp.saveToServer();
+  async saveCurrentCard() {
+    if (this.document) {
+      const cardIndex = this.getCards().findIndex(
+        (card) => card.localID === this.currentCard.localID
+      );
+      console.log(cardIndex);
+      if (this.cardComp) {
+        if (cardIndex >= 0) {
+          this.currentCard =
+            (await this.cardComp?.saveToServer()) || this.currentCard;
           if (this.config.autoAddAnki) {
-            await  this.cardComp?.save(true);
-            }
-          this.getCards()[cardIndex] = card;
-        }else if(this.currentCard.front != '' || this.currentCard.back != '' || this.currentCard.hiddenText != ''){
-          const card = await this.cardComp.saveToServer();
-            if (this.config.autoAddAnki) {
-              await  this.cardComp?.save(true);
-              }
-            this.getCards().unshift(card);
+            await this.cardComp?.save(true);
+          }
+          this.getCards()[cardIndex] = (this.currentCard);
+        } else if (
+          this.currentCard.front != '' ||
+          this.currentCard.back != '' ||
+          this.currentCard.hiddenText != ''
+        ) {
+          this.currentCard =
+            (await this.cardComp?.saveToServer()) || this.currentCard;
+          if (this.config.autoAddAnki) {
+            await this.cardComp?.save(true);
+          }
+          this.getCards().unshift(this.currentCard);
         }
         await this.saveDocument();
-        
       }
+    } else if (
+      this.currentCard.front != '' ||
+      this.currentCard.back != '' ||
+      this.currentCard.hiddenText != ''
+    ) {
+      console.log("BEFORE SRV");
+      if (this.config.autoAddServer) {
+        this.currentCard =
+          (await this.cardComp?.saveToServer()) || this.currentCard;
+          console.log("AFTER SRV");
+      }
+      console.log("BEFORE ANKI");
+      if (this.config.autoAddAnki) {
+        await this.cardComp?.save(true);
+      }
+      console.log("AFTER ANKI");
+      this.getCards().unshift(this.currentCard);
+      console.log("AFTER UNSHIFT");
     }
   }
 
-  async deleteCurrentCard(){
+  async deleteCurrentCard() {
     this.deleteCard(this.currentCard.localID);
     this.nextCard();
   }
