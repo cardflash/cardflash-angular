@@ -117,3 +117,71 @@ hr.solid {
 .cardSides{
   display: flex;
 }
+
+
+.imageDrop{
+  border: 1px dashed black;
+  text-align: center;
+  padding: 5px;
+  width: 60%;
+  margin: 10px auto;
+  border-radius: 20px;
+  background: ghostwhite;
+}
+
+.imageDrop h3{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editedImage{
+  max-height: 90%;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.imageEditOption{
+
+}
+.imageEditOverlay{
+  position: absolute;
+  width: 60%;
+  height: 70%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  top: 30px;
+  padding: 20px;
+  background: rgb(92,232,237);
+  background: linear-gradient(30deg, rgba(92,232,237,0.7077031496192228) 0%, rgba(29,65,253,0.4640056706276261) 60%, rgba(179,115,245,0.7973390039609594) 100%);
+  border-radius: 20px;
+  padding-top: 5px;
+}
+
+
+.finishImgEditButton{
+  width: 50%;
+  margin-left: auto;
+  display: block;
+  margin-right: auto;
+  margin-top: 10px;
+  height: 50px;
+}
+
+.cancelImgEditButton{
+  float: right;
+    color: whitesmoke;
+}
+
+.hiddenOverlay{
+  z-index: -1;
+  height: 0;
+  width: 0;
+
+}
+
+#tui-image-editor-container{
+  height: 90% !important;
+  border-radius: 20px;
+}

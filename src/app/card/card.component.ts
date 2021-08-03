@@ -23,6 +23,8 @@ import { Router } from '@angular/router';
 import { Annotation } from '../types/annotation';
 import { environment } from 'src/environments/environment';
 
+const ImageEditor = require('tui-image-editor');
+
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
@@ -81,6 +83,12 @@ export class CardComponent implements OnInit, AfterViewInit {
   @ViewChildren('annotationHelperBack') annotationHelperBack?: QueryList<
     ElementRef<HTMLDivElement>
   >;
+
+  public showimageEditOverlay : boolean = false;
+
+  public imageEditorInstance: any;
+
+  public imageInEditingURL : string = '';
 
   constructor(
     private http: HttpClient,
@@ -239,6 +247,31 @@ export class CardComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.cardUpdated();
     }, 800);
+    this.imageEditorInstance =  new ImageEditor(document.querySelector('#tui-image-editor-container'), {
+      usageStatistics: false,
+      includeUI: {
+        theme: {
+          'downloadButton.backgroundColor': '#28395ef1',
+          'loadButton.backgroundColor': '#28395ef1',
+          'loadButton.color': '#fff',
+          'loadButton.border': 'none',
+          'downloadButton.border': 'none',
+        },
+        loadImage: {
+          path: '/assets/favicons/android-chrome-192x192.png',
+          name: 'No image provided'
+        },
+        initMenu: 'filter',
+        menuBarPosition: 'bottom',
+      },
+      cssMaxWidth: 700,
+      cssMaxHeight: 800,
+      selectionStyle: {
+        cornerSize: 20,
+        rotatingPointOffset: 70,
+      },
+    });
+    console.log(this.imageEditorInstance)
   }
 
   change() {
@@ -764,5 +797,35 @@ export class CardComponent implements OnInit, AfterViewInit {
   @HostListener('window:scroll', ['$event'])
   onScroll(event: any) {
     this.addAnnotationHelpers();
+  }
+
+
+  onDragOver(event: any){
+    event.dataTransfer.dropEffect = "move";
+    event.preventDefault();
+  }
+
+  onDrop(event: any){
+    console.log(this.card);
+    console.log(event.dataTransfer);
+    this.imageInEditingURL = event.dataTransfer.getData("URL");
+    this.imageEditorInstance.loadImageFromURL(this.imageInEditingURL,'Flashcard  Image');
+    this.showimageEditOverlay = true;
+  }
+
+  finishImageEditing(saveResult: boolean = false){
+    console.log(this.card);
+    this.showimageEditOverlay = false;
+    let url;
+    if(saveResult){
+      this.imageInEditingURL = this.imageEditorInstance.toDataURL();
+    }else{
+      url = this.imageInEditingURL;
+    }
+    // if(this.frontActive){
+    //   this.card.front += `<figure class="image"><img src="${url}" alt=""></figure>`
+    // }else{
+    //   this.card.back += `<figure class="image"><img src="${url}" alt=""></figure>`
+    // }
   }
 }
