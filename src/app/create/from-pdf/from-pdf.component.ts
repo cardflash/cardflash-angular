@@ -167,13 +167,12 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadFromDocs(docs: Map<string, PDFDocument>) {
-    if (this.documentid) {
+    if (this.documentid && !this.document) {
       const doc = docs.get(this.documentid);
       this.busy = true;
       if (doc) {
         this.documentSub?.unsubscribe();
         this.document = doc;
-        this.pdfSrc = '';
         if (this.document.cards) {
         }
         this.title = doc.name;
@@ -290,9 +289,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => {
       pages.forEach((page) => {
         console.log('drawing annotations for page', page);
-        this.drawAnnotationsOnPage(page);
+        // this.drawAnnotationsOnPage(page);
       });
     }, 800);
+  }
+
+  pdfLoadFailed(event: any){
+    this.busy = false;
   }
 
   async addToPdfOutline(
@@ -399,6 +402,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   drawAnnotationsOnPage(pageNumber: number) {
+    console.log("DRAWING ANNOTATIONS ON PAGE__",pageNumber);
     const annotations = this.annotationForPage.get(pageNumber);
     if (annotations) {
       annotations.forEach((annotation) => {
