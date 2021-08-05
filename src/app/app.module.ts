@@ -32,7 +32,9 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { DocumentsComponent } from './my/documents/documents.component';
 import { MatCardModule } from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips'; 
+import {MatExpansionModule} from '@angular/material/expansion'; 
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
+import { OptionsComponent } from './options/options.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,6 +44,7 @@ import { CardsForDocumentComponent } from './my/documents/cards-for-document/car
     CardsComponent,
     DocumentsComponent,
     CardsForDocumentComponent,
+    OptionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,6 +69,7 @@ import { CardsForDocumentComponent } from './my/documents/cards-for-document/car
     MatTabsModule,
     MatCardModule,
     MatChipsModule,
+    MatExpansionModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'

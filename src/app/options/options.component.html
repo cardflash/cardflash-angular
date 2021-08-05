@@ -1,0 +1,70 @@
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>Options</mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="optionsList">
+    <mat-button-toggle
+      title="Show only one PDF page at a time (requires reload)"
+      [checked]="this.dataService.config.singlePageMode"
+      (change)="
+        this.dataService.config.singlePageMode = !this.config.singlePageMode;
+        this.saveConfig()
+      "
+    >
+      <mat-icon>insert_drive_file</mat-icon> Single Page Mode
+    </mat-button-toggle>
+    <br />
+    <mat-form-field
+      appearance="fill"
+      class="oerLanguageField"
+      style="margin-bottom: -1.5em"
+    >
+      <mat-label>OCR Language</mat-label>
+      <mat-select
+        [disabled]="!this.dataService.config.addOcrTextOption"
+        [(value)]="this.dataService.config.ocrLanguage"
+      >
+        <mat-option *ngFor="let lang of OCR_LANGUAGES" [value]="lang.short">
+          {{ lang.short }} - {{ lang.long }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br />
+    <mat-button-toggle
+      class="coloredToggle"
+      title="Automatically add cards to Anki"
+      [checked]="this.dataService.config.autoAddAnki"
+      (change)="
+        this.dataService.config.autoAddAnki =
+          !this.dataService.config.autoAddAnki;
+        this.saveConfig()
+      "
+    >
+      <mat-icon>repeat</mat-icon> Anki
+    </mat-button-toggle>
+    <mat-button-toggle
+      class="coloredToggle"
+      title="Automatically save cards to Server"
+      [checked]="this.dataService.config.autoAddServer"
+      (change)="
+        this.dataService.config.autoAddServer =
+          !this.dataService.config.autoAddServer;
+        this.saveConfig()
+      "
+    >
+      <mat-icon>repeat</mat-icon>
+      <mat-icon>cloud</mat-icon>
+    </mat-button-toggle>
+    <br />
+    <mat-button-toggle
+    [checked]="dataService.offlineMode"
+    (change)="
+      dataService.offlineMode = !dataService.offlineMode;
+      dataService.saveOfflineModeSetting()
+    "
+    >Offline Mode</mat-button-toggle
+  >
+  </div>
+  </mat-expansion-panel>
+</mat-accordion>

@@ -105,7 +105,6 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public ocrLoadingNum: number = 0;
 
-  public config: Config = DataService.DEFAULT_CONFIG;
 
   public disablePDFViewer: boolean = false;
   private pdfOutline: { page: number; title: string }[] = [];
@@ -115,9 +114,6 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public title: string = '';
   public titleOptions: string[] = [];
   public chapter: string = '';
-
-  public readonly OCR_LANGUAGES: { short: string; long: string }[] =
-    TesseractLanguages.LANGS;
 
   @ViewChild(CardComponent) cardComp?: CardComponent;
 
@@ -161,7 +157,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.dataService.init().then(async () => {
       if (this.dataService.prefs['config']) {
-        this.config = this.dataService.prefs['config'];
+        this.dataService.config = this.dataService.prefs['config'];
       }
     });
   }
@@ -823,7 +819,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (event.key == 'c' || event.key == 'Escape') {
       this.dragging = false;
-      if (!this.config.selectionOnTop) {
+      if (!this.dataService.config.selectionOnTop) {
         this.zIndex = -1;
       }
       this.rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -837,7 +833,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (event.key == 's') {
       if (this.zIndex < 1) {
         this.zIndex = 1;
-      } else if (!this.config.selectionOnTop) {
+      } else if (!this.dataService.config.selectionOnTop) {
         this.zIndex = -1;
       }
     } else if (event.key == '1') {
@@ -948,12 +944,12 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             let offSetTop =
               parseFloat(pageRefStyles.marginTop) +
               parseFloat(pageRefStyles.borderTopWidth);
-            if (this.config.singlePageMode) {
+            if (this.dataService.config.singlePageMode) {
             }
             let scrollPerPage = viewerContainerRef.scrollHeight / this.numPages;
             let scrollOffSet =
               viewerContainerRef.scrollTop - scrollPerPage * (this.page - 1);
-            if (this.config.singlePageMode) {
+            if (this.dataService.config.singlePageMode) {
               scrollOffSet = viewerContainerRef.scrollTop;
               scrollPerPage = 999999;
             }
@@ -980,7 +976,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.rect.height * this.scale
               );
 
-              if (this.config.drawOnPdf) {
+              if (this.dataService.config.drawOnPdf) {
                 this.pdfCanvContext[this.page + 1].strokeRect(
                   this.rect.x * this.scale -
                     offSetLeft * this.scale +
@@ -1011,7 +1007,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.rect.height * this.scale
               );
 
-              if (this.config.drawOnPdf) {
+              if (this.dataService.config.drawOnPdf) {
                 this.pdfCanvContext[this.page].strokeRect(
                   this.rect.x * this.scale -
                     offSetLeft * this.scale +
@@ -1036,7 +1032,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             this.context.strokeStyle = 'green';
             this.drawRect();
 
-            if (!this.config.selectionOnTop) {
+            if (!this.dataService.config.selectionOnTop) {
               this.zIndex = -1;
             }
             setTimeout(() => {
@@ -1121,15 +1117,15 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
       let toAdd: string = '';
 
-      if (this.config.addImageOption) {
+      if (this.dataService.config.addImageOption) {
         toAdd +=
           '<span class="image-inline"><img src="' +
           dataURL +
           '"alt=""></span><br />';
       }
 
-      if (this.config.addTextOption && !this.config.addOcrTextOption) {
-        if (this.config.addTextAsHidden) {
+      if (this.dataService.config.addTextOption && !this.dataService.config.addOcrTextOption) {
+        if (this.dataService.config.addTextAsHidden) {
           this.currentCard.hiddenText += text + '\n';
         } else {
           toAdd += text;
@@ -1146,10 +1142,10 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
       let saveCardId: string = this.currentCard.localID;
       let saveFrontSel = this.frontSelected;
-      if (this.config.addTextOption && this.config.addOcrTextOption) {
+      if (this.dataService.config.addTextOption && this.dataService.config.addOcrTextOption) {
         this.ocrLoadingNum++;
 
-        recognize(dataURL, this.config.ocrLanguage, {
+        recognize(dataURL, this.dataService.config.ocrLanguage, {
           logger: (m) => {
             console.log(m);
           },
@@ -1158,7 +1154,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
           let card = this.getCards().find((c) => c.localID === saveCardId);
           if (card) {
-            if (this.config.addTextAsHidden) {
+            if (this.dataService.config.addTextAsHidden) {
               card.hiddenText += tessRes.data.text + '\n';
             } else {
               if (saveFrontSel) {
@@ -1174,12 +1170,12 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selectionOnTopChange(newVal: any) {
-    if (!this.config.selectionOnTop) {
+    if (!this.dataService.config.selectionOnTop) {
       this.zIndex = 1;
-      this.config.selectionOnTop = true;
+      this.dataService.config.selectionOnTop = true;
     } else {
       this.zIndex = -1;
-      this.config.selectionOnTop = false;
+      this.dataService.config.selectionOnTop = false;
     }
   }
 
@@ -1193,7 +1189,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         if (cardIndex >= 0) {
           this.currentCard =
             (await this.cardComp?.saveToServer()) || this.currentCard;
-          if (this.config.autoAddAnki) {
+          if (this.dataService.config.autoAddAnki) {
             await this.cardComp?.save(true);
           }
           this.getCards()[cardIndex] = (this.currentCard);
@@ -1204,7 +1200,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         ) {
           this.currentCard =
             (await this.cardComp?.saveToServer()) || this.currentCard;
-          if (this.config.autoAddAnki) {
+          if (this.dataService.config.autoAddAnki) {
             await this.cardComp?.save(true);
           }
           this.getCards().unshift(this.currentCard);
@@ -1217,13 +1213,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       this.currentCard.hiddenText != ''
     ) {
       console.log("BEFORE SRV");
-      if (this.config.autoAddServer) {
+      if (this.dataService.config.autoAddServer) {
         this.currentCard =
           (await this.cardComp?.saveToServer()) || this.currentCard;
           console.log("AFTER SRV");
       }
       console.log("BEFORE ANKI");
-      if (this.config.autoAddAnki) {
+      if (this.dataService.config.autoAddAnki) {
         await this.cardComp?.save(true);
       }
       console.log("AFTER ANKI");
@@ -1292,7 +1288,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async saveConfig() {
-    const res = await this.dataService.savePrefs({ config: this.config });
+    const res = await this.dataService.savePrefs({ config: this.dataService.config });
   }
 
   async saveDocument() {

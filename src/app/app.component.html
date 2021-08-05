@@ -48,14 +48,7 @@
       </button>
     </nav>
     <br />
-    <mat-button-toggle
-      [checked]="dataService.offlineMode"
-      (change)="
-        dataService.offlineMode = !dataService.offlineMode;
-        dataService.saveOfflineModeSetting()
-      "
-      >Offline Mode</mat-button-toggle
-    >
+    <app-options></app-options>
     <br />
     <br />
     <button *ngIf="this.accountService.isLoggedIn()"
