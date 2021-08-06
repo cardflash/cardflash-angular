@@ -36,13 +36,13 @@ export class CardService {
 
 
   async addCard(card: Card){
-    const res =await this.dataService.createDocumentOnline('cards', card);
+    const res =await this.dataService.createDocument('cards', card);
     this.refresh();
     return res;
   }
 
   async updateCard(card: Card){
-    const res = await this.dataService.updateDocumentOnline('cards', card);
+    const res = await this.dataService.updateDocument('cards', card);
     this.refresh();
     return res;
   }
@@ -53,13 +53,13 @@ export class CardService {
         const imgSuccess = await this.dataService.deleteFile(card.imgs[i]);
       }
     }
-    await this.dataService.deleteDocumentOnline('cards',card.$id,card);
+    await this.dataService.deleteDocument('cards',card);
     this.refresh();
   }
 
   async refresh(){
     this.documentService.refresh();
-    const cards = await this.dataService.fetchOnlineCollection('cards');
+    const cards = await this.dataService.fetchCollection('cards');
     if(cards){
       cards.forEach((card) => this.replaceImageLinksForCard(card));
       this.cards$.next(cards);

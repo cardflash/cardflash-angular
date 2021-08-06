@@ -19,7 +19,8 @@ export class EditCardComponent implements OnInit, OnDestroy {
 
   private subscription : Subscription | undefined;
 
-  private id: string;
+  private id?: string;
+  private localID?: string;
 
   public document: PDFDocument | undefined;
 
@@ -27,6 +28,7 @@ export class EditCardComponent implements OnInit, OnDestroy {
 
   constructor(private actRoute: ActivatedRoute, private cardService: CardService, private documentService: DocumentService, public dataService: DataService) {
     this.id = actRoute.snapshot.params.id
+    this.localID = actRoute.snapshot.params.localid;
   }
 
   ngOnInit(): void {
@@ -54,7 +56,15 @@ export class EditCardComponent implements OnInit, OnDestroy {
   }
 
   refresh(cards: Map<string,Card>){
-    this.card = cards.get(this.id);
+    if(this.id){
+      this.card = cards.get(this.id);
+    }else if(this.localID){
+      cards.forEach((card) => {
+        if(card.localID === this.localID){
+          this.card = card;
+        }
+      })
+    }
   }
 
   deleteCard(){

@@ -26,6 +26,10 @@ const routes: Routes = [
     component: EditCardComponent,
   },
   {
+    path: 'cards/local/:localid',
+    component: EditCardComponent
+  },
+  {
     path: 'documents',
     component: DocumentsComponent
   },

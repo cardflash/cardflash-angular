@@ -521,7 +521,7 @@ export class CardComponent implements OnInit, AfterViewInit {
               Page: this.card.page.toString(),
               Chapter: this.card.chapter,
               Hidden: this.card.hiddenText,
-              URL: environment.BASE_URL + '/cards/' + this.card.$id,
+              URL: this.card.$id ? environment.BASE_URL + '/cards/' + this.card.$id : environment.BASE_URL + '/cards/local/' + this.card.localID,
             },
             options: {
               allowDuplicate: false,
@@ -633,6 +633,9 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   async saveToServer() {
+    const originalFront : string = this.card.front;
+    const originalBack : string = this.card.back;
+    if(!this.dataService.offlineMode){
     const imagelist = this.getImages();
     let promises = [];
     for (let i = 0; i < imagelist.length; i++) {
@@ -645,9 +648,6 @@ export class CardComponent implements OnInit, AfterViewInit {
         )
       );
     }
-
-    const originalFront : string = this.card.front;
-    const originalBack : string = this.card.back;
     const imgRes = await Promise.all(promises);
     const saveNamingFunc = (i: number) =>
       this.dataService.getFileView(imgRes[i]).href;
@@ -685,14 +685,15 @@ export class CardComponent implements OnInit, AfterViewInit {
     } else {
       this.card.imgs = imgRes;
     }
+  }
     let res;
     if (this.alreadyOnServer || this.card.$id) {
       res = await this.cardService.updateCard(this.card);
     } else {
       res = await this.cardService.addCard(this.card);
     }
-      if(res){
-      this.card = res;
+    if(res.success){
+      // this.card = res;
       this.alreadyOnServer = true;
       return this.card;
     }else{

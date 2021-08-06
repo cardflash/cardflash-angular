@@ -58,7 +58,11 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   editCard(card: Card){
-    this.router.navigate(["/cards/"+card.$id])
+    if(card.$id){
+      this.router.navigate(["/cards/"+card.$id])
+    }else{
+      this.router.navigate(["/cards/local/"+card.localID])
+    }
   }
 
 

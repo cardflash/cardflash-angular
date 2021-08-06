@@ -108,13 +108,13 @@ export class DataService {
       data['localID'] = nanoid();
     }
     if(!this.offlineMode){
-      const resID = await this.createDocumentOnline(collectionName,data,data['localID']);
-      if(resID){
-        data['$id'] = resID;
+      const res = await this.createDocumentOnline(collectionName,data,data['localID']);
+      if(res){
+        data = res;
       }
     }
-
-      return await this.createDocumentOffline(collectionName,data);
+      await this.createDocumentOffline(collectionName,data);
+      return data;
     }
 
   async createDocumentOffline(collectionName: string, data: {localID: string}){
@@ -126,14 +126,19 @@ export class DataService {
 
   async updateDocument(collectionName: string, data : {ID?: string, localID: string}){
     console.log("Update Document",collectionName,data);
+    let success = true;
     if(!data.localID){
-      return;
+      success = false;
+      return {success: success, localID: data['localID']};
     }else{
       if(!this.offlineMode){
-        await this.updateDocumentOnline(collectionName,data);
+        if(!await this.updateDocumentOnline(collectionName,data)){
+          success = false;
+        }
       }
-      await this.putLocalObject(collectionName,data['localID'],data);
+      success = success && await this.putLocalObject(collectionName,data['localID'],data);
       }
+      return {success: success, localID: data['localID']};
   }
 
       public stringify(obj: any){
@@ -143,21 +148,19 @@ export class DataService {
     async createDocumentOnline(collectionName: string, data: any, localID?: string, notifyOnSuccess : boolean = false) : Promise<any | undefined>{
       const apiProm =  this.appwrite.database.createDocument(environment.collectionMap[collectionName],data);
       const apiRes = await this.userNotifierService.notifyForPromiseFlag(apiProm, "(Online) " + collectionName +  " creation",notifyOnSuccess);
-    //   if(localID){
+      if(localID){
     if(apiRes.success){
-
-    //     ID = apiRes.result.$id;
-    //     data['$id'] = ID;
-    //     const collection = await this.getCollectionFromStorage(collectionName);
-    //     collection.set(localID,data);
-    //     await this.saveCollectionToStorage(collectionName,collection);
+        let ID = apiRes.result.$id;
+        data['$id'] = ID;
+        const collection = await this.getCollectionFromStorage(collectionName);
+        collection.set(localID,data);
+        await this.saveCollectionToStorage(collectionName,collection);
     
-    //   }else{
-    //     this.failedRequests.push({ID: nanoid(), time: Date.now(),type: 'create', dataLocalID: localID, data: data, collectionName: collectionName});
-    //     this.saveFailedRequests();
-    //   }
-
-    return apiRes.result;
+      }else{
+        this.failedRequests.push({ID: nanoid(), time: Date.now(),type: 'create', dataLocalID: localID, data: data, collectionName: collectionName});
+        this.saveFailedRequests();
+      }
+      return apiRes.result;
     }else{
       return undefined;
     } 
