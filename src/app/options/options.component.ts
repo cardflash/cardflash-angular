@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
 import { TesseractLanguages } from '../data/tesseract-languages';
 import { Config } from '../types/config';
@@ -10,14 +10,15 @@ import { Config } from '../types/config';
 })
 export class OptionsComponent implements OnInit {
 
-  public config: Config = DataService.DEFAULT_CONFIG;
   public readonly OCR_LANGUAGES: { short: string; long: string }[] =
     TesseractLanguages.LANGS;
+
+    @Input('expanded') expanded: boolean = false;
     
   constructor(public dataService: DataService) {
     this.dataService.init().then(async () => {
       if (this.dataService.prefs['config']) {
-        this.config = this.dataService.prefs['config'];
+        this.dataService.config = this.dataService.prefs['config'];
       }
     });
   }
@@ -26,7 +27,7 @@ export class OptionsComponent implements OnInit {
   }
 
   async saveConfig() {
-    const res = await this.dataService.savePrefs({ config: this.config });
+    const res = await this.dataService.savePrefs({ config: this.dataService.config });
   }
 
 }

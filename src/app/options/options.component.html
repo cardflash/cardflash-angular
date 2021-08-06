@@ -1,5 +1,5 @@
 <mat-accordion>
-  <mat-expansion-panel>
+  <mat-expansion-panel [(expanded)]="this.expanded">
     <mat-expansion-panel-header>
       <mat-panel-title>Options</mat-panel-title>
     </mat-expansion-panel-header>
@@ -8,7 +8,7 @@
       title="Show only one PDF page at a time (requires reload)"
       [checked]="this.dataService.config.singlePageMode"
       (change)="
-        this.dataService.config.singlePageMode = !this.config.singlePageMode;
+        this.dataService.config.singlePageMode = !this.dataService.config.singlePageMode;
         this.saveConfig()
       "
     >
@@ -57,6 +57,13 @@
       <mat-icon>cloud</mat-icon>
     </mat-button-toggle>
     <br />
+    <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
+      <mat-label>Anki Deck</mat-label>
+      <input matInput placeholder="Deck Name"
+      [(ngModel)]="this.dataService.config.deckName">
+      <mat-icon matSuffix>inbox</mat-icon>
+    </mat-form-field>
+    <br />
     <mat-button-toggle
     [checked]="dataService.offlineMode"
     (change)="
@@ -65,6 +72,7 @@
     "
     >Offline Mode</mat-button-toggle
   >
+
   </div>
   </mat-expansion-panel>
 </mat-accordion>
