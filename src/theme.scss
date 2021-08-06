@@ -1,10 +1,10 @@
 @import '~@angular/material/theming';
 @include mat-core();
-
+//linear-gradient(30deg, rgba(92,232,237,0.7077031496192228) 0%, rgba(29,65,253,0.4640056706276261) 60%, rgba(179,115,245,0.7973390039609594) 100%);
 $mat-primary-scheme: (
-  100: #26f7ff,
-  500: #46affa,
-  700: #214ccf,
+  100: #32e3e9,
+  500: #4e8cf0,
+  700: #737cf5,
   contrast: (
     100: rgba(0,0,0,0.87),
     500: #ffffff,
@@ -12,12 +12,12 @@ $mat-primary-scheme: (
   )
 );
 $mat-accent-scheme: (
-  100: #7aeea8,
-  500: #60e3bc,
-  700: #4dc36d,
+  100: #957aee,
+  500: #c26ed1,
+  700: #c34daa,
   contrast: (
     100: rgba(0,0,0,0.87),
-    500: rgba(0,0,0,0.87),
+    500: #ffffff,
     700: #ffffff,
   )
 );
