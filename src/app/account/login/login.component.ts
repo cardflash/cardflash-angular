@@ -59,8 +59,8 @@ export class LoginComponent implements OnInit {
         this.loginForm.get('password')?.setValue("");
         this.loginForm.get('repeatPassword')?.setValue("");
         this.userNotifierService.notify("Login successfull!","","success",true);
-        this.cardService.refresh();
-        this.documentService.refresh();
+        await this.cardService.refresh();
+        await this.documentService.refresh();
         this.router.navigate(['/documents']);
       }
     }
@@ -73,8 +73,8 @@ export class LoginComponent implements OnInit {
         this.registerForm.get('password')?.setValue("");
         this.registerForm.get('repeatPassword')?.setValue("");
         this.userNotifierService.notify("Registration successfull!","","success",true);
-        this.cardService.refresh();
-        this.documentService.refresh();
+        await this.cardService.refresh();
+        await this.documentService.refresh();
         this.router.navigate(['/documents']);
       }
     }
