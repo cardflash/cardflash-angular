@@ -3,6 +3,7 @@
     <div class="sideContent">
       <div>
         <h2>flashcards.siter.eu</h2>
+        <h3 *ngIf="this.accountService.getAcc()">Hi, {{this.accountService.getAcc().name}}</h3>
         <nav class="sideNavigation">
           <ul class="pageList">
             <li>

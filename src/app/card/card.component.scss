@@ -144,6 +144,7 @@ hr.solid {
 .imageEditOption{
 
 }
+
 .imageEditOverlay{
   position: absolute;
   width: 60%;
@@ -159,6 +160,14 @@ hr.solid {
   padding-top: 5px;
   opacity: 1;
   padding-bottom: 50px;
+}
+.overlayBackdrop{
+  position: absolute;
+  top:0;
+  left:0;
+  height: 100%;
+  width: 100%;
+  background-color: #00000088;
 }
 
 

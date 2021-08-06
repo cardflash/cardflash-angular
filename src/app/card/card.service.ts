@@ -36,7 +36,7 @@ export class CardService {
 
 
   async addCard(card: Card){
-    const res =await this.dataService.createDocument('cards', card);
+    const res = await this.dataService.createDocument('cards', card);
     this.refresh();
     return res;
   }
@@ -61,6 +61,7 @@ export class CardService {
     this.documentService.refresh();
     const cards = await this.dataService.fetchCollection('cards');
     if(cards){
+      console.log(cards);
       cards.forEach((card) => this.replaceImageLinksForCard(card));
       this.cards$.next(cards);
     }

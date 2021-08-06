@@ -104,6 +104,7 @@ export class DataService {
 
   async createDocument(collectionName: string, data: any){
     console.log("Create Document",collectionName,data);
+    let success = true;
     if(data['localID'] == null){
       data['localID'] = nanoid();
     }
@@ -111,10 +112,13 @@ export class DataService {
       const res = await this.createDocumentOnline(collectionName,data,data['localID']);
       if(res){
         data = res;
+      }else{
+        success = false;
       }
     }
-      await this.createDocumentOffline(collectionName,data);
-      return data;
+      const offlineRes = await this.createDocumentOffline(collectionName,data);
+      success = success && offlineRes.success;
+      return {success: success, result: data};
     }
 
   async createDocumentOffline(collectionName: string, data: {localID: string}){
@@ -127,18 +131,20 @@ export class DataService {
   async updateDocument(collectionName: string, data : {ID?: string, localID: string}){
     console.log("Update Document",collectionName,data);
     let success = true;
+    let res;
     if(!data.localID){
       success = false;
       return {success: success, localID: data['localID']};
     }else{
       if(!this.offlineMode){
-        if(!await this.updateDocumentOnline(collectionName,data)){
+        res = await this.updateDocumentOnline(collectionName,data)
+        if(!res){
           success = false;
         }
       }
       success = success && await this.putLocalObject(collectionName,data['localID'],data);
       }
-      return {success: success, localID: data['localID']};
+      return {success: success, result: (res || data)};
   }
 
       public stringify(obj: any){
@@ -285,11 +291,13 @@ export class DataService {
 
 
   async fetchCollection(collectionName: string){
-    console.log("Fetching " + collectionName);
+    console.log("Fetching " + collectionName,this.offlineMode);
+    let result;
     if(!this.offlineMode){
-      await this.fetchOnlineCollection(collectionName);
+      result =  await this.fetchOnlineCollection(collectionName);
     }
-      return await this.getCollectionFromStorage(collectionName);
+    let offlineResult = await this.getCollectionFromStorage(collectionName);
+    return result || offlineResult;
   }
 
   async deleteDocument(collectionName : string, data : {$id?: string, localID: string}){

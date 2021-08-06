@@ -1,6 +1,12 @@
 <div class="main">
 
-<h1>Your cards</h1>
+<h1 class="title">Your cards</h1>
+<mat-form-field class="searchField" *ngIf="this.cardsCollection.size >= 1">
+  <mat-label>Search</mat-label>
+  <input matInput type="text" #searchField (keydown.enter)="search(searchField.value)">
+  <button mat-icon-button matSuffix (click)="search(searchField.value)"><mat-icon>search</mat-icon></button>
+  
+</mat-form-field>
 <div *ngIf="this.cardsCollection.size < 1">
   <h2 >You currently have no cards stored.</h2>
   <button mat-raised-button routerLink="/create/from-pdf">Create some</button>
@@ -8,7 +14,7 @@
 
 <link href="/assets/card-styles.css" rel="stylesheet">
 <div class="cards">
-<app-static-card class="flexChild" *ngFor="let card of this.cardsCollection | keyvalue: creationTimeOrder"
-[card]="card.value" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
+<app-static-card class="flexChild" *ngFor="let card of filteredCards"
+[card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
 </div>
 </div>

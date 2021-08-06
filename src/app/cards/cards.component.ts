@@ -13,6 +13,7 @@ import { Card } from '../types/card';
 })
 export class CardsComponent implements OnInit, OnDestroy {
   public cardsCollection: Map<string,Card> = new Map<string,Card>();
+  public filteredCards: Card[] = [];
   private subscription : Subscription | undefined;
   constructor(private dataService: DataService, private cardService: CardService, private router: Router) { }
 
@@ -28,6 +29,7 @@ export class CardsComponent implements OnInit, OnDestroy {
   loadCards(cards: Map<string,Card>){
     console.log("Loading cards");
     this.cardsCollection = cards;
+    this.search("");
     for(const card of cards.values()){
       if(card.imgs){
         const prefixed = card.imgs.map((val) => "__SERVER__:"+val)
@@ -63,6 +65,16 @@ export class CardsComponent implements OnInit, OnDestroy {
     }else{
       this.router.navigate(["/cards/local/"+card.localID])
     }
+  }
+
+  search(query: string){
+    this.filteredCards = [];
+    this.cardsCollection.forEach((card) => {
+      if(card.front.includes(query) || card.back.includes(query) || card.hiddenText.includes(query) || card.title.includes(query) || card.chapter.includes(query)){
+        this.filteredCards.push(card);
+      }
+    })
+    this.filteredCards.sort((a,b) => (a.creationTime || 0) < (b.creationTime || 0) ? 1 : (a.creationTime === b.creationTime ? 0 : -1))
   }
 
 

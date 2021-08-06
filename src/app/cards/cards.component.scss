@@ -17,12 +17,25 @@
 .flexChild{
   flex: 1 1 0px;
   min-width: 500px;
+  background-color: rgba(226, 244, 255, 0.287);
+  border: rgb(226, 244, 255) 2px solid;
+  border-radius: 50px;
+  margin: 30px;
+
 }
 
 .main{
   text-align: center;
 }
 
+.title{
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.searchField{
+  width: 300px;
+}
 @media screen and (max-width: 1500px) {
   .cards{
     grid-template-columns: repeat(2,1fr);

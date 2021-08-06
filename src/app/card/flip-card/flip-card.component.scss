@@ -23,6 +23,12 @@
   font-size: 0.8em;
 }
 
+.cardHeaderTitle span, .cardChapter span{
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-weight: 500;
+}
+
+
 .flipCard{
   perspective: 1000px;
   width: 600px;

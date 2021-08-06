@@ -32,3 +32,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .tui-image-editor-header-logo {
   display: none;
 }
+.tui-image-editor-controls{
+  background-color: #fafafafa !important;
+}
+img{
+  max-width: 100%;
+}

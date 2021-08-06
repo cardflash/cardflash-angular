@@ -1,9 +1,9 @@
 <div class="card flipCard" [ngClass]="{flipped: this.flipped}">
   <div class="cardHeaderTitle">
-    {{this.card.title || "-"}}
+    <span>{{this.card.title || "-"}}</span>
   </div>
   <div  class="cardChapter">
-    {{this.card.chapter || "-"}}
+    <span>{{this.card.chapter || "-"}}</span>
   </div>
 
   <div class="inner">

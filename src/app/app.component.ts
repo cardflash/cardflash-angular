@@ -16,9 +16,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   
   constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService){
     this.accountService.updateAcc();
-    this.dataService.init();
-    this.cardService.refresh();
-    this.documentService.refresh();
+    this.dataService.init().then(() => {
+      this.cardService.refresh();
+    });
   }
   ngOnDestroy(): void {
       if(this.anchorSubscription){
