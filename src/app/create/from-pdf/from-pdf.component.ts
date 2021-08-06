@@ -140,10 +140,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public documentSub: Subscription | undefined;
   constructor(
     public dataService: DataService,
-    private router: Router,
     private actRoute: ActivatedRoute,
-    private http: HttpClient,
-    private cardService: CardService,
     private documentService: DocumentService
   ) {
     this.documentid = actRoute.snapshot.params.id;
@@ -154,7 +151,6 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadFromDocs(docs)
       );
     }
-
     this.dataService.init().then(async () => {
       if (this.dataService.prefs['config']) {
         this.dataService.config = this.dataService.prefs['config'];
