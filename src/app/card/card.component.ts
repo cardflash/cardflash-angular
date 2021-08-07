@@ -338,7 +338,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           
         },
         loadImage: {
-          path: '/assets/favicons/android-chrome-192x192.png',
+          path: 'assets/favicons/android-chrome-192x192.png',
           name: 'No image provided'
         },
         initMenu: 'filter',
@@ -791,7 +791,7 @@ export class CardComponent implements OnInit, AfterViewInit {
 
   async createModelinAnki(): Promise<boolean> {
     const ckEditorCss: string = await this.http
-      .get('/assets/card-styles.css', { responseType: 'text' })
+      .get('assets/card-styles.css', { responseType: 'text' })
       .toPromise();
     let bodyData = {
       action: 'createModel',

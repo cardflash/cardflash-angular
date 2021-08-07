@@ -10,8 +10,8 @@ import { PDFDocument } from 'src/app/types/pdf-document';
 
 @Component({
   selector: 'app-cards-for-document',
-  templateUrl: './cards-for-document.component.html',
-  styleUrls: ['./cards-for-document.component.scss']
+  templateUrl: 'cards-for-document.component.html',
+  styleUrls: ['cards-for-document.component.scss']
 })
 export class CardsForDocumentComponent implements OnInit, OnDestroy {
 

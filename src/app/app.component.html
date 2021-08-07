@@ -9,7 +9,7 @@
             <li>
               <a routerLink="/cards" routerLinkActive="active" style="--site-color: #3cbfc8;--site-color-background: #3cbfc840" (click)="drawer.toggle()">
               <mat-icon>inventory</mat-icon>
-              <span>Cards</span>
+              <span i18n="cards page name">Cards</span>
             </a>
             </li>
             <li>
@@ -42,7 +42,14 @@
           </nav>
       </div>
     <app-options></app-options>
-      <span>Currently WIP</span>
+    <span>Currently WIP</span>
+    <div>
+    <h6>Toggle language</h6>
+    <mat-button-toggle-group>
+      <mat-button-toggle [checked]="currentLocale === 'en'"  (change)="changeLocale('en')"><img [src]="getFlagImgURL('gb')"> English</mat-button-toggle>
+      <mat-button-toggle [checked]="currentLocale === 'de'" (change)="changeLocale('de')"><img [src]="getFlagImgURL('de')"> German</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
       <footer>
         <a target="_blank" href="https://aarkue.eu/impress">Impress</a>
         <a target="_blank" href="https://aarkue.eu/impress#privacy">Privacy</a>

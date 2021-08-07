@@ -512,5 +512,9 @@ export class DataService {
     return this.appwrite.headers;
   }
 
+  getFlagURL(code: string) : URL{
+    return this.appwrite.avatars.getFlag(code,20,20);
+  }
+
 
 }

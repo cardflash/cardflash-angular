@@ -15,7 +15,6 @@
     <h2 >You currently have no cards for this document.</h2>
   </div>
   
-  <link href="/assets/card-styles.css" rel="stylesheet">
   <div class="cards">
   <app-static-card class="flexChild" *ngFor="let card of this.document?.cards"
   [card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>

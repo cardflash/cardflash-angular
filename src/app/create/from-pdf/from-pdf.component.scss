@@ -5,6 +5,8 @@
 #cards-column{
   width: 45%;
   float: right;
+  overflow: auto;
+  max-height: calc(100vh - 64px);
 }
 
 .toolbarSpace{
@@ -70,8 +72,6 @@
 }
 
 .cards{
-  overflow-y: scroll;
-  max-height: 77vh;
   padding: 10px;
   margin-left: auto;
   margin-right: auto;

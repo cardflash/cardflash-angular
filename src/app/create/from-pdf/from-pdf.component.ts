@@ -41,7 +41,7 @@ import { EditorFlipCardComponent } from 'src/app/card/editor-flip-card/editor-fl
   styleUrls: ['./from-pdf.component.scss'],
 })
 export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
-  pdfSrc: string | Uint8Array = '/assets/pdfs/flashcards_siter_eu.pdf';
+  pdfSrc: string | Uint8Array = '';
   numPages = 1;
   page = 1;
 
@@ -443,7 +443,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             (Math.min(rect[0], rect[2]) - 15) +
             'px; top:' +
             (Math.min(rect[1], rect[3]) - 15) +
-            "px; width: 15px; height: 15px; background-image: url('/assets/delete.svg');"
+            "px; width: 15px; height: 15px; background-image: url('assets/delete.svg');"
         );
         delDiv.onclick = async (event: any) => {
           this.deleteAnnotation(annotation.id);
@@ -463,7 +463,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             (Math.min(rect[0], rect[2]) - 15) +
             'px; top:' +
             (Math.min(rect[1], rect[3]) - 33) +
-            "px; width: 15px; height: 15px; background-image: url('/assets/right.svg');"
+            "px; width: 15px; height: 15px; background-image: url('assets/right.svg');"
         );
         jumpDiv.onclick = async (event: any) => {
           this.scrollToAnnotation({

@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnDestroy} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { CardService } from './card/card.service';
 import { DataService } from './data.service';
 import { DocumentService } from './document.service';
@@ -13,12 +14,15 @@ import { AccountService } from './services/account.service';
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
   anchorSubscription: Subscription | undefined;
-  
+  currentLocale : 'en' | 'de' = 'en';
   constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService){
     this.accountService.updateAcc();
     this.dataService.init().then(() => {
       this.cardService.refresh();
     });
+    if(window.location.href.includes('/de/')){
+      this.currentLocale = 'de';
+    }
   }
   ngOnDestroy(): void {
       if(this.anchorSubscription){
@@ -51,5 +55,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     await this.accountService.logout();
     this.cardService.refresh();
     this.documentService.refresh();
+  }
+  getFlagImgURL(locale: string){
+    return this.dataService.getFlagURL(locale).href;
+  }
+
+  changeLocale(locale: 'de' | 'en'){
+    console.log("LOCALE CHANGE",locale);
+    if(this.currentLocale === locale){
+      return;
+    }
+    window.addEventListener('beforeunload', function(e){
+      e.preventDefault();
+      e.returnValue = '';
+    })
+    let url;
+    if(this.currentLocale === 'de'){
+      url = window.location.href.replace('/de/',"/"+locale+"/");
+    }else{
+      url = window.location.href.replace('/en/',"/"+locale+"/")
+    }
+    console.log("LOCALE CHANGE URL",url);
+    window.location.assign(url);
   }
 }

@@ -12,7 +12,6 @@
   <button mat-raised-button routerLink="/create/from-pdf">Create some</button>
 </div>
 
-<link href="/assets/card-styles.css" rel="stylesheet">
 <div class="cards">
 <app-static-card class="flexChild" *ngFor="let card of filteredCards"
 [card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
