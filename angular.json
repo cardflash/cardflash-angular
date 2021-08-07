@@ -74,6 +74,15 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "de": {
+              "localize": ["de"],
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -86,7 +95,10 @@
             },
             "development": {
               "browserTarget": "flashcards:build:development"
-            }
+            },
+              "de": {
+                "browserTarget": "flashcards:build:de"
+              }
           },
           "defaultConfiguration": "development"
         },
@@ -121,7 +133,7 @@
         "sourceLocale": "en",
         "locales": {
           "de": {
-            "translation": "src/locale/messages.de.xlf"
+            "translation": "src/locale/messages.de.json"
           }
         }
       }

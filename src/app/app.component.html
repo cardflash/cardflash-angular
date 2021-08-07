@@ -9,25 +9,25 @@
             <li>
               <a routerLink="/cards" routerLinkActive="active" style="--site-color: #3cbfc8;--site-color-background: #3cbfc840" (click)="drawer.toggle()">
               <mat-icon>inventory</mat-icon>
-              <span i18n="cards page name">Cards</span>
+              <span i18n>Cards</span>
             </a>
             </li>
             <li>
               <a routerLink="/documents" routerLinkActive="active" style="--site-color: #568ed8;--site-color-background: #568ed840" (click)="drawer.toggle()">
               <mat-icon>folder</mat-icon>
-              <span>Documents</span>
+              <span i18n>Documents</span>
             </a>
             </li>
             <li>
               <a routerLink="/create/from-pdf" routerLinkActive="active" style="--site-color: #45ad45;--site-color-background: #45ad4540" (click)="drawer.toggle()">
               <mat-icon>picture_as_pdf</mat-icon>
-              <span>Create from PDF</span>
+              <span i18n>Create from PDF</span>
             </a>
             </li>
             <li *ngIf="!this.accountService.isLoggedIn()">
               <a routerLink="/login" routerLinkActive="active" style="--site-color: #9e63d6;--site-color-background: #9e63d640" (click)="drawer.toggle()">
               <mat-icon>login</mat-icon>
-              <span>Login or Register</span>
+              <span i18n>Login or Register</span>
             </a>
             </li>
             <li *ngIf="this.accountService.isLoggedIn()">
@@ -35,24 +35,24 @@
               <hr  style="border-color: #d663a0">
               <a routerLink="/login" style="--site-color: #d663a0;--site-color-background: #d663a040" (click)="logout()">
               <mat-icon>logout</mat-icon>
-              <span>Logout</span>
+              <span i18n>Logout</span>
             </a>
             </li>
           </ul>
           </nav>
       </div>
     <app-options></app-options>
-    <span>Currently WIP</span>
+    <span i18n>Currently WIP</span>
     <div>
-    <h6>Toggle language</h6>
+    <h6 >Toggle language</h6>
     <mat-button-toggle-group>
       <mat-button-toggle [checked]="currentLocale === 'en'"  (change)="changeLocale('en')"><img [src]="getFlagImgURL('gb')"> English</mat-button-toggle>
       <mat-button-toggle [checked]="currentLocale === 'de'" (change)="changeLocale('de')"><img [src]="getFlagImgURL('de')"> German</mat-button-toggle>
     </mat-button-toggle-group>
   </div>
       <footer>
-        <a target="_blank" href="https://aarkue.eu/impress">Impress</a>
-        <a target="_blank" href="https://aarkue.eu/impress#privacy">Privacy</a>
+        <a target="_blank" href="https://aarkue.eu/impress" i18n>Impress</a>
+        <a target="_blank" href="https://aarkue.eu/impress#privacy" i18n>Privacy</a>
       </footer>
       <svg class="wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#0099ff" fill-opacity="0.69" d="M0,256L30,261.3C60,267,120,277,180,256C240,235,300,181,360,160C420,139,480,149,540,133.3C600,117,660,75,720,85.3C780,96,840,160,900,181.3C960,203,1020,181,1080,176C1140,171,1200,181,1260,176C1320,171,1380,149,1410,138.7L1440,128L1440,320L1410,320C1380,320,1320,320,1260,320C1200,320,1140,320,1080,320C1020,320,960,320,900,320C840,320,780,320,720,320C660,320,600,320,540,320C480,320,420,320,360,320C300,320,240,320,180,320C120,320,60,320,30,320L0,320Z"></path></svg>
       </div>

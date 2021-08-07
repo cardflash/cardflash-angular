@@ -1,0 +1,33 @@
+{
+  "locale": "en",
+  "translations": {
+    "5811097982080929097": "Cards",
+    "4733307402565258070": "Documents",
+    "7514670639004367737": "Create from PDF",
+    "8924423565613295579": "Login or Register",
+    "3797778920049399855": "Logout",
+    "8808575458955293240": "Currently WIP",
+    "608092516633863909": "Impress",
+    "8440128775129354214": "Privacy",
+    "7932418406121526154": "Front",
+    "1447941757982648001": "Scroll to annotation",
+    "8890553633144307762": "Back",
+    "7775458873969123659": "Edit Metadata",
+    "3199743233482854868": "Title, Chapter, Hidden Text",
+    "5701618810648052610": "Title",
+    "5322922947143379212": "Chapter",
+    "3293907569833831436": "Hidden Text",
+    "8286804311024638809": "Annotations",
+    "6933180375922169662": "Page #",
+    "124993045958233568": "Drag an image from the editor here to edit it.",
+    "47597510704655950": "Drag the image below to a editor to insert it.",
+    "8788701992299616496": "Result:",
+    "8700121026680200191": "Clear",
+    "3120149921639019982": "Finish Image Editing",
+    "2456043080471762298": "delete",
+    "9095134843628689709": "edit",
+    "4348019411592948105": "Your cards",
+    "4580988005648117665": "Search",
+    "4642031202362776399": "You currently have no cards stored."
+  }
+}

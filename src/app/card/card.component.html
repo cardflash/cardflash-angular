@@ -6,7 +6,7 @@
     <div class="cardSides">
     <mat-card class="front-card">
       <mat-card-header>
-        <mat-card-subtitle>Front</mat-card-subtitle>
+        <mat-card-subtitle i18n>Front</mat-card-subtitle>
       </mat-card-header>
       <div
         class="front-div"
@@ -23,6 +23,7 @@
             mat-mini-fab
             class="navigationButton"
             title="Scroll to annotation"
+            i18n-title
             (click)="scrollToAnnotation(annotation.id,'pdf')"
             [ngStyle]="{ 'background-color': annotation.color }"
           >
@@ -41,7 +42,7 @@
 
     <mat-card class="back-card">
       <mat-card-header>
-        <mat-card-subtitle>Back</mat-card-subtitle>
+        <mat-card-subtitle i18n="card back side">Back</mat-card-subtitle>
       </mat-card-header>
       <div class="back-div"
       [ngClass]="{ active: active && !frontActive }"
@@ -75,9 +76,9 @@
     <mat-accordion>
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>Edit Metadata</mat-panel-title>
+          <mat-panel-title i18n>Edit Metadata</mat-panel-title>
           <mat-panel-description
-            >Title, Chapter, Hidden Text</mat-panel-description
+          i18n>Title, Chapter, Hidden Text</mat-panel-description
           >
         </mat-expansion-panel-header>
         <div class="cardMetaFields">
@@ -86,7 +87,7 @@
             appearance="fill"
             style="margin-bottom: -1.25em"
           >
-            <mat-label>Title</mat-label>
+            <mat-label i18n>Title</mat-label>
             <input
               matInput
               placeholder="Document Title"
@@ -99,7 +100,7 @@
             appearance="fill"
             style="margin-bottom: -1em"
           >
-            <mat-label>Chapter</mat-label>
+            <mat-label i18n>Chapter</mat-label>
             <input
               matInput
               placeholder="Chapter"
@@ -109,11 +110,11 @@
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline" class="hiddenText">
-          <mat-label>Hidden Text</mat-label>
+          <mat-label i18n>Hidden Text</mat-label>
           <textarea matInput [(ngModel)]="this.card.hiddenText"></textarea>
         </mat-form-field>
         <div>
-          <h4>Annotations</h4>
+          <h4 i18n>Annotations</h4>
           <div
             *ngFor="let annotation of this.annotations"
             class="annotationDiv"
@@ -159,7 +160,7 @@
         appearance="standard"
         style="margin-bottom: -1.25em"
       >
-        <mat-label>Page #</mat-label>
+        <mat-label i18n>Page #</mat-label>
         <!-- <span matPrefix>p.</span> -->
         <input matInput type="number" [(ngModel)]="this.card.page" />
       </mat-form-field>
@@ -194,13 +195,13 @@
 <div class="imageEditOption">
 <div class="imageDrop" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
   <h3>Edit image <mat-icon>layers</mat-icon></h3>
-  <p *ngIf="!imageInEditingURL">Drag an image from the editor here to edit it.</p>
+  <p *ngIf="!imageInEditingURL" i18n>Drag an image from the editor here to edit it.</p>
   <div *ngIf="imageInEditingURL">
-    <p>Drag the image below to a editor to insert it.</p>
-  <h4>Result:</h4>
+    <p i18n>Drag the image below to a editor to insert it.</p>
+  <h4 i18n>Result:</h4>
   <img  class="editedImage" [src]="imageInEditingURL">
   <br />
-  <button mat-flat-button (click)="imageInEditingURL = ''">Clear</button>
+  <button mat-flat-button (click)="imageInEditingURL = ''" i18n>Clear</button>
 </div>
 </div>
 
@@ -212,5 +213,5 @@
   <div id="tui-image-editor-container">
     <canvas></canvas>
   </div>
-  <button class="finishImgEditButton" mat-raised-button color="primary" (click)="finishImageEditing(true)">Finish Image Editing</button>
+  <button class="finishImgEditButton" mat-raised-button color="primary" (click)="finishImageEditing(true)" i18n>Finish Image Editing</button>
 </div>
