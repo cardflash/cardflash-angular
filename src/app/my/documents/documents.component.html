@@ -1,15 +1,15 @@
 <div class="main">
 
-  <h1>Your documents</h1>
+  <h1 i18n>Your documents</h1>
   <div *ngIf="this.documentsCollection.size < 1">
-    <h2 >You currently have no documents stored online.</h2>
+    <h2 i18n>You currently have no documents stored online.</h2>
   </div>
   
   <div class="documents">
     <div class="document">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>
+          <mat-card-title i18n>
             Upload new
           </mat-card-title>
         </mat-card-header>
@@ -23,8 +23,8 @@
       </mat-card>
     </div>
     <div class="document">
-    <h5>Filter with Tags: {{this.selectedTag}}</h5>
-    <mat-chip-list aria-label="Filter by tags">
+    <h5 i18n>Filter with Tags: {{this.selectedTag}}</h5>
+    <mat-chip-list aria-label="Filter by tags" i18n-aria-label>
       <mat-chip selectable="true" [selected]="tag.key === this.selectedTag" (click)="tagClicked(tag.key)" [value]="tag.key" color="primary" *ngFor="let tag of this.allTags | keyvalue" removable="false">{{tag.key}}
     </mat-chip>
     </mat-chip-list>
@@ -35,17 +35,17 @@
           <mat-form-field appearance="outline" class="fullWidthField">
             <mat-label>Name</mat-label>
             <input matInput type="text" [ngModel]="doc.value.name" (keydown.enter)="this.updateNameForDoc(doc.value,name.value)" #name>
-            <button [disabled]="!name.value" matSuffix mat-icon-button aria-label="Save" (click)="this.updateNameForDoc(doc.value,name.value)">
+            <button [disabled]="!name.value" matSuffix mat-icon-button aria-label="Save" (click)="this.updateNameForDoc(doc.value,name.value)" i18n-aria-label>
               <mat-icon>save</mat-icon>
             </button>
           </mat-form-field>
         <img mat-card-sm-image  mat-card-avatar [src]="this.dataService.getFilePreview(doc.value.fileid)">
       </mat-card-header>
       <mat-card-content>
-        Created on {{doc.value.creationTime | date}}
+        <span i18n>Created on {{doc.value.creationTime | date}}</span>
         <div class="tagsDiv">
-          <h5>Tags</h5>
-          <mat-chip-list aria-label="Document tags">
+          <h5 i18n>Tags</h5>
+          <mat-chip-list aria-label="Document tags" i18n-aria-label>
             <mat-chip color="primary" selected *ngFor="let tag of doc.value.tags" removable="true" (removed)=
             "this.removeTagFromDoc(doc.value,tag)">{{tag}}
             <mat-icon matChipRemove>cancel</mat-icon>
@@ -53,23 +53,23 @@
           </mat-chip-list>
           <br />
           <mat-form-field appearance="fill">
-            <mat-label>Add a tag</mat-label>
+            <mat-label i18n>Add a tag</mat-label>
             <input matInput type="text" (keydown.enter)="addTagToDoc(doc.value,newTag.value)" #newTag>
-            <button [disabled]="!newTag.value" matSuffix mat-icon-button aria-label="Add" (click)="addTagToDoc(doc.value,newTag.value)">
+            <button [disabled]="!newTag.value" matSuffix mat-icon-button aria-label="Add" (click)="addTagToDoc(doc.value,newTag.value)" i18n-aria-label>
               <mat-icon>add</mat-icon>
             </button>
           </mat-form-field>
         </div>
         <div *ngIf="doc.value.cards">
-          {{doc.value.cards.length}} Cards
+          <span i18n>{{doc.value.cards.length}} Cards</span>
         </div>
       </mat-card-content>
       <mat-card-actions class="cardActions">
-        <a mat-flat-button target="_blank" [href]="this.dataService.getFileView(doc.value.fileid).href">View document</a>
-        <button mat-flat-button color="primary" routerLink="/documents/{{doc.value.$id}}/cards/">View cards</button>
-        <button mat-flat-button color="accent" routerLink="/create/from-document/{{doc.value.$id}}">Create cards</button>
+        <a mat-flat-button target="_blank" [href]="this.dataService.getFileView(doc.value.fileid).href" i18n>View document</a>
+        <button mat-flat-button color="primary" routerLink="/documents/{{doc.value.$id}}/cards/" i18n>View cards</button>
+        <button mat-flat-button color="accent" routerLink="/create/from-document/{{doc.value.$id}}" i18n>Create cards</button>
 
-        <button mat-flat-button color="warn" (click)="deleteDocument(doc.value)">Delete</button>
+        <button mat-flat-button color="warn" (click)="deleteDocument(doc.value)" i18n>Delete</button>
       </mat-card-actions>
     </mat-card>
 

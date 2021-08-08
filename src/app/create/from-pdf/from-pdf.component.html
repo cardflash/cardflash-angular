@@ -5,6 +5,7 @@
     <mat-button-toggle-group multiple>
       <mat-button-toggle
       title="Allow selection with left-mouse/touch"
+      i18n-title
       [checked]="this.dataService.config.selectionOnTop"
       (change)="selectionOnTopChange($event); this.saveConfig()"
       >
@@ -12,6 +13,7 @@
       </mat-button-toggle>
   
       <mat-button-toggle
+      i18n-title
       title="Allow selection with left-mouse/touch once"
       [checked]="!this.dataService.config.selectionOnTop && zIndex >= 1 && !dragging"
       (change)="zIndex >= 1 ? (zIndex = -1) : (zIndex = 1); this.saveConfig()"
@@ -20,6 +22,7 @@
       </mat-button-toggle>
   
       <mat-button-toggle
+      i18n-title
       title="Draw selection semi-permanently on pdf"
       [checked]="this.dataService.config.drawOnPdf"
       (change)="this.dataService.config.drawOnPdf = !this.dataService.config.drawOnPdf; this.saveConfig()"
@@ -33,13 +36,16 @@
           type="file"
           accept=".pdf"
           #fileSelector
+          i18n-label
           label="Select a pdf file"
+          i18n-title
           title="{{this.document ? 'Online document selected.' : ''}}"
         />
         
         <mat-button-toggle-group multiple>
         <mat-button-toggle
         title="Add selection as image to card"
+        i18n-title
         [checked]="this.dataService.config.addImageOption"
         (change)="this.dataService.config.addImageOption = !this.dataService.config.addImageOption; this.saveConfig()"
         >
@@ -47,6 +53,7 @@
         </mat-button-toggle>
   
         <mat-button-toggle
+        i18n-title
         title="Add selection as visible text to card"
         [checked]="this.dataService.config.addTextOption"
         (change)="this.dataService.config.addTextOption = !this.dataService.config.addTextOption; this.saveConfig()"
@@ -56,6 +63,7 @@
   
         <mat-button-toggle
         title="Add selection as hidden text to card"
+        i18n-title
         [disabled]="!this.dataService.config.addTextOption"
         [checked]="this.dataService.config.addTextAsHidden"
         (change)="this.dataService.config.addTextAsHidden = !this.dataService.config.addTextAsHidden; this.saveConfig()"
@@ -65,6 +73,7 @@
   
         <mat-button-toggle
         title="Use OCR for text recognition"
+        i18n-title
         [disabled]="!this.dataService.config.addTextOption"
         [checked]="this.dataService.config.addOcrTextOption"
         (change)="this.dataService.config.addOcrTextOption = !this.dataService.config.addOcrTextOption; this.saveConfig()"
@@ -78,8 +87,8 @@
   </mat-toolbar>
   <div class="loadingIndicator" *ngIf="busy">
     <button mat-icon-button class="closeLoadingButton" (click)="busy = false"><mat-icon>close</mat-icon></button>
-    <h2>Loading document...</h2>
-    <p>Please wait a moment while we load your document and cards.</p>
+    <h2 i18n>Loading document...</h2>
+    <p i18n>Please wait a moment while we load your document and cards.</p>
     <mat-spinner class="loadingSpinner"></mat-spinner>
   </div>
   <div id="pdf-column">
@@ -151,8 +160,8 @@
     {{this.documentid}}
     <div class="fieldWrapper">
       <mat-form-field class="defaultTitleField" appearance="outline" style="margin-bottom: -1.25em">
-        <mat-label>Default Title</mat-label>
-        <input matInput placeholder="Default Document Title"
+        <mat-label i18n>Default Title</mat-label>
+        <input matInput placeholder="Default Document Title" i18n-placeholder
         [(ngModel)]="this.title" [matAutocomplete]="titleAuto">
         <mat-autocomplete autoActiveFirstOption #titleAuto="matAutocomplete">
           <mat-option *ngFor="let option of this.titleOptions" [value]="option">
@@ -162,14 +171,14 @@
         <mat-icon matSuffix>book</mat-icon>
       </mat-form-field>
       <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
-        <mat-label>Anki Deck</mat-label>
-        <input matInput placeholder="Deck Name"
+        <mat-label i18n>Anki Deck</mat-label>
+        <input matInput placeholder="Deck Name" i18n=placeholder
         [(ngModel)]="this.dataService.config.deckName">
         <mat-icon matSuffix>inbox</mat-icon>
       </mat-form-field>
   </div>
   <div class="currentCardActions">
-    <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()">
+    <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()" i18n>
       New Card
     </button>
       <br>
@@ -177,12 +186,12 @@
       <mat-button-toggle 
       [checked]="this.frontSelected"
       (change)="this.frontSelected = !this.frontSelected; this.saveConfig()"
-      >
+      i18n >
         Front
       </mat-button-toggle>
       <mat-button-toggle
       [checked]="!this.frontSelected"
-      (change)="this.frontSelected = !this.frontSelected; this.saveConfig()">
+      (change)="this.frontSelected = !this.frontSelected; this.saveConfig()" i18n>
         Back
       </mat-button-toggle>
     </mat-button-toggle-group>

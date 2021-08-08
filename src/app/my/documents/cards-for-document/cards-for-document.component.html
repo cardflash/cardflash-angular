@@ -1,18 +1,18 @@
 <div class="main">
 
-  <h1>Your cards for</h1>
+  <h1 i18n>Your cards for</h1>
   <h2>{{this.document?.name}}</h2>
-  <button class="backButton" mat-flat-button routerLink="/documents" color="accent">
+  <button class="backButton" mat-flat-button routerLink="/documents" color="accent" i18n>
     <mat-icon>arrow_back_ios</mat-icon>Go back to documents
     </button>
     <br />
     <br />
-    <button class="backButton" mat-flat-button routerLink="/create/from-document/{{document?.$id}}" color="primary">
+    <button class="backButton" mat-flat-button routerLink="/create/from-document/{{document?.$id}}" color="primary" i18n>
       Create new
       <mat-icon>add_circle</mat-icon>
       </button>
   <div *ngIf="!this.document?.cards?.length">
-    <h2 >You currently have no cards for this document.</h2>
+    <h2 i18n>You currently have no cards for this document.</h2>
   </div>
   
   <div class="cards">

@@ -31,6 +31,7 @@ export class AccountService {
     if(res.success){
       this.updateAcc();
       this.dataService.offlineMode = false;
+      this.dataService.saveOfflineModeSetting()
     }
     return res.success;
   }

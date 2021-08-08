@@ -1,17 +1,18 @@
 <mat-accordion>
   <mat-expansion-panel [(expanded)]="this.expanded">
     <mat-expansion-panel-header>
-      <mat-panel-title>Options</mat-panel-title>
+      <mat-panel-title i18n>Options</mat-panel-title>
     </mat-expansion-panel-header>
     <div class="optionsList">
     <mat-button-toggle
       title="Show only one PDF page at a time (requires reload)"
+      i18n-title
       [checked]="this.dataService.config.singlePageMode"
       (change)="
         this.dataService.config.singlePageMode = !this.dataService.config.singlePageMode;
         this.saveConfig()
       "
-    >
+      i18n>
       <mat-icon>insert_drive_file</mat-icon> Single Page Mode
     </mat-button-toggle>
     <br />
@@ -20,7 +21,7 @@
       class="oerLanguageField"
       style="margin-bottom: -1.5em"
     >
-      <mat-label>OCR Language</mat-label>
+      <mat-label i18n>OCR Language</mat-label>
       <mat-select
         [disabled]="!this.dataService.config.addOcrTextOption"
         [(value)]="this.dataService.config.ocrLanguage"
@@ -34,18 +35,20 @@
     <mat-button-toggle
       class="coloredToggle"
       title="Automatically add cards to Anki"
+      i18n-title
       [checked]="this.dataService.config.autoAddAnki"
       (change)="
         this.dataService.config.autoAddAnki =
           !this.dataService.config.autoAddAnki;
         this.saveConfig()
       "
-    >
+      i18n>
       <mat-icon>repeat</mat-icon> Anki
     </mat-button-toggle>
     <mat-button-toggle
       class="coloredToggle"
       title="Automatically save cards to Server"
+      i18n-title
       [checked]="this.dataService.config.autoAddServer"
       (change)="
         this.dataService.config.autoAddServer =
@@ -58,8 +61,8 @@
     </mat-button-toggle>
     <br />
     <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
-      <mat-label>Anki Deck</mat-label>
-      <input matInput placeholder="Deck Name"
+      <mat-label i18n>Anki Deck</mat-label>
+      <input matInput placeholder="Deck Name" i18n-placeholder
       [(ngModel)]="this.dataService.config.deckName">
       <mat-icon matSuffix>inbox</mat-icon>
     </mat-form-field>
@@ -70,7 +73,7 @@
       dataService.offlineMode = !dataService.offlineMode;
       dataService.saveOfflineModeSetting()
     "
-    >Offline Mode</mat-button-toggle
+    i18n >Offline Mode</mat-button-toggle
   >
 
   </div>
