@@ -73,7 +73,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Input('active') active: boolean = false;
   @Input('deckName') deckName?: string = this.dataService.config.deckName;
 
-  private readonly MODEL_VERSION: string = '2.1d';
+  private readonly MODEL_VERSION: string = '2.2a';
 
   @ViewChildren('annotationHelperFront') annotationHelperFront?: QueryList<
     ElementRef<HTMLDivElement>

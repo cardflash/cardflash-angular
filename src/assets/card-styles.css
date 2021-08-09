@@ -6,6 +6,10 @@
     background-color: white; */
 }
 
+ul{
+    /* list-style-position: inside; */
+    text-align: left;
+}
 
 /*
  * CKEditor 5 (v29.0.0) content styles.
