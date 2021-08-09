@@ -138,6 +138,11 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public documentid: string | undefined;
   public document: PDFDocument | undefined;
   public documentSub: Subscription | undefined;
+
+  public selectionInsertTypes  : ['h1', 'h2', 'normal','small'] = ['h1', 'h2', 'normal','small'];
+  
+  public selectionInsertType : 'small' | 'normal' | 'h1' | 'h2' = 'normal';
+
   constructor(
     public dataService: DataService,
     private actRoute: ActivatedRoute,
@@ -768,6 +773,28 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       }">${this.getSelection()}</span></mark><br/>`;
     }
 
+
+    switch (this.selectionInsertType) {
+      case 'small':
+        toAdd = `<p><span class="text-small">${toAdd}</span></p>`
+        break;
+      case 'normal':
+        toAdd = `<p>${toAdd}</p>`
+        // nothing to do
+        break;
+      case 'h2':
+        // heading 2 in ckeditor correspodns to h3 html element
+        toAdd = `<h3>${toAdd}</h3>`
+        break;
+      case 'h1':
+        // heading 1 in ckeditor correspodns to h2 html element
+        toAdd = `<h2>${toAdd}</h2>`
+        break;
+    }
+    // reset insert type to 'normal'
+    this.selectionInsertType = 'normal';
+    
+
     if (this.frontSelected) {
       this.addToCard('front', toAdd);
     } else {
@@ -1303,4 +1330,5 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       await this.documentService.updateDocument(this.document);
     }
   }
+
 }
