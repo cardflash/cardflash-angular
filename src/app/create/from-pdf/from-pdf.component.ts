@@ -1180,11 +1180,14 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       const cardIndex = this.getCards().findIndex(
         (card) => card.localID === this.currentCard.localID
       );
+      if(!this.dataService.offlineMode && this.dataService.config.autoAddServer){
+        this.currentCard =
+          (await this.cardComp?.saveToServer()) || this.currentCard;
+          console.log("SEND TO CARD TO SERVER: ",this.currentCard)
+      }
       console.log(cardIndex);
       if (this.cardComp) {
         if (cardIndex >= 0) {
-          this.currentCard =
-            (await this.cardComp?.saveToServer()) || this.currentCard;
           if (this.dataService.config.autoAddAnki) {
             await this.cardComp?.save(true);
           }
@@ -1194,8 +1197,6 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentCard.back != '' ||
           this.currentCard.hiddenText != ''
         ) {
-          this.currentCard =
-            (await this.cardComp?.saveToServer()) || this.currentCard;
           if (this.dataService.config.autoAddAnki) {
             await this.cardComp?.save(true);
           }
@@ -1290,7 +1291,6 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   async saveDocument() {
     if (this.document) {
       this.document.currentPage = this.page;
-      this.annotationForPage.entries;
       const annotations = Array.from(this.annotationForPage.values());
       const flatAnnotations: Annotation[] = [];
       for (let i = 0; i < annotations.length; i++) {

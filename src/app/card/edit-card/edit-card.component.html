@@ -19,7 +19,7 @@
         </mat-card>
 </div>
 <br />
-<app-card *ngIf="this.card" [card]="this.card" [alreadyOnServer]="true" [active]="true" (delete)="this.deleteCard()"></app-card>
+<app-card *ngIf="this.card" [card]="this.card"[active]="true" (delete)="this.deleteCard()"></app-card>
 
 <h3>Preview:</h3>
 <app-flip-card  *ngIf="this.card" 

@@ -73,8 +73,6 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Input('active') active: boolean = false;
   @Input('deckName') deckName?: string = this.dataService.config.deckName;
 
-  @Input('alreadyOnServer') alreadyOnServer?: boolean;
-
   private readonly MODEL_VERSION: string = '2.1d';
 
   @ViewChildren('annotationHelperFront') annotationHelperFront?: QueryList<
@@ -243,8 +241,6 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
-
-    this.alreadyOnServer = this.card.$id != undefined;
 
     setTimeout(() => this.cardUpdated(), 300);
   }
@@ -521,7 +517,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         ankiID = exRes.result.result[0];
       }
       console.log(alreadyOnAnki);
-      if (this.alreadyOnServer && this.card.imgs) {
+      if (this.card.$id && this.card.imgs) {
         for (let i = 0; i < this.card.imgs.length; i++) {
           const src = this.dataService.getFileView(this.card.imgs[i]);
           const dataURL = await imgSrcToDataURL(
@@ -709,6 +705,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   async saveToServer() {
     const originalFront : string = this.card.front;
     const originalBack : string = this.card.back;
+    console.log("Saving CARD to server", this.dataService.offlineMode);
     if(!this.dataService.offlineMode){
     const imagelist = this.getImages();
     let promises = [];
@@ -736,7 +733,7 @@ export class CardComponent implements OnInit, AfterViewInit {
       saveNamingFunc
     );
 
-    if (this.alreadyOnServer || this.card.$id) {
+    if (this.card.$id) {
       if (this.card.imgs) {
         const copy = [...this.card.imgs];
         for (let i = 0; i < copy.length; i++) {
@@ -761,7 +758,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
   }
     let res;
-    if (this.alreadyOnServer || this.card.$id) {
+    if (this.card.$id) {
       res = await this.cardService.updateCard(this.card);
     } else {
       res = await this.cardService.addCard(this.card);
@@ -769,9 +766,9 @@ export class CardComponent implements OnInit, AfterViewInit {
     if(res.success){
       console.log("ATTENTION",res);
       this.card = res.result;
-      this.alreadyOnServer = true;
       return this.card;
     }else{
+      console.log("ATTENTION: FAILED CARD SAVE",res);
       this.card.front = originalFront;
       this.card.back = originalBack;
       this.cardChange.emit(this.card);
