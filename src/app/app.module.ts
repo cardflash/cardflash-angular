@@ -35,6 +35,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatExpansionModule} from '@angular/material/expansion'; 
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { OptionsComponent } from './options/options.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle'; 
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,6 +71,7 @@ import { OptionsComponent } from './options/options.component';
     MatCardModule,
     MatChipsModule,
     MatExpansionModule,
+    MatSlideToggleModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'

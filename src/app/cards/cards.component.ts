@@ -68,9 +68,10 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   search(query: string){
+    query = query.toLowerCase();
     this.filteredCards = [];
     this.cardsCollection.forEach((card) => {
-      if(card.front.includes(query) || card.back.includes(query) || card.hiddenText.includes(query) || card.title.includes(query) || card.chapter.includes(query)){
+      if(card.front.toLowerCase().includes(query) || card.back.toLowerCase().includes(query) || card.hiddenText.toLowerCase().includes(query) || card.title.toLowerCase().includes(query) || card.chapter.toLowerCase().includes(query)){
         this.filteredCards.push(card);
       }
     })

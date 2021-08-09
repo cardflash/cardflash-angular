@@ -16,6 +16,8 @@
       <mat-icon>insert_drive_file</mat-icon> Single Page Mode
     </mat-button-toggle>
     <br />
+    <mat-slide-toggle i18n [checked]="this.dataService.config.showSelectionSizeOptions" (change)="this.dataService.config.showSelectionSizeOptions = !this.dataService.config.showSelectionSizeOptions; saveConfig()">Show size options for selection</mat-slide-toggle>
+    <br />
     <mat-form-field
       appearance="fill"
       class="oerLanguageField"

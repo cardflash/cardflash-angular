@@ -9,6 +9,7 @@ export interface Config {
     ocrLanguage: string,
     addTextAsHidden: boolean,
     singlePageMode: boolean,
-    autoAddServer: boolean
+    autoAddServer: boolean,
+    showSelectionSizeOptions: boolean
     
 }

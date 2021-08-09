@@ -120,12 +120,13 @@
         </mat-button-toggle>
         </mat-button-toggle-group>
         <br />
-        <mat-button-toggle-group class="smallerToggleButtons">
-          <mat-button-toggle *ngFor="let selType of selectionInsertTypes" [checked]="this.selectionInsertType === selType" (change)="this.selectionInsertType = selType">
-            <small>{{selType}}</small>
-          </mat-button-toggle>
-          </mat-button-toggle-group>
-          <br />
+        <div *ngIf="this.dataService.config.showSelectionSizeOptions">
+          <mat-button-toggle-group  class="smallerToggleButtons">
+            <mat-button-toggle *ngFor="let selType of selectionInsertTypes" [checked]="this.selectionInsertType === selType" (change)="this.selectionInsertType = selType">
+              <small>{{selType}}</small>
+            </mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
       <mat-button-toggle-group>
         <mat-button-toggle (click)="addHighlightForSelection()">
           <mat-icon>text_fields</mat-icon>

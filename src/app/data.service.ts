@@ -29,7 +29,8 @@ export class DataService {
     ocrLanguage: "eng",
     addTextAsHidden: true,
     singlePageMode: false,
-    autoAddServer: true
+    autoAddServer: true,
+    showSelectionSizeOptions: false
   }
   public prefs : any = {config: DataService.DEFAULT_CONFIG};
 
