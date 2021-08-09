@@ -688,7 +688,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getSelection() {
-    return document.getSelection()?.toString();
+    return document.getSelection()?.toString().replace(/ ̈u/g,'ü').replace(/ ̈a/g,'ä').replace(/ ̈o/g,'ö').replace(/-\n/g,'');
   }
 
   calcBoundsOfSelection(): DOMRect | undefined {
