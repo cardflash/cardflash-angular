@@ -41,9 +41,9 @@ export class DataService {
     this.appwrite = new Appwrite();
     this.appwrite.setEndpoint(environment.API_ENDPOINT);
     this.appwrite.setProject(environment.API_PROJECT);
-    this.appwrite.account.createJWT().then((res: any) => {
-      this.appwrite.setJWT(res.jwt);
-    });
+    // this.appwrite.account.createJWT().then((res: any) => {
+    //   this.appwrite.setJWT(res.jwt);
+    // });
 
     this.loadFailedRequests();
     // this.init();
