@@ -559,24 +559,46 @@ export class CardComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      if (alreadyOnAnki) {
-        const delData = {
-          action: 'deleteNotes',
+      let bodyData = {}
+      if(alreadyOnAnki){
+        bodyData = {
+          action:  'updateNoteFields',
           version: 6,
           params: {
-            notes: [ankiID],
-          },
+            note: {
+              deckName: this.deckName,
+              modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
+              id: ankiID,
+              fields: {
+                Front: newFrontContent,
+                Back: newBackContent,
+                Title: this.card.title,
+                Page: this.card.page.toString(),
+                Chapter: this.card.chapter,
+                Hidden: this.card.hiddenText,
+              }
+          }
+        }
         };
-        const delProm = this.makeHttpRequest(delData);
-        const delRes = await this.userNotifierService.notifyOnRejectOrError(
-          delProm,
-          'Deleting Note',
-          'AnkiConnect is not reachable',
-          (res) => !res.success || res.result.error
-        );
-      }
+      }else{
+      // if (alreadyOnAnki) {
+      //   const delData = {
+      //     action: 'deleteNotes',
+      //     version: 6,
+      //     params: {
+      //       notes: [ankiID],
+      //     },
+      //   };
+      //   const delProm = this.makeHttpRequest(delData);
+      //   const delRes = await this.userNotifierService.notifyOnRejectOrError(
+      //     delProm,
+      //     'Deleting Note',
+      //     'AnkiConnect is not reachable',
+      //     (res) => !res.success || res.result.error
+      //   );
+      // }
 
-      let bodyData = {
+      bodyData = {
         action: 'addNote',
         version: 6,
         params: {
@@ -606,6 +628,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           },
         },
       };
+    }
 
       for (let i = 0; i < imagelist.length; i++) {
         const img = imagelist[i];
@@ -663,7 +686,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           alreadyOnAnki
             ? 'Updating Node ' + this.card.localID + ' was successfull'
             : 'Adding Note' + this.card.localID + ' was successfull',
-          '',
+          alreadyOnAnki ? 'Make sure that the Explore Page in Anki is not open (otherwise the change will be overwritten)' : '',
           'success',
           true
         );
