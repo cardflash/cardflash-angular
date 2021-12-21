@@ -1,17 +1,37 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NavigationEnd, NavigationStart, Router, RoutesRecognized } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { NotificationData } from 'src/app/types/notification-data';
 import { NotificationComponent } from './notification/notification.component';
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserNotifierService {
+export class UserNotifierService implements OnDestroy{
 
   private readonly POSITION :  "top" | "bottom" | "middle" = "middle";
+  private routerSubscription: Subscription | undefined;
+  public loadStatus = 0;
 
+  constructor(private snackBar: MatSnackBar, private router: Router) {
 
-  constructor(private snackBar: MatSnackBar) { }
+    this.routerSubscription = this.router.events.subscribe(event => {
+      console.log('current route: ', this.router.url.toString(),{event},(event instanceof NavigationEnd));
+      // if(event instanceof NavigationEnd){
+      //   setTimeout(() => this.loadStatus = 100,100)
+      // }
+      if(event instanceof NavigationStart){
+        this.loadStatus = 10;
+      }
+  });
+
+   }
+  ngOnDestroy(): void {
+    if(this.routerSubscription){
+      this.routerSubscription.unsubscribe();
+    }
+  }
 
   async notify(title: string, message: string, type: string, autoHide: boolean = false){
     const notificationData : NotificationData =

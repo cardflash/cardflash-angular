@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid';
 import { Subscription } from 'rxjs';
 import { DataService } from 'src/app/data.service';
 import { DocumentService } from 'src/app/document.service';
+import { UserNotifierService } from 'src/app/services/notifier/user-notifier.service';
 import { Card } from 'src/app/types/card';
 import { PDFDocument } from 'src/app/types/pdf-document';
 
@@ -38,12 +39,19 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
   constructor(
     public dataService: DataService,
-    public documentsService: DocumentService
+    public documentsService: DocumentService,
+    public userNotifier: UserNotifierService
   ) {}
 
   async ngOnInit() {
-    this.subscription = this.documentsService.documents$.subscribe((docs) =>
-      this.updateData(docs)
+    this.userNotifier.loadStatus = 60;
+    this.subscription = this.documentsService.documents$.subscribe((docs) => {
+      if (docs !== undefined){
+        this.userNotifier.loadStatus = 80;
+        this.updateData(docs)
+        this.userNotifier.loadStatus = 100;
+      }
+  }
     );
   }
 

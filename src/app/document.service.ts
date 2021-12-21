@@ -8,7 +8,7 @@ import { PDFDocument } from './types/pdf-document';
 })
 export class DocumentService {
 
-  public documents$ : BehaviorSubject<Map<string,PDFDocument>> = new BehaviorSubject<Map<string,PDFDocument>>(new Map<string,PDFDocument>());
+  public documents$ = new BehaviorSubject<Map<string,PDFDocument> |  undefined>(undefined);
 
   constructor(private dataService: DataService) { 
   }

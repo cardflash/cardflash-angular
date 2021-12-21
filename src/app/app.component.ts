@@ -6,6 +6,7 @@ import { CardService } from './card/card.service';
 import { DataService } from './data.service';
 import { DocumentService } from './document.service';
 import { AccountService } from './services/account.service';
+import { UserNotifierService } from './services/notifier/user-notifier.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,7 @@ import { AccountService } from './services/account.service';
 export class AppComponent implements AfterViewInit, OnDestroy {
   anchorSubscription: Subscription | undefined;
   currentLocale : 'en' | 'de' = 'en';
-  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService){
+  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService, public userNotifier : UserNotifierService){
     this.accountService.updateAcc();
     this.dataService.init().then(() => {
       this.cardService.refresh();
@@ -37,6 +38,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         if(document.querySelector('#'+fragment)){
           document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
           this.router.navigate([],{fragment: undefined})
+        
         }else{
           setTimeout(() => {
             if(document.querySelector('#'+fragment)){

@@ -177,6 +177,14 @@ export class CardComponent implements OnInit, AfterViewInit {
           name: 'span',
           attributes: true,
         },
+        {
+          name: 'img',
+          attributes: true,
+        },
+        {
+          name: 'div',
+          attributes: true,
+        },
       ],
     },
     toolbar: {
@@ -418,24 +426,24 @@ export class CardComponent implements OnInit, AfterViewInit {
       const backSourceEl: HTMLElement =
         this.backEditorComponent.editorInstance.sourceElement;
 
-      let frontSpans = frontSourceEl.querySelectorAll('span');
-      let backSpans = backSourceEl.querySelectorAll('span');
+      let frontEls = frontSourceEl.querySelectorAll('span, div');
+      let backEls = backSourceEl.querySelectorAll('span, div');
 
       const annotations: Map<string,{ id: string; color: string }> = new Map<string,{id: string, color: string}>();
-      frontSpans.forEach((span) => {
-        if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
-          annotations.set(span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
-            id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
-            color: span.getAttribute('annotationColor') || '#45454513',
+      frontEls.forEach((el) => {
+        if (el.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
+          annotations.set(el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
+            id: el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
+            color: el.getAttribute('annotationColor') || '#45454513',
           });
         }
       });
 
-      backSpans.forEach((span) => {
-        if (span.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
-          annotations.set(span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
-            id: span.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
-            color: span.getAttribute('annotationColor') || '#45454513',
+      backEls.forEach((el) => {
+        if (el.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
+          annotations.set(el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
+            id: el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
+            color: el.getAttribute('annotationColor') || '#45454513',
           });
         }
       });

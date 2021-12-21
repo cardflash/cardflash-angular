@@ -32,8 +32,8 @@ export class EditCardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscription = this.cardService.cards$.subscribe((cards)=> this.refresh(cards))
-    this.documentSubscription = this.documentService.documents$.subscribe((docs) => this.refreshDocuments(docs));
+    this.subscription = this.cardService.cards$.subscribe((cards)=> {if(cards !== undefined) this.refresh(cards)})
+    this.documentSubscription = this.documentService.documents$.subscribe((docs) => {if(docs !== undefined) this.refreshDocuments(docs)});
 
   } 
 
@@ -43,6 +43,8 @@ export class EditCardComponent implements OnInit, OnDestroy {
   }
 
   refreshDocuments(docs: Map<string,PDFDocument>){
+    if(docs == undefined) return;
+
     docs.forEach((doc) => {
       if(doc.cards){
         const index = doc.cards.findIndex((card) => (card.$id  && card.$id == this.id));

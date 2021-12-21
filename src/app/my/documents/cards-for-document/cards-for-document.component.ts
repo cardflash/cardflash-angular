@@ -23,15 +23,15 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
    }
 
   async ngOnInit() {
-  this.documentsSubscription = this.documentService.documents$.subscribe((docs)=> this.loadDocuments(docs))
+  this.documentsSubscription = this.documentService.documents$.subscribe((docs) => {if(docs !== undefined) this.loadDocuments(docs)});
   }
 
   ngOnDestroy(){
       this.documentsSubscription?.unsubscribe();
   }
 
-  async loadDocuments(docs: Map<string,PDFDocument>){
-    console.log(docs);
+  async loadDocuments(docs: Map<string,PDFDocument> | undefined){
+    if(docs === undefined) return;
     this.document = docs.get(this.id);
   }
 

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CardService } from '../card/card.service';
 import { DataService } from '../data.service';
+import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Card } from '../types/card';
 
 @Component({
@@ -15,10 +16,11 @@ export class CardsComponent implements OnInit, OnDestroy {
   public cardsCollection: Map<string,Card> = new Map<string,Card>();
   public filteredCards: Card[] = [];
   private subscription : Subscription | undefined;
-  constructor(private dataService: DataService, private cardService: CardService, private router: Router) { }
+  constructor(private dataService: DataService, private cardService: CardService, private router: Router, private userNotifier: UserNotifierService) { }
 
   async ngOnInit() {
-    this.subscription = this.cardService.cards$.subscribe((cards)=> this.loadCards(cards))
+    this.userNotifier.loadStatus = 40;
+    this.subscription = this.cardService.cards$.subscribe((cards)=> {if(cards !== undefined) this.loadCards(cards)})
   }
 
   ngOnDestroy(){
@@ -27,6 +29,7 @@ export class CardsComponent implements OnInit, OnDestroy {
 
 
   loadCards(cards: Map<string,Card>){
+    this.userNotifier.loadStatus = 80;
     console.log("Loading cards");
     this.cardsCollection = cards;
     this.search("");
@@ -38,6 +41,7 @@ export class CardsComponent implements OnInit, OnDestroy {
         card.back = CardService.replaceImageLinks(card.back,prefixed,serverNamingFunc);
       }
   }
+  this.userNotifier.loadStatus = 100;
 }
 
   creationTimeOrder(a : KeyValue<string,Card>, b : KeyValue<string,Card>){

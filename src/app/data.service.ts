@@ -264,14 +264,14 @@ export class DataService {
         }
 
   async fetchOnlineCollection(collectionName: string){
-        let prom = this.appwrite.database.listDocuments(environment.collectionMap[collectionName],[],100,0);
+        let prom = this.appwrite.database.listDocuments(environment.collectionMap[collectionName],[],100,0,undefined,undefined,undefined);
         const list = await this.userNotifierService.notifyOnPromiseReject(prom,"(Online) Fetching "+collectionName);
         let documents : any[] = [].concat(list.result.documents);
         let offset = list.result.documents.length;
         if(list.success){
         let totalAmount = list.result.sum;
         while(documents.length < totalAmount){
-          let prom = this.appwrite.database.listDocuments(environment.collectionMap[collectionName],[],100,offset);
+          let prom = this.appwrite.database.listDocuments(environment.collectionMap[collectionName],[],100,offset,undefined,undefined,undefined);
           const res = await this.userNotifierService.notifyOnPromiseReject(prom,"(Online) Fetching "+collectionName);
           if(!res.success){ break; }
           documents = documents.concat(res.result.documents);
@@ -489,7 +489,8 @@ export class DataService {
     return this.appwrite.storage.getFileView(fileid);
   }
   getFilePreview(filedid: string){
-    return this.appwrite.storage.getFilePreview(filedid,100,100);
+    return 'assets/pdf.png';
+    // return this.appwrite.storage.getFilePreview(filedid,100,100);
   }
 
   getFile(fileid: string){

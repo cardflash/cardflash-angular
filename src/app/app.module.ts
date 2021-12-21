@@ -36,6 +36,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { OptionsComponent } from './options/options.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle'; 
+import {MatProgressBarModule} from '@angular/material/progress-bar'; 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -72,6 +74,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     MatChipsModule,
     MatExpansionModule,
     MatSlideToggleModule,
+    MatProgressBarModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'

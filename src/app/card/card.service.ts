@@ -9,7 +9,7 @@ import { Card } from '../types/card';
 })
 export class CardService {
 
-  public cards$ : BehaviorSubject<Map<string,Card>> = new BehaviorSubject<Map<string,Card>>(new Map<string,Card>());
+  public cards$ : BehaviorSubject<Map<string,Card> | undefined> = new BehaviorSubject<Map<string,Card> | undefined>(undefined);
 
   constructor(private dataService: DataService, private documentService: DocumentService) { 
   }
