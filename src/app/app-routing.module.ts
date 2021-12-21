@@ -6,7 +6,7 @@ import { CardsComponent } from './cards/cards.component';
 import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { DocumentsComponent } from './my/documents/documents.component';
-
+import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
 const routes: Routes = [
   { path: '', redirectTo: '/cards', pathMatch: 'full' },
   {
@@ -40,6 +40,10 @@ const routes: Routes = [
   {
     path: 'documents/:id/cards',
     component: CardsForDocumentComponent
+  },
+  {
+    path: 'extended-pdf',
+    component: ExtendedPdfComponent
   }
 ];
 

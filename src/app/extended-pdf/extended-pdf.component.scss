@@ -1,0 +1,23 @@
+#selectionTools {
+    position: absolute;
+}
+.pdfViewer {
+    overflow: hidden;
+    max-height: 100vh;
+    height: 100vh;
+    width: 100%;
+}
+.toolsVisible {
+    // visibility: hidden;
+    display: none !important;
+}
+.toolsInvisble {
+    display: block;
+}
+
+.mainArea {
+    display: flex;
+}
+.annotationsColumn {
+    text-align: center;
+}

@@ -36,7 +36,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { OptionsComponent } from './options/options.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle'; 
-import {MatProgressBarModule} from '@angular/material/progress-bar'; 
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component'; 
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     DocumentsComponent,
     CardsForDocumentComponent,
     OptionsComponent,
+    ExtendedPdfComponent,
   ],
   imports: [
     BrowserModule,

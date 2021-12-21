@@ -244,13 +244,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       viewerContainerRef.oncontextmenu = this.mouseDown.bind(this);
       viewerContainerRef.onmousemove = this.mouseMove.bind(this);
       viewerContainerRef.onmouseup = this.finishRect.bind(this);
-      viewerContainerRef.onkeydown = this.keyDown.bind(this);
     }
     document.addEventListener('selectionchange', () => this.onSelect());
     this.calcScaling();
   }
 
   async loadComplete(e: PagesLoadedEvent) {
+    console.log("loadComplete")
     this.numPages = e.pagesCount;
     if (this.document) {
       this.page = this.document.currentPage;
@@ -433,6 +433,9 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         switch(annotation.type){
           case 'area':
             context.fillStyle = annotation.color;
+            context.strokeStyle = "#000";
+            context.lineWidth = 1
+            // context.setLineDash([5,1])
             annotation.points.forEach((point) => {
               const rect = viewport.convertToViewportRectangle(point);
               context.fillRect(
@@ -871,7 +874,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     this.calcScaling();
   }
 
-  // @HostListener('window:keypress', ['$event'])
+  @HostListener('window:keypress', ['$event'])
   keyDown(event: KeyboardEvent) {
     console.log(event)
     if (!document.activeElement || (document.activeElement !== document.body && document.activeElement.id !== 'viewerContainer')) {
@@ -1026,7 +1029,7 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
             let text = this.getTextFromPosition(correctedRect);
             let annotationID : string | undefined;
-            const annotationColor : string = "#fcbe8f50";
+            const annotationColor : string = "#fcbe8f30";
             if (scrollOffSet + this.rect.y >= scrollPerPage) {
               data = this.pdfCanvContext[this.page + 1].getImageData(
                 this.rect.x * this.scale -
@@ -1210,8 +1213,13 @@ export class FromPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       let toAdd: string = '';
 
       if (this.dataService.config.addImageOption) {
-        toAdd +=
-          `<div id="${environment.ANNOTATION_ON_CARD_PREFIX}${annotationId}" annotationColor="${color}"><img src="${dataURL}" alt="" id="${environment.ANNOTATION_ON_CARD_PREFIX}${annotationId}"></div><br />`;
+        if(annotationId !== undefined){
+          toAdd +=
+            `<div id="${environment.ANNOTATION_ON_CARD_PREFIX}${annotationId}" annotationColor="${color}"><img src="${dataURL}" alt="" id="${environment.ANNOTATION_ON_CARD_PREFIX}${annotationId}"></div><br />`;
+        }else{
+          toAdd +=
+          `<div><img src="${dataURL}" alt=""></div><br />`;
+        }
       }
 
       if (this.dataService.config.addTextOption && !this.dataService.config.addOcrTextOption) {
