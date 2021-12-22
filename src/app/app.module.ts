@@ -37,7 +37,8 @@ import { CardsForDocumentComponent } from './my/documents/cards-for-document/car
 import { OptionsComponent } from './options/options.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle'; 
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component'; 
+import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
+import { AnnotationComponent } from './extended-pdf/annotation/annotation.component'; 
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
     CardsForDocumentComponent,
     OptionsComponent,
     ExtendedPdfComponent,
+    AnnotationComponent,
   ],
   imports: [
     BrowserModule,

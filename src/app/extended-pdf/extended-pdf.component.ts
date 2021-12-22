@@ -3,6 +3,7 @@ import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
 import { Annotation } from '../types/annotation';
+declare var LeaderLine: any;
 
 @Component({
   selector: 'app-extended-pdf',
@@ -167,12 +168,13 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
           }
         }
       }
-      const newAnnotation = {
+      const newAnnotation : Annotation = {
         id: this.nanoid(),
         type: 'highlight',
         color: color.hex, 
         points: pdfPoints,
         page: pageNumber,
+        text: this.getSelection()
       };
       annotations.push(newAnnotation);
       this.annotationAdded.emit(newAnnotation);
@@ -280,20 +282,51 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     if (annotation) {
       this.currPageNumber = annotation.page;
     }
-    setTimeout(async () => {
       switch (event.where) {
         case 'pdf':
-          this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
+          setTimeout(async () => {
+            this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
+           }, 400);
           break;
         case 'card':
+          let el = document.getElementById(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
+          if (el !== null){
+            el.classList.add('highlight');
+          }
+          console.log("Card",{el})
           this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
+          const timeout = setTimeout(() => {
+              if (el !== null){
+                el.classList.remove('highlight');
+              }
+              clearTimeout(timeout);
+            }, 1000);
           break;
         default:
-          this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
-          this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
+          setTimeout(async () => {
+            this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
+            this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
+            setTimeout(() => {
+              const leaderLine = new LeaderLine(
+                document.getElementById(environment.ANNOTATION_JMP_PREFIX + event.annotationID),
+                document.getElementById(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID),
+                {
+                  startPlug: 'square',
+                  endPlug: 'square',
+                  color: annotation?.color,
+                  showEffectName: 'draw',
+
+                }
+              );
+              const timeout = setTimeout(() => {
+                leaderLine.remove();
+                clearTimeout(timeout);
+              }, 1000);
+          },500)
+        }, 400);
           break;
       }
-    }, 400);
+
   }
 
   scrollIDIntoView(id: string) {

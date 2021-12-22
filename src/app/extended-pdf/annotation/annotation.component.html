@@ -1,0 +1,7 @@
+<div class="annotationOuterWrapper" id="{{this.getAnnotationOnCardPrefix()}}{{annotation?.id}}" #annotationOuterWrapper >
+<div class="annotationWrapper" style="background-color: {{annotation?.color}}"
+    (click)="showInDocument.emit(annotation?.id)">
+    <b>{{annotation?.text}}</b>
+    <pre>{{annotation?.id}}</pre>
+</div>
+</div>

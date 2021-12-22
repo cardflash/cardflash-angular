@@ -27,10 +27,9 @@
   <h2>Annotations</h2>
     <div *ngFor="let annotations of annotationForPage | keyvalue">
       <h3>Page {{annotations.key}}</h3>
-      <p *ngFor="let annotation of annotations.value" style="background-color: {{annotation.color}}">
-        {{annotation.id}}<br/>
-        {{annotation.type}}
-      </p>
+      <app-annotation *ngFor="let annotation of annotations.value" [annotation]="annotation"
+        (showInDocument)="scrollToAnnotation({annotationID: $event, where: 'both'})">
+      </app-annotation>
   </div>
 </div>
 </div>
