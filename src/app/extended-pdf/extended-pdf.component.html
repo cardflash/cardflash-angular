@@ -1,61 +1,79 @@
 <div class="mainArea">
-<div class="pdfViewer">
-<ngx-extended-pdf-viewer 
-#ngxPdfViewer
-  [listenToURL]="true"
-  [src]="pdfSrc"
-  [useBrowserLocale]="true"
-  [(page)]="currPageNumber"
-  [textLayer]="true"
-  (textLayerRendered)="textLayerRendered($event)"
-  [zoom]="'page-fit'"
-  (sidebarVisibleChange)="calcScaling()"
-  (pagesLoaded)="pagesLoadComplete($event)"
-  (pdfLoaded)="pdfLoaded($event)"
-  (pdfLoadingFailed)="pdfLoadFailed($event)"
-  (pageRendered)="pageRendered($event)"
-  [ignoreKeys]="['1', '2', 'w', 's','space']"
-  [enablePinchOnMobile]="true"
-  [showBorders]="false"
-  [pageViewMode]="'multiple'"
-  [height]="'100%'"
-  [handTool]="false"
-  [authorization]="true"
-></ngx-extended-pdf-viewer>
-</div>
-<div class="annotationsColumn">
-  <h2>Annotations</h2>
+  <div class="pdfViewer">
+    <ngx-extended-pdf-viewer
+      #ngxPdfViewer
+      [listenToURL]="true"
+      [src]="pdfSrc"
+      [useBrowserLocale]="true"
+      [(page)]="currPageNumber"
+      [textLayer]="true"
+      (textLayerRendered)="textLayerRendered($event)"
+      [zoom]="'page-fit'"
+      (sidebarVisibleChange)="calcScaling()"
+      (pagesLoaded)="pagesLoadComplete($event)"
+      (pdfLoaded)="pdfLoaded($event)"
+      (pdfLoadingFailed)="pdfLoadFailed($event)"
+      (pageRendered)="pageRendered($event)"
+      [ignoreKeys]="['1', '2', 'w', 's', 'space']"
+      [enablePinchOnMobile]="true"
+      [showBorders]="false"
+      [pageViewMode]="'multiple'"
+      [height]="'100%'"
+      [handTool]="false"
+      [authorization]="true"
+    ></ngx-extended-pdf-viewer>
+  </div>
+  <div class="annotationsColumn">
+    <h2>Annotations</h2>
+    <canvas style="display: none" #previewCanvas></canvas>
     <div *ngFor="let annotations of annotationForPage | keyvalue">
-      <h3>Page {{annotations.key}}</h3>
-      <app-annotation *ngFor="let annotation of annotations.value" [annotation]="annotation"
-        (showInDocument)="scrollToAnnotation({annotationID: $event, where: 'both'})">
+      <h3>Page {{ annotations.key }}</h3>
+      <app-annotation
+        *ngFor="let annotation of annotations.value"
+        [annotation]="annotation"
+        (showInDocument)="scrollToAnnotation({ annotationID: $event, where: 'both' })"
+      >
       </app-annotation>
+    </div>
   </div>
 </div>
-</div>
-<div id="selectionTools" #selectionTools  class="toolsInvisble" [ngClass]="{'toolsVisible': !getSelection()}" >
-    <mat-button-toggle-group>
-      <mat-button-toggle [checked]="this.frontSelected" (change)="this.frontSelected = true">
-        Front <mat-icon>flip_to_front</mat-icon>
-      </mat-button-toggle>
-      <mat-button-toggle [checked]="!this.frontSelected" (change)="this.frontSelected = false">
-        Back <mat-icon>flip_to_back</mat-icon>
-      </mat-button-toggle>
-      </mat-button-toggle-group>
-      <br />
-      <div>
-        <mat-button-toggle-group  class="smallerToggleButtons">
-          <mat-button-toggle *ngFor="let selType of selectionInsertTypes" [checked]="this.selectionInsertType === selType" (change)="this.selectionInsertType = selType">
-            <small>{{selType}}</small>
-          </mat-button-toggle>
-          </mat-button-toggle-group>
-      </div>
-    <mat-button-toggle-group>
-      <mat-button-toggle (click)="addHighlightForSelection()">
-        <mat-icon>text_fields</mat-icon>
-      </mat-button-toggle>
-      <mat-button-toggle *ngFor="let color of availableAnnotationColors" (click)="addHighlightForSelection(color);">
-        <mat-icon [style]="'color: '+color.hex.substr(0,7)+'90'">circle</mat-icon>
+<div
+  id="selectionTools"
+  #selectionTools
+  class="toolsInvisble"
+  [ngClass]="{ toolsVisible: !getSelection() }"
+>
+  <div>
+    <mat-button-toggle-group class="smallerToggleButtons">
+      <mat-button-toggle
+        *ngFor="let selType of selectionInsertTypes"
+        [checked]="this.selectionInsertType === selType"
+        (change)="this.selectionInsertType = selType"
+      >
+        <small>{{ selType }}</small>
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
+  <mat-button-toggle-group>
+    <mat-button-toggle (click)="addHighlightForSelection()">
+      <mat-icon>text_fields</mat-icon>
+    </mat-button-toggle>
+    <mat-button-toggle
+      *ngFor="let color of availableAnnotationColors"
+      (click)="addHighlightForSelection(color)"
+    >
+      <mat-icon [style]="'color: ' + color.hex.substr(0, 7) + '90'">circle</mat-icon>
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+<div
+  class="areaSelection"
+  #areaSelection
+  [ngStyle]="{
+    'left.px': getMin(rect.x1, rect.x2),
+    'top.px': getMin(rect.y1, rect.y2),
+    'width.px': getAbs(rect.x1 - rect.x2),
+    'height.px':  getAbs(rect.y1 - rect.y2)
+  }"
+></div>

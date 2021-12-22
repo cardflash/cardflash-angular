@@ -1,6 +1,9 @@
-#selectionTools {
+#selectionTools{
     position: absolute;
-}
+    z-index: 3;
+    text-align: center;
+    display: none;
+  }
 
 .pdfViewer {
     overflow: hidden;
@@ -36,4 +39,10 @@
     padding-top: 100px;
     content: "»";
     color: red;
+}
+
+.areaSelection {
+	position: absolute;
+	border: 2px dashed;
+    pointer-events: none;
 }

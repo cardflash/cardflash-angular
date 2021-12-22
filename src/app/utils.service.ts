@@ -41,15 +41,15 @@ export class UtilsService {
         startPlug: 'disc',
         endPlug: 'disc',
         color: color,
-        // showEffectName: 'draw',
+        showEffectName: 'draw',
         size: 7,
         startPlugSize: 0.7,
         endPlugSize: 0.7,
         dash: {animation: true},
         path: 'magnet',
-        hide: true
+        hide: true,
         // outline: true,
-        // outlineColor: '#000',
+        // outlineColor: outlineColor,
         // outlineSize: 0.1
       }
     );

@@ -40,8 +40,8 @@ export class AnnotationComponent implements OnInit {
 
   clicked() {
     this.showInDocument.emit(this.annotation?.id);
-    this.removeLine();
-      setTimeout(() => {
+    setTimeout(() => {
+        this.removeLine();
         if (this.mouseOver) {
           this.showLine();
         }
