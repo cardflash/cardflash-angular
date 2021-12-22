@@ -9,5 +9,6 @@ export const environment = {
   dataVersion: '1.0',
   ANNOTATION_DEL_PREFIX: 'fc-DELDIV_',
   ANNOTATION_JMP_PREFIX: 'fc-JMPDIV_',
+  ANNOTATION_ANCHOR_PREFIX: 'fc-ANCDIV_',
   ANNOTATION_ON_CARD_PREFIX: 'fc-CRDTXT_'
 };

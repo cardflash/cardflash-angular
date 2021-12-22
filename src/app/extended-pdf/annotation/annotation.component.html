@@ -1,6 +1,6 @@
 <div class="annotationOuterWrapper" id="{{this.getAnnotationOnCardPrefix()}}{{annotation?.id}}" #annotationOuterWrapper >
 <div class="annotationWrapper" style="background-color: {{annotation?.color}}"
-    (click)="showInDocument.emit(annotation?.id)">
+    (click)="clicked()" (mouseenter)="mouseOver = true; showLine()" (mouseleave)="mouseOver = false;removeLine()">
     <b>{{annotation?.text}}</b>
     <pre>{{annotation?.id}}</pre>
 </div>

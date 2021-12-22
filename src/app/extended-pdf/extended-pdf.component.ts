@@ -1,9 +1,17 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
 import { Annotation } from '../types/annotation';
-declare var LeaderLine: any;
+import { UtilsService } from '../utils.service';
 
 @Component({
   selector: 'app-extended-pdf',
@@ -43,7 +51,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   @ViewChild('selectionTools')
   private selectionTools?: ElementRef<HTMLDivElement>;
 
-  constructor() {}
+  constructor(private utils: UtilsService) {}
 
   ngOnInit(): void {}
 
@@ -51,10 +59,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     document.addEventListener('selectionchange', () => this.onSelect());
   }
 
-  getAllAnnotations(){
-    let allAnnotations : Annotation[] = [];
-    this.annotationForPage.forEach((val) => allAnnotations = allAnnotations.concat(val))
-    console.log({allAnnotations})
+  getAllAnnotations() {
+    let allAnnotations: Annotation[] = [];
+    this.annotationForPage.forEach((val) => (allAnnotations = allAnnotations.concat(val)));
+    console.log({ allAnnotations });
     return allAnnotations;
   }
 
@@ -168,13 +176,13 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
           }
         }
       }
-      const newAnnotation : Annotation = {
+      const newAnnotation: Annotation = {
         id: this.nanoid(),
         type: 'highlight',
-        color: color.hex, 
+        color: color.hex,
         points: pdfPoints,
         page: pageNumber,
-        text: this.getSelection()
+        text: this.getSelection(),
       };
       annotations.push(newAnnotation);
       this.annotationAdded.emit(newAnnotation);
@@ -186,7 +194,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   drawAnnotationOnPage(pageNumber: number, annotation: Annotation) {
     if (this.getPdfViewerApplication()) {
       const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
-      const context : CanvasRenderingContext2D = page.canvas.getContext('2d');
+      const context: CanvasRenderingContext2D = page.canvas.getContext('2d');
       const viewport = page.viewport;
       if (context) {
         switch (annotation.type) {
@@ -217,8 +225,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
               context.fillRect(
                 rect[0],
                 rect[1],
-                Math.abs(rect[0] - rect[2])+2,
-                Math.abs(rect[1] - rect[3])+1
+                Math.abs(rect[0] - rect[2]) + 2,
+                Math.abs(rect[1] - rect[3]) + 1
               );
             });
             break;
@@ -232,36 +240,49 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         delDiv.setAttribute('title', 'Delete annotation');
         delDiv.setAttribute(
           'style',
-          'position: absolute; left:' +
-            (Math.min(rect[0], rect[2]) - 15) +
-            'px; top:' +
-            (Math.min(rect[1], rect[3]) - 50) +
-            "px; width: 15px; height: 15px; background-image: url('assets/delete.svg');"
+          ` position: absolute;
+            left: ${Math.max(rect[0], rect[2]) - 1}px;
+            top: ${Math.min(rect[1], rect[3]) - 20}px;
+            width: 15px;
+            height: 15px;
+            background-image: url('assets/delete.svg');`
         );
         delDiv.onclick = async (event: any) => {
           this.deleteAnnotation(annotation.id);
         };
         page.div.appendChild(delDiv);
-
         const jumpDiv = document.createElement('div');
         jumpDiv.setAttribute('id', environment.ANNOTATION_JMP_PREFIX + annotation.id);
-        jumpDiv.setAttribute('class', 'annotationToolOverlay');
+        jumpDiv.setAttribute('class', 'annotationToolOverlay annotationJumpOverlay');
         jumpDiv.setAttribute('title', 'Scroll into view');
         jumpDiv.setAttribute(
           'style',
-          'position: absolute; left:' +
-            (Math.min(rect[0], rect[2]) - 15) +
-            'px; top:' +
-            (Math.min(rect[1], rect[3]) - 33) +
-            "px; width: 15px; height: 15px; background-image: url('assets/right.svg');"
+          ` position: absolute;
+            left: ${Math.max(rect[0], rect[2]) - 1}px;
+            top: ${Math.min(rect[1], rect[3]) - 5}px;
+            width: 15px;
+            height: 15px;
+            background-image: url('assets/right.svg');`
         );
         jumpDiv.onclick = async (event: any) => {
           this.scrollToAnnotation({
             annotationID: annotation.id,
-            where: 'card',
+            where: 'both',
           });
         };
         page.div.appendChild(jumpDiv);
+
+        const anchorDiv = document.createElement('div');
+        anchorDiv.setAttribute('id', environment.ANNOTATION_ANCHOR_PREFIX + annotation.id);
+        anchorDiv.setAttribute('class', 'annotationToolOverlay annotationJumpOverlay');
+        anchorDiv.setAttribute('title', 'Scroll into view');
+        anchorDiv.setAttribute(
+          'style',
+          ` position: absolute;
+            left: ${Math.max(rect[0], rect[2]) - 1}px;
+            top: ${Math.min(rect[1], rect[3]) - 30}px;`
+        );
+        page.div.appendChild(anchorDiv);
       }
     }
   }
@@ -279,64 +300,69 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   async scrollToAnnotation(event: { annotationID: string; where: 'pdf' | 'card' | 'both' }) {
     const annotation: Annotation | undefined = this.getAnnotationByID(event.annotationID);
-    if (annotation) {
+    if (
+      annotation &&
+      !this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID)
+    ) {
       this.currPageNumber = annotation.page;
+      console.log('ID is NOT in view?');
+    } else {
+      console.log('ID is in view?');
     }
-      switch (event.where) {
-        case 'pdf':
-          setTimeout(async () => {
-            this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
-           }, 400);
-          break;
-        case 'card':
-          let el = document.getElementById(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-          if (el !== null){
-            el.classList.add('highlight');
-          }
-          console.log("Card",{el})
-          this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-          const timeout = setTimeout(() => {
-              if (el !== null){
-                el.classList.remove('highlight');
-              }
-              clearTimeout(timeout);
-            }, 1000);
-          break;
-        default:
-          setTimeout(async () => {
-            this.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-            this.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
-            setTimeout(() => {
-              const leaderLine = new LeaderLine(
-                document.getElementById(environment.ANNOTATION_JMP_PREFIX + event.annotationID),
-                document.getElementById(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID),
-                {
-                  startPlug: 'square',
-                  endPlug: 'square',
-                  color: annotation?.color,
-                  showEffectName: 'draw',
-
-                }
-              );
-              const timeout = setTimeout(() => {
-                leaderLine.remove();
-                clearTimeout(timeout);
-              }, 1000);
-          },500)
+    switch (event.where) {
+      case 'pdf':
+        setTimeout(async () => {
+          this.utils.scrollIDIntoView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID);
         }, 400);
-          break;
-      }
+        break;
+      case 'card':
+        let el = document.getElementById(
+          environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID
+        );
+        if (el !== null) {
+          el.classList.add('highlight');
+        }
+        console.log('Card', { el });
+        this.utils.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
+        const timeout = setTimeout(() => {
+          if (el !== null) {
+            el.classList.remove('highlight');
+          }
+          clearTimeout(timeout);
+        }, 1000);
+        break;
+      default:
+        setTimeout(async () => {
+          this.utils.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
+          this.utils.scrollIDIntoView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID);
+          const leaderLine = this.utils.createLineBetweenIds(
+            environment.ANNOTATION_ON_CARD_PREFIX + annotation?.id,
+            environment.ANNOTATION_JMP_PREFIX + annotation?.id,
+            annotation?.color
+          );
 
-  }
+          const interval = setInterval(() => {
+            leaderLine.position();
+          },10)
 
-  scrollIDIntoView(id: string) {
-    document.querySelector('#' + id)?.scrollIntoView({ behavior: 'smooth' });
+          const timeout = setTimeout(() => {
+            clearInterval(interval);
+            leaderLine.remove();
+            clearTimeout(timeout);
+          }, 3000);
+        }, 200);
+        break;
+    }
   }
 
   removeDivWithID(id: string) {
     const jmpDiv = document.querySelector('#' + environment.ANNOTATION_JMP_PREFIX + id);
     if (jmpDiv) {
       jmpDiv.parentNode?.removeChild(jmpDiv);
+    }
+    const ancDiv = document.querySelector('#' + environment.ANNOTATION_ANCHOR_PREFIX + id);
+    if (ancDiv) {
+      ancDiv.parentNode?.removeChild(ancDiv);
     }
     const delDiv = document.querySelector('#' + environment.ANNOTATION_DEL_PREFIX + id);
     if (delDiv) {

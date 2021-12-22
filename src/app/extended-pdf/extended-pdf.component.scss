@@ -30,3 +30,10 @@
     height: 96vh;
     overflow: auto;
 }
+
+.annotationJumpOverlay::before {
+    position: absolute;
+    padding-top: 100px;
+    content: "»";
+    color: red;
+}
