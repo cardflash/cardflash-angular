@@ -2,14 +2,38 @@
     padding: 10px;
     border-radius: 15px;
     transition: 0.3s ease-out;
+    width: 100%;
+}
+
+textarea {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
 }
 
 .annotationOuterWrapper {
     padding-top: 10px;
+    display: flex;
 }
 
 .annotationOuterWrapper.highlight .annotationWrapper {
     // animation: blink 5s ease-in-out;
     filter: saturate(200%);
     box-shadow: 0px 0px 4px 4px rgb(253, 201, 227); 
+}
+
+.commentWrapper {
+    margin: 5px;
+}
+
+.commentTextarea {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    color: rgb(42, 39, 39);
+    font-size: 0.8rem;
+    height: 32px;
+    margin: 5px;
+}
+
+.actionButtons {
+
 }

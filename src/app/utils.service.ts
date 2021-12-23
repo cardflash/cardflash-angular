@@ -6,6 +6,17 @@ declare var LeaderLine: any;
 })
 export class UtilsService {
 
+  readonly settings = {
+    animateLines: true
+  }
+
+  public availableAnnotationColors: { hex: string; marker: string }[] = [
+    { hex: '#f3ea504f', marker: 'marker-light-yellow' },
+    { hex: '#5eacf94f', marker: 'marker-light-blue' },
+    { hex: '#5ef98c4f', marker: 'marker-light-green' },
+    { hex: '#f95ef34f', marker: 'marker-light-pink' },
+  ];
+  
   constructor() { }
 
 
@@ -40,7 +51,7 @@ export class UtilsService {
       {
         startPlug: 'disc',
         endPlug: 'disc',
-        color: color,
+        color: color.substring(0, 7) + '90',
         showEffectName: 'draw',
         size: 7,
         startPlugSize: 0.7,
@@ -48,13 +59,18 @@ export class UtilsService {
         dash: {animation: true},
         path: 'magnet',
         hide: true,
+        animOptions: {duration: 100, timing: [0.58, 0, 0.42, 1]}
         // outline: true,
         // outlineColor: outlineColor,
         // outlineSize: 0.1
       }
     );
     line.position();
-    line.show();
+    if (this.settings.animateLines){
+      line.show('draw',{duration: 250, timing: [0.58, 0, 0.42, 1]});
+    }else{
+      line.show();
+    }
     return line;
   }
 }

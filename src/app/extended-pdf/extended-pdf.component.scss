@@ -3,6 +3,9 @@
     z-index: 3;
     text-align: center;
     display: none;
+    background-color: white;
+    border: whitesmoke 1px solid;
+    border-radius: 10px;
   }
 
 .pdfViewer {
@@ -27,8 +30,8 @@
 
 .annotationsColumn {
     text-align: center;
-    width: 300px;
-    margin: 15px;
+    width: 350px;
+    margin: 10px;
     padding: 5px;
     height: 96vh;
     overflow: auto;

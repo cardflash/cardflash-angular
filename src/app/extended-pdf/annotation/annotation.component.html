@@ -1,8 +1,64 @@
-<div class="annotationOuterWrapper" id="{{this.getAnnotationOnCardPrefix()}}{{annotation?.id}}" #annotationOuterWrapper >
-<div class="annotationWrapper" style="background-color: {{annotation?.color}}"
-    (click)="clicked()" (mouseenter)="mouseOver = true; showLine()" (mouseleave)="mouseOver = false;removeLine()">
-    <b>{{annotation?.text}}</b>
-    <pre>{{annotation?.id}}</pre>
-    <img src="{{annotation?.imgSrc}}">
-</div>
+<div
+  class="annotationOuterWrapper"
+  id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
+  #annotationOuterWrapper
+>
+  <div
+    class="annotationWrapper"
+    [ngStyle]="{
+      cursor: this.isEditing ? 'default' : 'pointer',
+      'background-color': annotation?.color
+    }"
+    (click)="clicked()"
+    (mouseenter)="mouseOver = true; showLine()"
+    (mouseleave)="mouseOver = false; removeLine()"
+  >
+    <b *ngIf="annotation?.text && !isEditing">{{ annotation?.text }}</b>
+    <textarea
+      matInput
+      cdkTextareaAutosize
+      placeholder="Annotation text"
+      *ngIf="annotation && isEditing"
+      [(ngModel)]="annotation.text"
+    ></textarea>
+    <!-- <pre>{{ annotation?.id }}</pre> -->
+    <img *ngIf="annotation?.imgSrc" src="{{ annotation?.imgSrc }}" />
+    <div class="commentWrapper">
+      <textarea
+        class="commentTextarea"
+        cdkTextareaAutosize
+        matInput
+        *ngIf="annotation && (annotation.comment || this.isEditing)"
+        placeholder="Comments..."
+        [disabled]="!this.isEditing"
+        [(ngModel)]="annotation.comment"
+      ></textarea>
+    </div>
+    <div *ngIf="annotation && isEditing">
+      <button mat-icon-button (click)="changeAnnotationColor('#45454513')">
+        <mat-icon>text_fields</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        *ngFor="let color of utils.availableAnnotationColors"
+        (click)="changeAnnotationColor(color.hex)"
+      >
+        <mat-icon [style]="'color: ' + color.hex.substr(0, 7) + '90'">circle</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div class="actionButtons">
+    <button mat-icon-button (click)="isEditing = !isEditing" title="Edit">
+      <mat-icon>{{ isEditing ? "save" : "edit" }}</mat-icon>
+    </button>
+    <br />
+    <button
+      mat-icon-button
+      (click)="deleteAnnotation.emit(this.annotation)"
+      color="warn"
+      title="Delete"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
 </div>

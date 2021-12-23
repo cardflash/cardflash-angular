@@ -26,12 +26,6 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   private pdfCanvContext: CanvasRenderingContext2D[] = [];
 
-  public availableAnnotationColors: { hex: string; marker: string }[] = [
-    { hex: '#f3ea504f', marker: 'marker-light-yellow' },
-    { hex: '#5eacf94f', marker: 'marker-light-blue' },
-    { hex: '#5ef98c4f', marker: 'marker-light-green' },
-    { hex: '#f95ef34f', marker: 'marker-light-pink' },
-  ];
   public selectionInsertTypes: ['h1', 'h2', 'normal', 'small'] = ['h1', 'h2', 'normal', 'small'];
 
   public selectionInsertType: 'small' | 'normal' | 'h1' | 'h2' = 'normal';
@@ -64,15 +58,15 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   public doingAreaSelection: boolean = false;
 
   public scale: number = 1;
-  constructor(private utils: UtilsService) {}
+  constructor(public utils: UtilsService) {}
 
   ngOnInit(): void {}
 
   async ngAfterViewInit() {
     this.scale = window.devicePixelRatio;
     const previewContext = this.previewCanvas?.nativeElement.getContext('2d');
-    if (previewContext){
-      this.previewContext = previewContext
+    if (previewContext) {
+      this.previewContext = previewContext;
     }
     document.addEventListener('selectionchange', () => this.onSelect());
   }
@@ -108,11 +102,11 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
               console.log({ bounds });
               if (bounds) {
                 this.selectionTools.nativeElement.style.display = 'block';
-                this.selectionTools.nativeElement.style.top = bounds.top - 80 + 'px';
-                // 125px is around half of the width of the complete
+                this.selectionTools.nativeElement.style.top = bounds.top - 50 + 'px';
+                // 100px is around half of the width of the complete
                 // try to position the toolbar in the middle on top of the selected text
                 this.selectionTools.nativeElement.style.left =
-                  bounds.left - 125 + (bounds.right - bounds.left) / 2 + 'px';
+                  bounds.left - 100 + (bounds.right - bounds.left) / 2 + 'px';
               }
             }
           }, 700);
@@ -182,9 +176,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   }
 
   addAreaSelection(rect: { x1: number; x2: number; y1: number; y2: number }) {
-    const x_min = this.getMin(rect.x1,rect.x2);
-    const y_min = this.getMin(rect.y1,rect.y2);
-    const x_max = this.getMax(rect.x1,rect.x2);
+    const x_min = this.getMin(rect.x1, rect.x2);
+    const y_min = this.getMin(rect.y1, rect.y2);
+    const x_max = this.getMax(rect.x1, rect.x2);
     const y_max = this.getMax(rect.y1, rect.y2);
     const pdfPoint = this.getPDFPoint({
       left: x_min,
@@ -198,7 +192,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       if (pageDetected) {
         page = pageDetected;
       }
-      const imgSrc = this.getImageFromSelection(rect,page)
+      const imgSrc = this.getImageFromSelection(rect, page);
 
       const annotations = this.annotationForPage.get(page) || [];
       const id = this.nanoid();
@@ -208,7 +202,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         color: '#ffa62170',
         points: [pdfPoint],
         page: page,
-        imgSrc: imgSrc
+        imgSrc: imgSrc,
       };
       annotations.push(newAnnotation);
       this.annotationForPage.set(page, annotations);
@@ -216,33 +210,32 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getImageFromSelection(rect: { x1: number; x2: number; y1: number; y2: number }, pageNumber: number) : string | undefined{
+  getImageFromSelection(
+    rect: { x1: number; x2: number; y1: number; y2: number },
+    pageNumber: number
+  ): string | undefined {
     const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
-    const canvasRect = (page.canvas as HTMLCanvasElement).getBoundingClientRect()
+    const canvasRect = (page.canvas as HTMLCanvasElement).getBoundingClientRect();
     const context: CanvasRenderingContext2D = page.canvas.getContext('2d');
-    const x = this.getMin(rect.x1,rect.x2) - canvasRect.left;
-    const y = this.getMin(rect.y1,rect.y2) - canvasRect.top;
+    const x = this.getMin(rect.x1, rect.x2) - canvasRect.left;
+    const y = this.getMin(rect.y1, rect.y2) - canvasRect.top;
     const width = this.getAbs(rect.x1 - rect.x2);
     const height = this.getAbs(rect.y1 - rect.y2);
-    
 
-    const data =  context.getImageData(
+    const data = context.getImageData(
       x * this.scale,
       y * this.scale,
-      (width) * this.scale,
-      (height) * this.scale
+      width * this.scale,
+      height * this.scale
     );
-  if (this.previewCanvas && this.previewContext){
-    this.previewCanvas.nativeElement.width =
-      width * this.scale;
-    this.previewCanvas.nativeElement.height =
-      height * this.scale;
-    this.previewContext.putImageData(data, 0, 0);
-    return this.previewCanvas.nativeElement.toDataURL();
-  }else{
-    return undefined;
-  }
-  
+    if (this.previewCanvas && this.previewContext) {
+      this.previewCanvas.nativeElement.width = width * this.scale;
+      this.previewCanvas.nativeElement.height = height * this.scale;
+      this.previewContext.putImageData(data, 0, 0);
+      return this.previewCanvas.nativeElement.toDataURL();
+    } else {
+      return undefined;
+    }
   }
 
   drawAnnotationsOnPage(pageNumber: number) {
@@ -262,7 +255,6 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     return Math.max(a, b);
   }
 
-
   getAbs(a: number) {
     return Math.abs(a);
   }
@@ -277,7 +269,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       const pageNumberStr = parent.getAttribute('data-page-number');
       if (pageNumberStr) {
         const pageNumber = parseInt(pageNumberStr);
-        console.log("Detected page",{pageNumber})
+        console.log('Detected page', { pageNumber });
         return pageNumber;
       } else {
         return null;
@@ -330,6 +322,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       this.annotationAdded.emit(newAnnotation);
       this.annotationForPage.set(pageNumber, annotations);
       this.drawAnnotationOnPage(pageNumber, newAnnotation);
+      document.getSelection()?.empty();
     }
   }
 
@@ -341,8 +334,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       if (context) {
         switch (annotation.type) {
           case 'area':
-            context.fillStyle = "#ffdd6310";
-            context.strokeStyle = annotation.color;
+            context.fillStyle = annotation.color.substring(0, 7) + '20';
+            context.strokeStyle = annotation.color.substring(0, 7) + '90';
             context.setLineDash([20, 3]);
             context.lineWidth = 2;
             annotation.points.forEach((point) => {
@@ -354,7 +347,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
                 Math.abs(rect[0] - rect[2]),
                 Math.abs(rect[1] - rect[3])
               );
-             
+
               context.fillRect(
                 rect[0],
                 rect[1],
@@ -492,7 +485,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
             clearInterval(interval);
             leaderLine.remove();
             clearTimeout(timeout);
-          }, 3000);
+          }, 1000);
         }, 200);
 
         break;
@@ -602,6 +595,36 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.drawAnnotationsOnPage(annotation.page);
       }, 300);
+    }
+  }
+
+  async updateAnnotation(changedAnnotation: Annotation) {
+    const annotation = this.getAnnotationByID(changedAnnotation.id);
+    if (annotation) {
+      annotation.color = changedAnnotation.color;
+      annotation.text = changedAnnotation.text;
+
+      const context = this.pdfCanvContext[annotation.page];
+      const page = this.getPdfViewerApplication().pdfViewer._pages[annotation.page - 1];
+      const viewport = page.viewport;
+      const pageRef = await (this.getPdfViewerApplication().pdfViewer as any).pdfDocument.getPage(
+        annotation.page
+      );
+      const renderRes = await pageRef.render({
+        canvasContext: context,
+        viewport: viewport,
+      });
+      setTimeout(() => {
+        this.drawAnnotationsOnPage(annotation.page);
+      }, 200);
+    }
+  }
+
+  // This is just an itial idea to show all lines of a page once we scroll to it. Maybe the Intersection Observer API is a better fit.
+  onPageChange(newPageNumber: number){
+    const annotations = this.annotationForPage.get(newPageNumber)
+    if(annotations){
+      annotations.forEach((annotation) => this.scrollToAnnotation({annotationID: annotation.id,where: 'both'}))
     }
   }
 }

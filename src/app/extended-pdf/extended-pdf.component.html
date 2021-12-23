@@ -6,6 +6,7 @@
       [src]="pdfSrc"
       [useBrowserLocale]="true"
       [(page)]="currPageNumber"
+      (pageChange)="onPageChange($event)"
       [textLayer]="true"
       (textLayerRendered)="textLayerRendered($event)"
       [zoom]="'page-fit'"
@@ -32,6 +33,8 @@
         *ngFor="let annotation of annotations.value"
         [annotation]="annotation"
         (showInDocument)="scrollToAnnotation({ annotationID: $event, where: 'both' })"
+        (deleteAnnotation)="deleteAnnotation($event.id)"
+        (updateAnnotation)="updateAnnotation($event)"
       >
       </app-annotation>
     </div>
@@ -43,28 +46,15 @@
   class="toolsInvisble"
   [ngClass]="{ toolsVisible: !getSelection() }"
 >
-  <div>
-    <mat-button-toggle-group class="smallerToggleButtons">
-      <mat-button-toggle
-        *ngFor="let selType of selectionInsertTypes"
-        [checked]="this.selectionInsertType === selType"
-        (change)="this.selectionInsertType = selType"
-      >
-        <small>{{ selType }}</small>
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-  <mat-button-toggle-group>
-    <mat-button-toggle (click)="addHighlightForSelection()">
+    <button mat-icon-button (click)="addHighlightForSelection()">
       <mat-icon>text_fields</mat-icon>
-    </mat-button-toggle>
-    <mat-button-toggle
-      *ngFor="let color of availableAnnotationColors"
+    </button>
+    <button mat-icon-button
+      *ngFor="let color of utils.availableAnnotationColors" 
       (click)="addHighlightForSelection(color)"
     >
       <mat-icon [style]="'color: ' + color.hex.substr(0, 7) + '90'">circle</mat-icon>
-    </mat-button-toggle>
-  </mat-button-toggle-group>
+    </button>
 </div>
 
 <div
