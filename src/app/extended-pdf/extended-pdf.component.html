@@ -28,7 +28,7 @@
     <h2>Annotations</h2>
     <canvas style="display: none" #previewCanvas></canvas>
     <div *ngFor="let annotations of annotationForPage | keyvalue">
-      <h3>Page {{ annotations.key }}</h3>
+      <h3 class="pageTitle">Page {{ annotations.key }}</h3>
       <app-annotation
         *ngFor="let annotation of annotations.value"
         [annotation]="annotation"

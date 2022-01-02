@@ -68,7 +68,7 @@
         <a mat-flat-button target="_blank" [href]="this.dataService.getFileView(doc.value.fileid).href" i18n>View document</a>
         <button mat-flat-button color="primary" routerLink="/documents/{{doc.value.$id}}/cards/" i18n>View cards</button>
         <button mat-flat-button color="accent" routerLink="/create/from-document/{{doc.value.$id}}" i18n>Create cards</button>
-
+        <button mat-flat-button color="accent" routerLink="/extended-pdf/{{doc.value.$id}}" i18n>View in new PDF viewer</button>
         <button mat-flat-button color="warn" (click)="deleteDocument(doc.value)" i18n>Delete</button>
       </mat-card-actions>
     </mat-card>

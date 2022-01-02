@@ -8,11 +8,15 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { imgSrcToBlob } from 'blob-util';
 import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
 import { DataService } from '../data.service';
+import { DocumentService } from '../document.service';
 import { Annotation } from '../types/annotation';
+import { PDFDocument } from '../types/pdf-document';
 import { UtilsService } from '../utils.service';
 
 @Component({
@@ -59,13 +63,25 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   public doingAreaSelection: boolean = false;
 
   public scale: number = 1;
-  constructor(public utils: UtilsService, private dataService: DataService) {}
+
+  public document: PDFDocument | undefined;
+  public documentid: string | undefined;
+
+  constructor(public utils: UtilsService, private dataService: DataService, private actRoute: ActivatedRoute, private documentService: DocumentService) {this.documentid = actRoute.snapshot.params.id;}
 
   public currentLeaderLines : Map<string,any> = new Map<string,any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
 
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.documentid) {
+      this.dataService.getOnlineDocument('documents',this.documentid).then((res) => {
+        console.log({res});
+        this.document = res;
+        this.loadFromDoc(res);
+      })
+    }
+  }
 
   async ngAfterViewInit() {
     this.scale = window.devicePixelRatio;
@@ -80,6 +96,28 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         l.position();
       }
     }, 5);
+  }
+
+  loadFromDoc(doc: PDFDocument) {
+      if (doc) {
+        this.document = doc;
+        if (this.document.cards) {
+        }
+        if (this.document && this.document.annotations) {
+          for (let i = 0; i < this.document.annotations.length; i++) {
+            const annotJSON = this.document.annotations[i];
+            let annot: Annotation = JSON.parse(annotJSON);
+            if (this.annotationForPage.has(annot.page)) {
+              const forPage = this.annotationForPage.get(annot.page);
+              forPage!.push(annot);
+            } else {
+              this.annotationForPage.set(annot.page, [annot]);
+            }
+          }
+        }
+        const src = this.dataService.getFileView(this.document?.fileid).href;
+        this.pdfSrc = src;
+    }
   }
 
   getAllAnnotations() {
@@ -186,7 +224,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     this.rect.y2 = 0;
   }
 
-  addAreaSelection(rect: { x1: number; x2: number; y1: number; y2: number }) {
+  async addAreaSelection(rect: { x1: number; x2: number; y1: number; y2: number }) {
     const x_min = this.getMin(rect.x1, rect.x2);
     const y_min = this.getMin(rect.y1, rect.y2);
     const x_max = this.getMax(rect.x1, rect.x2);
@@ -215,9 +253,19 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         page: page,
         imgSrc: imgSrc,
       };
+      if(imgSrc){
+      const blob: Blob = await imgSrcToBlob(imgSrc);
+        this.dataService.saveImage(
+          new File([blob], this.documentid + '_' + id + '.png')
+        ).then((uploadedImageId) => {
+          newAnnotation.imgSrc = this.dataService.getFileView(uploadedImageId).toString();
+          this.saveDocument();
+        } )
+    }
       annotations.push(newAnnotation);
       this.annotationForPage.set(page, annotations);
       this.drawAnnotationOnPage(page, newAnnotation);
+      this.saveDocument();
     }
   }
 
@@ -334,6 +382,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       this.annotationForPage.set(pageNumber, annotations);
       this.drawAnnotationOnPage(pageNumber, newAnnotation);
       document.getSelection()?.empty();
+      this.saveDocument();
     }
   }
 
@@ -609,6 +658,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         ?.filter((annot) => annot.id !== id);
       if (filteredAnnot) {
         this.annotationForPage.set(annotation.page, filteredAnnot);
+        this.saveDocument();
       }
       const context = this.pdfCanvContext[annotation.page];
       const page = this.getPdfViewerApplication().pdfViewer._pages[annotation.page - 1];
@@ -647,6 +697,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.drawAnnotationsOnPage(annotation.page);
       }, 200);
+      this.saveDocument();
     }
   }
 
@@ -657,4 +708,21 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     //   annotations.forEach((annotation) => this.scrollToAnnotation({annotationID: annotation.id,where: 'both'}))
     // }
   }
+
+  async saveDocument() {
+    if (this.document) {
+      this.document.currentPage = this.currPageNumber;
+      const annotations = Array.from(this.annotationForPage.values());
+      const flatAnnotations: Annotation[] = [];
+      for (let i = 0; i < annotations.length; i++) {
+        const annots = annotations[i];
+        flatAnnotations.push(...annots);
+      }
+      const jsonAnnot = flatAnnotations.map((annot) => JSON.stringify(annot));
+      this.document.annotations = jsonAnnot;
+      console.log(this.document);
+      await this.documentService.updateDocument(this.document);
+    }
+  }
+
 }

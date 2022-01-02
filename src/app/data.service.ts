@@ -31,7 +31,7 @@ export class DataService {
     singlePageMode: false,
     autoAddServer: true,
     showSelectionSizeOptions: false,
-    autoDrawLines: true
+    autoDrawLines: false
   }
   public prefs : any = {config: DataService.DEFAULT_CONFIG};
 
