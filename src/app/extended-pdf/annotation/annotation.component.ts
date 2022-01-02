@@ -81,7 +81,10 @@ export class AnnotationComponent implements OnInit, OnDestroy {
       this.line = this.utils.createLineBetweenIds(
         environment.ANNOTATION_ON_CARD_PREFIX + this.annotation?.id,
         environment.ANNOTATION_JMP_PREFIX + this.annotation?.id,
-        this.annotation?.color
+        this.annotation?.color,
+        5,
+        true,
+        true
       );
     }
   }

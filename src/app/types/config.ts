@@ -10,6 +10,7 @@ export interface Config {
     addTextAsHidden: boolean,
     singlePageMode: boolean,
     autoAddServer: boolean,
-    showSelectionSizeOptions: boolean
+    showSelectionSizeOptions: boolean,
+    autoDrawLines: boolean,
     
 }

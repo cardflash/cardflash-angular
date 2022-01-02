@@ -1,3 +1,4 @@
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import {
   AfterViewInit,
   Component,
@@ -10,8 +11,8 @@ import {
 import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
+import { DataService } from '../data.service';
 import { Annotation } from '../types/annotation';
-import { Rectangle } from '../types/rectangle';
 import { UtilsService } from '../utils.service';
 
 @Component({
@@ -58,7 +59,11 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   public doingAreaSelection: boolean = false;
 
   public scale: number = 1;
-  constructor(public utils: UtilsService) {}
+  constructor(public utils: UtilsService, private dataService: DataService) {}
+
+  public currentLeaderLines : Map<string,any> = new Map<string,any>();
+  public currentLineDrawerInterval: NodeJS.Timeout | undefined;
+
 
   ngOnInit(): void {}
 
@@ -69,6 +74,12 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       this.previewContext = previewContext;
     }
     document.addEventListener('selectionchange', () => this.onSelect());
+
+    this.currentLineDrawerInterval = setInterval(() => {
+      for(const l of this.currentLeaderLines.values()){
+        l.position();
+      }
+    }, 5);
   }
 
   getAllAnnotations() {
@@ -421,7 +432,17 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
             top: ${Math.min(rect[1], rect[3]) - 30}px;`
         );
         page.div.appendChild(anchorDiv);
+        let observer = new IntersectionObserver((e) => this.handleAnnotationIntersection(e, annotation.id) );
+        observer.observe(anchorDiv);
       }
+    }
+  }
+
+  handleAnnotationIntersection(e: IntersectionObserverEntry[], annotationID: string){
+    if(e.length < 1 ) return;
+
+    if(e[0].isIntersecting && this.dataService.config.autoDrawLines){
+      this.scrollToAnnotation({annotationID: annotationID, where: "both"});
     }
   }
 
@@ -469,23 +490,26 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         break;
       default:
         setTimeout(async () => {
+          if(this.currentLeaderLines.has(event.annotationID)){
+            return;
+          }
+          
           this.utils.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
           this.utils.scrollIDIntoView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID);
           const leaderLine = this.utils.createLineBetweenIds(
             environment.ANNOTATION_ON_CARD_PREFIX + annotation?.id,
             environment.ANNOTATION_JMP_PREFIX + annotation?.id,
             annotation?.color
-          );
+            );
 
-          const interval = setInterval(() => {
-            leaderLine.position();
-          }, 10);
-
-          const timeout = setTimeout(() => {
-            clearInterval(interval);
-            leaderLine.remove();
-            clearTimeout(timeout);
-          }, 1000);
+          this.currentLeaderLines.set(event.annotationID,leaderLine);
+          do {
+            await new Promise(res => setTimeout(res,700))
+          } while(this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID) && this.dataService.config.autoDrawLines)
+            if(this.currentLeaderLines.has(event.annotationID)){
+              this.currentLeaderLines.delete(event.annotationID);
+              leaderLine.remove();
+            }
         }, 200);
 
         break;
@@ -493,6 +517,12 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   }
 
   removeDivWithID(id: string) {
+
+    if(this.currentLeaderLines.has(id)){
+      this.currentLeaderLines.get(id).remove();
+      this.currentLeaderLines.delete(id);
+    }
+
     const jmpDiv = document.querySelector('#' + environment.ANNOTATION_JMP_PREFIX + id);
     if (jmpDiv) {
       jmpDiv.parentNode?.removeChild(jmpDiv);
@@ -622,9 +652,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   // This is just an itial idea to show all lines of a page once we scroll to it. Maybe the Intersection Observer API is a better fit.
   onPageChange(newPageNumber: number){
-    const annotations = this.annotationForPage.get(newPageNumber)
-    if(annotations){
-      annotations.forEach((annotation) => this.scrollToAnnotation({annotationID: annotation.id,where: 'both'}))
-    }
+    // const annotations = this.annotationForPage.get(newPageNumber)
+    // if(annotations){
+    //   annotations.forEach((annotation) => this.scrollToAnnotation({annotationID: annotation.id,where: 'both'}))
+    // }
   }
 }

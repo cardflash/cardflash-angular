@@ -43,8 +43,8 @@ export class UtilsService {
     }
   }
 
-  createLineBetweenIds(fromID: string, toID: string, color : string = "#943262"){
-    console.log({fromID},{toID})
+  createLineBetweenIds(fromID: string, toID: string, color : string = "#943262", size = 5, dash = true, animate = true){
+    // console.log({fromID},{toID})
     const line = new LeaderLine(  
       document.getElementById(fromID),
       document.getElementById(toID),
@@ -53,13 +53,13 @@ export class UtilsService {
         endPlug: 'disc',
         color: color.substring(0, 7) + '90',
         showEffectName: 'draw',
-        size: 7,
+        size: size,
         startPlugSize: 0.7,
         endPlugSize: 0.7,
-        dash: {animation: true},
+        dash: dash ? (animate ? {animation: true} : true) : undefined,
         path: 'magnet',
         hide: true,
-        animOptions: {duration: 100, timing: [0.58, 0, 0.42, 1]}
+        animOptions: {duration: 500, timing: [0.58, 0, 0.42, 1]}
         // outline: true,
         // outlineColor: outlineColor,
         // outlineSize: 0.1

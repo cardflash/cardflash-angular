@@ -77,7 +77,19 @@
     "
     i18n >Offline Mode</mat-button-toggle
   >
-
+  <mat-button-toggle
+  class="coloredToggle"
+  title="Automatically draw line between annotation and pdf"
+  i18n-title
+  [checked]="this.dataService.config.autoDrawLines"
+  (change)="
+    this.dataService.config.autoDrawLines =
+      !this.dataService.config.autoDrawLines;
+    this.saveConfig()
+  "
+>
+  <mat-icon>draw</mat-icon>
+</mat-button-toggle>
   </div>
   </mat-expansion-panel>
 </mat-accordion>
