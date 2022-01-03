@@ -253,13 +253,15 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         page: page,
         imgSrc: imgSrc,
       };
-      if(imgSrc){
+      if(imgSrc && this.documentid){
       const blob: Blob = await imgSrcToBlob(imgSrc);
         this.dataService.saveImage(
           new File([blob], this.documentid + '_' + id + '.png')
         ).then((uploadedImageId) => {
-          newAnnotation.imgSrc = this.dataService.getFileView(uploadedImageId).toString();
-          this.saveDocument();
+          if (uploadedImageId !== ""){
+            newAnnotation.imgSrc = this.dataService.getFileView(uploadedImageId).toString();
+            this.saveDocument();
+          }
         } )
     }
       annotations.push(newAnnotation);
