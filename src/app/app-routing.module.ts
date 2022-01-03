@@ -42,6 +42,10 @@ const routes: Routes = [
     component: CardsForDocumentComponent
   },
   {
+    path: 'extended-pdf',
+    component: ExtendedPdfComponent
+  },
+  {
     path: 'extended-pdf/:id',
     component: ExtendedPdfComponent
   }
