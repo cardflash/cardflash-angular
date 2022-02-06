@@ -72,6 +72,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   public currentLeaderLines : Map<string,any> = new Map<string,any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
 
+  public areaSelectWithNormalMouse: boolean = false;
 
   ngOnInit(): void {
     if (this.documentid) {
@@ -173,6 +174,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   pageRendered(e: PageRenderedEvent) {
     let pdfCanv: HTMLCanvasElement = e.source.canvas;
     e.source.div.oncontextmenu = (event: any) => this.contextMenuOnPage(event, e.source.div);
+    e.source.div.onmousedown = (event: any) => this.mouseDownOnPage(event, e.source.div);
     if (this.pdfCanvContext) {
       console.log({ e });
       const pageCanvContext = pdfCanv.getContext('2d');
@@ -190,6 +192,20 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   calcScaling() {}
 
+  mouseDownOnPage(e: MouseEvent, pageEl: HTMLDivElement){
+    if(this.areaSelectWithNormalMouse){
+      console.log('contextMenuOnPage', { e }, { pageEl });
+      e.preventDefault();
+      this.rect.x1 = e.x;
+      this.rect.y1 = e.y;
+      this.rect.x2 = e.x;
+      this.rect.y2 = e.y;
+
+      pageEl.onmouseup = (event: any) => this.mouseUpOnPage(event, pageEl);
+      pageEl.onmousemove = (event: any) => this.mouseMoveOnPage(event, pageEl);
+      this.areaSelectWithNormalMouse = false;
+    }
+  }
   contextMenuOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
     if (!this.getSelection()) {
       console.log('contextMenuOnPage', { e }, { pageEl });

@@ -53,3 +53,20 @@
 .pageTitle {
     margin-bottom: 0;
 }
+
+.pageDiv {
+    border-radius: 10px;
+    padding: 10px;
+    padding-top: 0;
+}
+.currentPage {
+    background-color: #dfdfdf55;
+}
+
+
+.area-fab{
+    position: absolute;
+    z-index: 3;
+    left: 15px;
+    bottom: 100px;
+  }

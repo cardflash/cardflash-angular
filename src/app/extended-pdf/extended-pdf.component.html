@@ -27,7 +27,7 @@
   <div class="annotationsColumn">
     <h2>Annotations</h2>
     <canvas style="display: none" #previewCanvas></canvas>
-    <div *ngFor="let annotations of annotationForPage | keyvalue">
+    <div *ngFor="let annotations of annotationForPage | keyvalue" class="pageDiv" [ngClass]="{'currentPage': annotations.key === this.currPageNumber}">
       <h3 class="pageTitle">Page {{ annotations.key }}</h3>
       <app-annotation
         *ngFor="let annotation of annotations.value"
@@ -67,3 +67,14 @@
     'height.px':  getAbs(rect.y1 - rect.y2)
   }"
 ></div>
+
+<div class="area-fab">
+  <button
+    mat-fab
+    color="primary"
+    aria-label="Select area"
+    (click)="this.areaSelectWithNormalMouse = true"
+  >
+    <mat-icon>photo_size_select_large</mat-icon>
+  </button>
+</div>
