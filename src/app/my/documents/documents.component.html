@@ -32,7 +32,6 @@
   <div *ngIf="documentPromise | async as docs">
   <div class="document" *ngFor="let doc of docs" >
     <mat-card>
-      {{doc.name}}
       <mat-card-header>
           <mat-form-field appearance="outline" class="fullWidthField">
             <mat-label>Name</mat-label>
