@@ -79,6 +79,9 @@ export class DataApiService {
   getFileView(id: string){
     return this.appwrite.storage.getFileView(id);
   }
+  getFilePreview(id: string){
+    return this.appwrite.storage.getFilePreview(id);
+  }
 
   async saveFile(file: File){
     return this.appwrite.storage.createFile('unique()',file);

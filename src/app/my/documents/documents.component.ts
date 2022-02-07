@@ -147,11 +147,11 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     }
   }
 
-  deleteDocument(doc: PDFDocument) {
+  deleteDocument(doc: DocumentEntry) {
     // this.documentsService.deleteDocument(doc);
   }
 
-  addTagToDoc(doc: PDFDocument, tag: string) {
+  addTagToDoc(doc: DocumentEntry, tag: string) {
     if (!doc.tags) {
       doc.tags = [];
     }
@@ -161,7 +161,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeTagFromDoc(doc: PDFDocument, newTag: string) {
+  removeTagFromDoc(doc: DocumentEntry, newTag: string) {
     if (!doc.tags) {
       doc.tags = [];
     }
@@ -169,7 +169,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     // this.documentsService.updateDocument(doc);
   }
 
-  updateNameForDoc(doc: PDFDocument, newName: string){
+  updateNameForDoc(doc: DocumentEntry, newName: string){
     doc.name = newName;
     // this.documentsService.updateDocument(doc);
   }

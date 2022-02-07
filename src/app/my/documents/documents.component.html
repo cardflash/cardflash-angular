@@ -33,46 +33,46 @@
   <div class="document" *ngFor="let doc of docs" >
     <mat-card>
       {{doc.name}}
-      <!-- <mat-card-header>
+      <mat-card-header>
           <mat-form-field appearance="outline" class="fullWidthField">
             <mat-label>Name</mat-label>
-            <input matInput type="text" [ngModel]="doc.name" (keydown.enter)="this.updateNameForDoc(doc.value,name.value)" #name>
-            <button [disabled]="!name.value" matSuffix mat-icon-button aria-label="Save" (click)="this.updateNameForDoc(doc.value,name.value)" i18n-aria-label>
+            <input matInput type="text" [ngModel]="doc.name" (keydown.enter)="this.updateNameForDoc(doc,name.value)" #name>
+            <button [disabled]="!name.value" matSuffix mat-icon-button aria-label="Save" (click)="this.updateNameForDoc(doc,name.value)" i18n-aria-label>
               <mat-icon>save</mat-icon>
             </button>
           </mat-form-field>
-        <img mat-card-sm-image  mat-card-avatar [src]="this.dataService.getFilePreview(doc.value.fileid)">
+        <img mat-card-sm-image  mat-card-avatar src="/assets/pdf.svg">
       </mat-card-header>
       <mat-card-content>
-        <span i18n>Created on {{doc.value.creationTime | date}}</span>
+        <span i18n>Created on {{doc.creationTime | date}}</span>
         <div class="tagsDiv">
           <h5 i18n>Tags</h5>
           <mat-chip-list aria-label="Document tags" i18n-aria-label>
-            <mat-chip color="primary" selected *ngFor="let tag of doc.value.tags" removable="true" (removed)=
-            "this.removeTagFromDoc(doc.value,tag)">{{tag}}
+            <mat-chip color="primary" selected *ngFor="let tag of doc.tags" removable="true" (removed)=
+            "this.removeTagFromDoc(doc,tag)">{{tag}}
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip>
           </mat-chip-list>
           <br />
           <mat-form-field appearance="fill">
             <mat-label i18n>Add a tag</mat-label>
-            <input matInput type="text" (keydown.enter)="addTagToDoc(doc.value,newTag.value)" #newTag>
-            <button [disabled]="!newTag.value" matSuffix mat-icon-button aria-label="Add" (click)="addTagToDoc(doc.value,newTag.value)" i18n-aria-label>
+            <input matInput type="text" (keydown.enter)="addTagToDoc(doc,newTag.value)" #newTag>
+            <button [disabled]="!newTag.value" matSuffix mat-icon-button aria-label="Add" (click)="addTagToDoc(doc,newTag.value)" i18n-aria-label>
               <mat-icon>add</mat-icon>
             </button>
           </mat-form-field>
         </div>
-        <div *ngIf="doc.value.cards">
-          <span i18n>{{doc.value.cards.length}} Cards</span>
+        <div *ngIf="doc.cardIDs">
+          <span i18n>{{doc.cardIDs.length}} Cards</span>
         </div>
       </mat-card-content>
       <mat-card-actions class="cardActions">
-        <a mat-flat-button target="_blank" [href]="this.dataService.getFileView(doc.value.fileid).href" i18n>View document</a>
-        <button mat-flat-button color="primary" routerLink="/documents/{{doc.value.$id}}/cards/" i18n>View cards</button>
-        <button mat-flat-button color="accent" routerLink="/create/from-document/{{doc.value.$id}}" i18n>Create cards</button>
-        <button mat-flat-button color="accent" routerLink="/extended-pdf/{{doc.value.$id}}" i18n>View in new PDF viewer</button>
-        <button mat-flat-button color="warn" (click)="deleteDocument(doc.value)" i18n>Delete</button>
-      </mat-card-actions> -->
+        <a mat-flat-button target="_blank" [href]="this.dataApi.getFileView(doc.fileid).href" i18n>View document</a>
+        <button mat-flat-button color="primary" routerLink="/documents/{{doc.$id}}/cards/" i18n>View cards</button>
+        <button mat-flat-button color="accent" routerLink="/create/from-document/{{doc.$id}}" i18n>Create cards</button>
+        <button mat-flat-button color="accent" routerLink="/extended-pdf/{{doc.$id}}" i18n>View in new PDF viewer</button>
+        <button mat-flat-button color="warn" (click)="deleteDocument(doc)" i18n>Delete</button>
+      </mat-card-actions>
     </mat-card>
 
  </div>
