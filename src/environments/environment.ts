@@ -4,12 +4,12 @@
 
 export const environment = {
   production: false,
-  API_ENDPOINT: 'https://api.siter.eu/v1',
-  API_PROJECT: '60f9c38babc3e',
+  API_ENDPOINT: 'https://api.wolke7.cloud/v1',
+  API_PROJECT: '6200475f2c3292dbc7b1',
   BASE_URL: 'http://localhost:4200',
   MIN_PW_LENGTH: 6,
   MAX_PW_LENGTH: 32,
-  collectionMap: {'cards': '60fbdf8f6f4ee', documents: '610584c85ac26'}  as any,
+  collectionMap: {'cards': 'cards', documents: 'documents'}  as any,
   dataVersion: '1.0',
   ANNOTATION_DEL_PREFIX: 'fc-DELDIV_',
   ANNOTATION_JMP_PREFIX: 'fc-JMPDIV_',

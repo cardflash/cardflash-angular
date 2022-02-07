@@ -52,7 +52,7 @@ export class AccountService {
   }
 
   async register( email: string, password: string): Promise<boolean> {
-    const createProm = this.appwrite.account.create(email,password,email.split('@')[0]);
+    const createProm = this.appwrite.account.create('unique()',email,password,email.split('@')[0]);
     const createRes = await this.userNotifier.notifyForPromise(createProm,"Registration");
     if(createRes.success){
       await this.login(email,password);

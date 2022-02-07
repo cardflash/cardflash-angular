@@ -13,6 +13,7 @@ import { imgSrcToBlob } from 'blob-util';
 import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
+import { DataApiService, DocumentEntry } from '../data-api.service';
 import { DataService } from '../data.service';
 import { DocumentService } from '../document.service';
 import { Annotation } from '../types/annotation';
@@ -64,10 +65,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   public scale: number = 1;
 
-  public document: PDFDocument | undefined;
+  public document: DocumentEntry | undefined;
   public documentid: string | undefined;
 
-  constructor(public utils: UtilsService, private dataService: DataService, private actRoute: ActivatedRoute, private documentService: DocumentService) {this.documentid = actRoute.snapshot.params.id;}
+  constructor(public utils: UtilsService, private dataService: DataService, private dataApi: DataApiService, private actRoute: ActivatedRoute, private documentService: DocumentService) {this.documentid = actRoute.snapshot.params.id;}
 
   public currentLeaderLines : Map<string,any> = new Map<string,any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
@@ -76,8 +77,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     if (this.documentid) {
-      this.dataService.getOnlineDocument('documents',this.documentid).then((res) => {
-        console.log({res});
+      this.dataApi.getDocument(this.documentid).then((res) => {
         this.document = res;
         this.loadFromDoc(res);
       })
@@ -99,14 +99,14 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     }, 5);
   }
 
-  loadFromDoc(doc: PDFDocument) {
+  loadFromDoc(doc: DocumentEntry) {
       if (doc) {
         this.document = doc;
-        if (this.document.cards) {
+        if (this.document.cardIDs) {
         }
-        if (this.document && this.document.annotations) {
-          for (let i = 0; i < this.document.annotations.length; i++) {
-            const annotJSON = this.document.annotations[i];
+        if (this.document && this.document.annotationsJSON){
+          for (let i = 0; i < this.document.annotationsJSON.length; i++) {
+            const annotJSON = this.document.annotationsJSON[i];
             let annot: Annotation = JSON.parse(annotJSON);
             if (this.annotationForPage.has(annot.page)) {
               const forPage = this.annotationForPage.get(annot.page);
@@ -116,7 +116,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
             }
           }
         }
-        const src = this.dataService.getFileView(this.document?.fileid).href;
+        const src = this.dataApi.getFileView(this.document?.fileid).href;
         this.pdfSrc = src;
     }
   }
@@ -271,11 +271,11 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       };
       if(imgSrc && this.documentid){
       const blob: Blob = await imgSrcToBlob(imgSrc);
-        this.dataService.saveImage(
+        this.dataApi.saveFile(
           new File([blob], this.documentid + '_' + id + '.png')
-        ).then((uploadedImageId) => {
-          if (uploadedImageId !== ""){
-            newAnnotation.imgSrc = this.dataService.getFileView(uploadedImageId).toString();
+        ).then((res) => {
+          if (res.$id !== ""){
+            newAnnotation.imgSrc = this.dataApi.getFileView(res.$id).toString();
             this.saveDocument();
           }
         } )
@@ -737,9 +737,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         flatAnnotations.push(...annots);
       }
       const jsonAnnot = flatAnnotations.map((annot) => JSON.stringify(annot));
-      this.document.annotations = jsonAnnot;
+      this.document.annotationsJSON = jsonAnnot;
       console.log(this.document);
-      await this.documentService.updateDocument(this.document);
+      await this.dataApi.updateDocument(this.document.$id,this.document)
     }
   }
 

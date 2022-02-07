@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { nanoid } from 'nanoid';
 import { Subscription } from 'rxjs';
+import { DataApiService, DocumentEntry, DocumentEntryContent } from 'src/app/data-api.service';
 import { DataService } from 'src/app/data.service';
 import { DocumentService } from 'src/app/document.service';
 import { UserNotifierService } from 'src/app/services/notifier/user-notifier.service';
@@ -20,7 +21,9 @@ import { PDFDocument } from 'src/app/types/pdf-document';
   styleUrls: ['./documents.component.scss'],
 })
 export class DocumentsComponent implements OnInit, OnDestroy {
-  public documentsCollection: Map<string, PDFDocument> = new Map<
+
+  public documentPromise: Promise<DocumentEntry[]> | undefined;
+  public doc: Map<string, PDFDocument> = new Map<
     string,
     PDFDocument
   >();
@@ -38,41 +41,47 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
   constructor(
-    public dataService: DataService,
-    public documentsService: DocumentService,
+  //   public dataService: DataService,
+  //   public documentsService: DocumentService,
+  public dataApi: DataApiService,
     public userNotifier: UserNotifierService
   ) {}
 
   async ngOnInit() {
     this.userNotifier.loadStatus = 60;
-    this.subscription = this.documentsService.documents$.subscribe((docs) => {
-      if (docs !== undefined){
-        this.userNotifier.loadStatus = 80;
-        this.updateData(docs)
-        this.userNotifier.loadStatus = 100;
-      }
-  }
-    );
+    this.refresh();
+  //   this.subscription = this.documentsService.documents$.subscribe((docs) => {
+  //     if (docs !== undefined){
+  //       this.userNotifier.loadStatus = 80;
+  //       this.updateData(docs)
+  //       this.userNotifier.loadStatus = 100;
+  //     }
+  // }
+    // );
   }
 
-  async updateData(docs: Map<string, PDFDocument>) {
-    if (docs) {
-      this.documentsCollection = docs;
-      this.allTags.clear();
-      this.documentsCollection.forEach((doc) => {
-        doc.tags?.forEach((tag) => {
-          if(doc.$id && this.allTags.has(tag)){
-            const vals = this.allTags.get(tag);
-            if(vals && !vals.has(doc.$id)){
-              vals.set(doc.$id,doc);
-            }
-          }else if(doc.$id){
-            this.allTags.set(tag,new Map<string,PDFDocument>([[doc.$id,doc]]));
-          }
-        })
-      })
-      this.filterByTags();
-    }
+  refresh(){
+    this.documentPromise = this.dataApi.listDocuments();
+  }
+
+  async updateData(docs: Document[]) {
+    // if (docs) {
+    //   this.documentsCollection = docs;
+    //   this.allTags.clear();
+    //   this.documentsCollection.forEach((doc) => {
+    //     doc.tags?.forEach((tag) => {
+    //       if(doc.$id && this.allTags.has(tag)){
+    //         const vals = this.allTags.get(tag);
+    //         if(vals && !vals.has(doc.$id)){
+    //           vals.set(doc.$id,doc);
+    //         }
+    //       }else if(doc.$id){
+    //         this.allTags.set(tag,new Map<string,PDFDocument>([[doc.$id,doc]]));
+    //       }
+    //     })
+    //   })
+    //   this.filterByTags();
+    // }
   }
 
   ngOnDestroy() {
@@ -120,26 +129,26 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     const file = this.getFile();
     if (file) {
       this.isBusy = true;
-      const res = await this.dataService.uploadFile(file);
+      const res = await this.dataApi.saveFile(file);
       if (res) {
-        const newDoc: PDFDocument = {
-          fileid: res,
+        const newDoc: DocumentEntryContent = {
+          fileid: res.$id,
           name: file.name.replace('.pdf',''),
-          localID: nanoid(),
           creationTime: Date.now(),
           currentPage: 1,
-          annotations: [],
-          cards: [],
+          annotationsJSON: [],
+          cardIDs: [],
           tags: [],
         };
-        await this.documentsService.addDocument(newDoc);
+        await this.dataApi.createDocument(newDoc);
+        this.refresh()
       }
       this.isBusy = false;
     }
   }
 
   deleteDocument(doc: PDFDocument) {
-    this.documentsService.deleteDocument(doc);
+    // this.documentsService.deleteDocument(doc);
   }
 
   addTagToDoc(doc: PDFDocument, tag: string) {
@@ -148,7 +157,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     }
     if(doc.tags.indexOf(tag) < 0){
       doc.tags.push(tag);
-      this.documentsService.updateDocument(doc);
+      // this.documentsService.updateDocument(doc);
     }
   }
 
@@ -157,12 +166,12 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       doc.tags = [];
     }
     doc.tags = doc.tags.filter((tag) => tag !== newTag);
-    this.documentsService.updateDocument(doc);
+    // this.documentsService.updateDocument(doc);
   }
 
   updateNameForDoc(doc: PDFDocument, newName: string){
     doc.name = newName;
-    this.documentsService.updateDocument(doc);
+    // this.documentsService.updateDocument(doc);
   }
 
   tagClicked(value: string){
@@ -181,7 +190,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
         this.filteredDocs = filtered
       }
     }else{
-      this.filteredDocs = this.documentsCollection;
+      // this.filteredDocs = this.documentsCollection;
     }
   }
 }

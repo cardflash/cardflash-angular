@@ -1,7 +1,7 @@
 <div class="main">
 
   <h1 i18n>Your documents</h1>
-  <div *ngIf="this.documentsCollection.size < 1">
+  <div *ngIf="!this.documentPromise">
     <h2 i18n>You currently have no documents stored online.</h2>
   </div>
   
@@ -29,12 +29,14 @@
     </mat-chip>
     </mat-chip-list>
   </div>
-  <div class="document" *ngFor=" let doc of this.filteredDocs | keyvalue: creationTimeOrder">
+  <div *ngIf="documentPromise | async as docs">
+  <div class="document" *ngFor="let doc of docs" >
     <mat-card>
-      <mat-card-header>
+      {{doc.name}}
+      <!-- <mat-card-header>
           <mat-form-field appearance="outline" class="fullWidthField">
             <mat-label>Name</mat-label>
-            <input matInput type="text" [ngModel]="doc.value.name" (keydown.enter)="this.updateNameForDoc(doc.value,name.value)" #name>
+            <input matInput type="text" [ngModel]="doc.name" (keydown.enter)="this.updateNameForDoc(doc.value,name.value)" #name>
             <button [disabled]="!name.value" matSuffix mat-icon-button aria-label="Save" (click)="this.updateNameForDoc(doc.value,name.value)" i18n-aria-label>
               <mat-icon>save</mat-icon>
             </button>
@@ -70,10 +72,10 @@
         <button mat-flat-button color="accent" routerLink="/create/from-document/{{doc.value.$id}}" i18n>Create cards</button>
         <button mat-flat-button color="accent" routerLink="/extended-pdf/{{doc.value.$id}}" i18n>View in new PDF viewer</button>
         <button mat-flat-button color="warn" (click)="deleteDocument(doc.value)" i18n>Delete</button>
-      </mat-card-actions>
+      </mat-card-actions> -->
     </mat-card>
 
- 
+ </div>
   </div>
   </div>
   </div>

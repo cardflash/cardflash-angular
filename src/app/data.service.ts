@@ -154,7 +154,7 @@ export class DataService {
       }
 
     async createDocumentOnline(collectionName: string, data: any, localID?: string, notifyOnSuccess : boolean = false) : Promise<any | undefined>{
-      const apiProm =  this.appwrite.database.createDocument(environment.collectionMap[collectionName],data);
+      const apiProm =  this.appwrite.database.createDocument(environment.collectionMap[collectionName],'unique()',data);
       const apiRes = await this.userNotifierService.notifyForPromiseFlag(apiProm, "(Online) " + collectionName +  " creation",notifyOnSuccess);
       if(localID){
     if(apiRes.success){
@@ -468,7 +468,7 @@ export class DataService {
   }
 
   async saveImage(img: File) : Promise<string>{
-    const prom = this.appwrite.storage.createFile(img);
+    const prom = this.appwrite.storage.createFile('unique()',img);
     const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Uploading Image");
     if(res.success){
       return res.result.$id;
@@ -476,8 +476,10 @@ export class DataService {
       return "";
     }
   }
+
+  
   async uploadFile(file: File): Promise<string>{
-    const prom = this.appwrite.storage.createFile(file);
+    const prom = this.appwrite.storage.createFile('unique()',file);
     const res = await this.userNotifierService.notifyOnPromiseReject(prom,"Uploading File");
     if(res.success){
       return res.result.$id;

@@ -23,7 +23,7 @@
     "@angular/service-worker": "~12.1.0-",
     "@ckeditor/ckeditor5-angular": "^2.0.2",
     "annotpdf": "^1.0.14",
-    "appwrite": "^3.2.0",
+    "appwrite": "^6.0.1",
     "blob-util": "^2.0.2",
     "leader-line": "^1.0.7",
     "localforage": "^1.9.0",
