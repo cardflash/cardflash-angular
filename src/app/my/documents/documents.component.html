@@ -25,13 +25,13 @@
     <div class="document">
     <h5 i18n>Filter with Tags: {{this.selectedTag}}</h5>
     <mat-chip-list aria-label="Filter by tags" i18n-aria-label>
-      <mat-chip selectable="true" [selected]="tag.key === this.selectedTag" (click)="tagClicked(tag.key)" [value]="tag.key" color="primary" *ngFor="let tag of this.allTags | keyvalue" removable="false">{{tag.key}}
+      <mat-chip selectable="true" [selected]="tag === this.selectedTag" (click)="tagClicked(tag)" [value]="tag" color="primary" *ngFor="let tag of this.allTags" removable="false">{{tag}}
     </mat-chip>
     </mat-chip-list>
   </div>
   <div *ngIf="documentPromise | async as docs">
-  <div class="document" *ngFor="let doc of docs" >
-    <mat-card>
+  <div class="document" *ngFor="let doc of docs">
+    <mat-card *ngIf="selectedTag === undefined || (doc.tags && doc.tags.indexOf(selectedTag) > -1)">
       <mat-card-header>
           <mat-form-field appearance="outline" class="fullWidthField">
             <mat-label>Name</mat-label>

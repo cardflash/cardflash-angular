@@ -94,6 +94,7 @@ export class DataApiService {
   async getCard(id: string) {
     return await this.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id);
   }
+  
   deleteCard(id: string) {
     return new Promise<void>(async (resolve, reject) => {
       const toDelete = await this.getCard(id);

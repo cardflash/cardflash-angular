@@ -28,7 +28,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     PDFDocument
   >();
 
-  public allTags: Map<string,Map<string,PDFDocument>> = new Map<string,Map<string,PDFDocument>>();
+  public allTags: string[] = [];
 
   public filteredDocs: Map<string, PDFDocument> = new Map<
   string,
@@ -36,7 +36,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 >();
 
   public isBusy: boolean = false;
-  public selectedTag: string | undefined = '';
+  public selectedTag: string | undefined = undefined;
   subscription: Subscription | undefined;
 
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
@@ -62,6 +62,9 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   refresh(){
     this.documentPromise = this.dataApi.listDocuments();
+    this.documentPromise.then((docs) => {
+      this.allTags = docs.map(doc => doc.tags).reduce((prev,curr) => (curr !== undefined) ? prev?.concat(curr) : prev, []) || [];
+    })
   }
 
   async updateData(docs: Document[]) {
@@ -152,12 +155,13 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   addTagToDoc(doc: DocumentEntry, tag: string) {
+    this.allTags = [...new Set([...this.allTags,tag])]
     if (!doc.tags) {
       doc.tags = [];
     }
     if(doc.tags.indexOf(tag) < 0){
       doc.tags.push(tag);
-      // this.documentsService.updateDocument(doc);
+      this.dataApi.updateDocument(doc.$id,{tags: doc.tags})
     }
   }
 
@@ -166,12 +170,12 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       doc.tags = [];
     }
     doc.tags = doc.tags.filter((tag) => tag !== newTag);
-    // this.documentsService.updateDocument(doc);
+    this.dataApi.updateDocument(doc.$id,{tags: doc.tags})
   }
 
   updateNameForDoc(doc: DocumentEntry, newName: string){
     doc.name = newName;
-    // this.documentsService.updateDocument(doc);
+    this.dataApi.updateDocument(doc.$id,{tags: doc.tags})
   }
 
   tagClicked(value: string){
@@ -184,13 +188,13 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   filterByTags(){
-    if(this.selectedTag){
-      const filtered = this.allTags.get(this.selectedTag);
-      if(filtered){
-        this.filteredDocs = filtered
-      }
-    }else{
-      // this.filteredDocs = this.documentsCollection;
-    }
+    // if(this.selectedTag){
+    //   const filtered = this.allTags.get(this.selectedTag);
+    //   if(filtered){
+    //     this.filteredDocs = filtered
+    //   }
+    // }else{
+    //   // this.filteredDocs = this.documentsCollection;
+    // }
   }
 }
