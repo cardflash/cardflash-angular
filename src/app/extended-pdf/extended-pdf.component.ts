@@ -8,7 +8,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { imgSrcToBlob } from 'blob-util';
 import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
@@ -17,6 +17,7 @@ import { DataApiService, DocumentEntry } from '../data-api.service';
 import { DataService } from '../data.service';
 import { DocumentService } from '../document.service';
 import { Annotation } from '../types/annotation';
+import { Card } from '../types/card';
 import { PDFDocument } from '../types/pdf-document';
 import { UtilsService } from '../utils.service';
 
@@ -68,13 +69,23 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   public document: DocumentEntry | undefined;
   public documentid: string | undefined;
 
-  constructor(public utils: UtilsService, private dataService: DataService, private dataApi: DataApiService, private actRoute: ActivatedRoute, private documentService: DocumentService) {this.documentid = actRoute.snapshot.params.id;}
+  constructor(public utils: UtilsService, private dataService: DataService, private dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router, private documentService: DocumentService) {this.documentid = actRoute.snapshot.params.id;}
 
   public currentLeaderLines : Map<string,any> = new Map<string,any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
 
   public areaSelectWithNormalMouse: boolean = false;
 
+  public currentCard: Card = {
+    localID: this.nanoid(),
+    front: '<a href="http://localhost:4200/extended-pdf/6200fa242e5a40762022#fc-CRDTXT_2ojaZBMQkv"><span>[<mark class="marker-yellow">test123</mark>]</span></a><span>&nbsp;</span>\n',
+    back: '$x_4$\n',
+    page: this.currPageNumber,
+    hiddenText: '',
+    chapter: '',
+    title: '',
+  };
+  
   ngOnInit(): void {
     if (this.documentid) {
       this.dataApi.getDocument(this.documentid).then((res) => {
@@ -130,6 +141,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   pagesLoadComplete(e: any) {
     console.log('pagesLoadComplete');
+
   }
 
   onSelect() {
@@ -167,7 +179,16 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     }
   }
 
-  pdfLoaded(e: any) {}
+  pdfLoaded(e: any) {
+    setTimeout(() => {
+    this.actRoute.fragment.subscribe((frag) => {
+    if(frag){
+      console.log({frag})
+      this.scrollToAnnotation({annotationID: frag, where: 'both'})
+      // this.router.navigate([],{fragment: undefined})
+    }
+  })  
+},2000)}
 
   pdfLoadFailed(e: any) {}
 
@@ -258,32 +279,22 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         page = pageDetected;
       }
       const imgSrc = this.getImageFromSelection(rect, page);
-
-      const annotations = this.annotationForPage.get(page) || [];
       const id = this.nanoid();
-      const newAnnotation = {
+      const newAnnotation : Annotation = {
         id: id,
         type: 'area',
         color: '#ffa62170',
         points: [pdfPoint],
         page: page,
-        imgSrc: imgSrc,
       };
       if(imgSrc && this.documentid){
       const blob: Blob = await imgSrcToBlob(imgSrc);
-        this.dataApi.saveFile(
-          new File([blob], this.documentid + '_' + id + '.png')
-        ).then((res) => {
-          if (res.$id !== ""){
-            newAnnotation.imgSrc = this.dataApi.getFileView(res.$id).toString();
-            this.saveDocument();
-          }
-        } )
+        const imgRes = await this.dataApi.saveFile(new File([blob], this.documentid + '_' + id + '.png'))
+        if (imgRes.$id !== ""){
+          newAnnotation.imgID = imgRes.$id;
+        }
     }
-      annotations.push(newAnnotation);
-      this.annotationForPage.set(page, annotations);
-      this.drawAnnotationOnPage(page, newAnnotation);
-      this.saveDocument();
+      this.addAnnotation(newAnnotation);
     }
   }
 
@@ -376,7 +387,6 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       if (pageNumberCandidate !== null) {
         pageNumber = pageNumberCandidate;
       }
-      const annotations = this.annotationForPage.get(pageNumber) || [];
       const pdfPoints = [];
       for (let i = 0; i < selectionRects.length; i++) {
         const r = selectionRects.item(i);
@@ -395,13 +405,26 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         page: pageNumber,
         text: this.getSelection(),
       };
-      annotations.push(newAnnotation);
-      this.annotationAdded.emit(newAnnotation);
-      this.annotationForPage.set(pageNumber, annotations);
-      this.drawAnnotationOnPage(pageNumber, newAnnotation);
+      this.addAnnotation(newAnnotation);
       document.getSelection()?.empty();
-      this.saveDocument();
     }
+  }
+
+  addAnnotation(newAnnotation: Annotation){
+    this.addAnnotationToCard(newAnnotation,'front')
+    const annotations = this.annotationForPage.get(newAnnotation.page) || [];
+    annotations.push(newAnnotation);
+    this.annotationAdded.emit(newAnnotation);
+    this.annotationForPage.set(newAnnotation.page, annotations);
+    this.drawAnnotationOnPage(newAnnotation.page, newAnnotation);
+    this.saveDocument();
+  }
+
+  addAnnotationToCard(annotation: Annotation, side: 'front' | 'back'){
+   if(this.documentid){
+     const reference = this.utils.generateReferenceFromAnnotation(annotation,this.documentid)
+     this.currentCard.front += reference;
+   }
   }
 
   drawAnnotationOnPage(pageNumber: number, annotation: Annotation) {
@@ -571,13 +594,13 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
           this.currentLeaderLines.set(event.annotationID,leaderLine);
           do {
-            await new Promise(res => setTimeout(res,700))
+            await new Promise(res => setTimeout(res,1500))
           } while(this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID) && this.dataService.config.autoDrawLines)
             if(this.currentLeaderLines.has(event.annotationID)){
               this.currentLeaderLines.delete(event.annotationID);
               leaderLine.remove();
             }
-        }, 200);
+        }, 500);
 
         break;
     }
@@ -670,6 +693,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   async deleteAnnotation(id: string) {
     const annotation = this.getAnnotationByID(id);
+    if(annotation?.imgID){
+      await this.dataApi.deleteFile(annotation.imgID)
+    }
     if (annotation) {
       const filteredAnnot = this.annotationForPage
         .get(annotation.page)

@@ -16,15 +16,15 @@ export class UserNotifierService implements OnDestroy{
 
   constructor(private snackBar: MatSnackBar, private router: Router) {
 
-    this.routerSubscription = this.router.events.subscribe(event => {
-      console.log('current route: ', this.router.url.toString(),{event},(event instanceof NavigationEnd));
-      // if(event instanceof NavigationEnd){
-      //   setTimeout(() => this.loadStatus = 100,100)
-      // }
-      if(event instanceof NavigationStart){
-        this.loadStatus = 10;
-      }
-  });
+  //   this.routerSubscription = this.router.events.subscribe(event => {
+  //     console.log('current route: ', this.router.url.toString(),{event},(event instanceof NavigationEnd));
+  //     // if(event instanceof NavigationEnd){
+  //     //   setTimeout(() => this.loadStatus = 100,100)
+  //     // }
+  //     if(event instanceof NavigationStart){
+  //       this.loadStatus = 10;
+  //     }
+  // });
 
    }
   ngOnDestroy(): void {

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Appwrite, Models } from 'appwrite';
 import { environment } from 'src/environments/environment';
+import { Annotation } from './types/annotation';
 
 export interface DocumentEntryContent {
   // $id: string,
@@ -125,14 +126,23 @@ export class DataApiService {
       // TODO: Do we really want to delete all cards when a document is deleted? or let there be orphan-cards?
       // -> Deleting document -> Delete all cards -> Delete all images from all cards
       // is quite a heavy operation
-      const removeCardsPromises: Promise<any>[] = [];
-      removeCardsPromises.push(this.deleteFile(doc.fileid));
-      if (doc.cardIDs) {
-        for (let i = 0; i < doc.cardIDs.length; i++) {
-          removeCardsPromises.push(this.deleteCard(doc.cardIDs[i]));
+      // For now: No! But: Delete all annotation images
+      const additionalPromises: Promise<any>[] = [];
+      additionalPromises.push(this.deleteFile(doc.fileid));
+      if(doc.annotationsJSON){
+        for (let i = 0; i < doc.annotationsJSON.length; i++) {
+          const annotation : Annotation = JSON.parse(doc.annotationsJSON[i])
+          if (annotation.imgID !== undefined) {
+            additionalPromises.push(this.deleteFile(annotation.imgID))
+          }
         }
       }
-      Promise.all(removeCardsPromises)
+      // if (doc.cardIDs) {
+      //   for (let i = 0; i < doc.cardIDs.length; i++) {
+      //     removeCardsPromises.push(this.deleteCard(doc.cardIDs[i]));
+      //   }
+      // }
+      Promise.all(additionalPromises)
         .then(() => {
           this.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
             .then(() => {

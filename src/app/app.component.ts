@@ -7,6 +7,7 @@ import { DataService } from './data.service';
 import { DocumentService } from './document.service';
 import { AccountService } from './services/account.service';
 import { UserNotifierService } from './services/notifier/user-notifier.service';
+import { UtilsService } from './utils.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,7 @@ import { UserNotifierService } from './services/notifier/user-notifier.service';
 export class AppComponent implements AfterViewInit, OnDestroy {
   anchorSubscription: Subscription | undefined;
   currentLocale : 'en' | 'de' = 'en';
-  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService, public userNotifier : UserNotifierService){
+  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService, public userNotifier : UserNotifierService, public utilService: UtilsService){
     this.accountService.updateAcc();
     this.dataService.init().then(() => {
       this.cardService.refresh();
@@ -32,24 +33,26 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.anchorSubscription = this.route.fragment.subscribe(fragment => {
-      if(fragment){
-        console.log(fragment)
-        if(document.querySelector('#'+fragment)){
-          document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
-          this.router.navigate([],{fragment: undefined})
+
+    // this.anchorSubscription = this.route.fragment.subscribe(fragment => {
+    //   if(fragment){
+    //     console.log('fragment',fragment)
+    //     this.utilService.createLineBetweenIds(environment.ANNOTATION_ON_CARD_PREFIX+fragment,environment.ANNOTATION_JMP_PREFIX+fragment)
+    //     if(document.querySelector('#'+fragment)){
+    //       document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
+    //       this.router.navigate([],{fragment: undefined})
         
-        }else{
-          setTimeout(() => {
-            if(document.querySelector('#'+fragment)){
-              document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
-              this.router.navigate([],{fragment: undefined})
-            }
-          },6000)
-        }
-      }
-    } 
-      );
+    //     }else{
+    //       setTimeout(() => {
+    //         if(document.querySelector('#'+fragment)){
+    //           document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
+    //           this.router.navigate([],{fragment: undefined})
+    //         }
+    //       },6000)
+    //     }
+    //   }
+    // } 
+    //   );
   }
 
 

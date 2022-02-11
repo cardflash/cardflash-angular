@@ -35,7 +35,6 @@
           [editor]="FrontEditor"
           [(ngModel)]="card.front"
           (change)="change()"
-          [config]="EDITOR_CONFIG"
         ></ckeditor>
       </div>
     </mat-card>
@@ -67,7 +66,6 @@
           [editor]="BackEditor"
           [(ngModel)]="card.back"
           (change)="change()"
-          [config]="EDITOR_CONFIG"
         ></ckeditor>
       </div>
     </mat-card>
@@ -144,7 +142,7 @@
     </mat-accordion>
     <a #downloadAnchor href="#" download="selection.png"></a>
     <div class="cardActions">
-      <mat-form-field
+      <!-- <mat-form-field
         class=""
         appearance="standard"
         style="margin-bottom: -1.25em"
@@ -154,7 +152,7 @@
         <mat-label *ngIf="this.card.$id">Server ID</mat-label>
         <input matInput *ngIf="!this.card.$id" type="text" readonly [ngModel]="this.card.localID" />
         <input matInput *ngIf="this.card.$id" type="text" readonly [ngModel]="this.card.$id" />
-      </mat-form-field>
+      </mat-form-field> -->
       <mat-form-field
         class="miniField"
         appearance="standard"

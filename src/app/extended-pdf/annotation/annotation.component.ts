@@ -12,6 +12,7 @@ import { Annotation } from '../../types/annotation';
 import { environment } from '../../../environments/environment';
 import { TextJustification } from 'annotpdf';
 import { UtilsService } from 'src/app/utils.service';
+import { DataApiService } from 'src/app/data-api.service';
 @Component({
   selector: 'app-annotation',
   templateUrl: './annotation.component.html',
@@ -20,6 +21,9 @@ import { UtilsService } from 'src/app/utils.service';
 export class AnnotationComponent implements OnInit, OnDestroy {
   @Input('annotation')
   public annotation: Annotation | undefined;
+
+  @Input('documentID')
+  public documentID: string | undefined;
 
   @Output('updateAnnotation')
   public updateAnnotation: EventEmitter<Annotation> = new EventEmitter<Annotation>();
@@ -38,12 +42,17 @@ export class AnnotationComponent implements OnInit, OnDestroy {
   public mouseOver: boolean = false;
 
   public isEditing: boolean = false;
-  constructor(public utils: UtilsService) {}
+  public imgSrc: string | null = null;
+  constructor(public utils: UtilsService, public dataApi: DataApiService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.annotation?.imgID) {
+      this.imgSrc = this.dataApi.getFileView(this.annotation.imgID).href;
+    }
+  }
 
   ngOnDestroy(): void {
-      this.removeLine();
+    this.removeLine();
   }
 
   getAnnotationOnCardPrefix() {
@@ -51,14 +60,14 @@ export class AnnotationComponent implements OnInit, OnDestroy {
   }
 
   clicked() {
-    if(!this.isEditing){
+    if (!this.isEditing) {
       this.showInDocument.emit(this.annotation?.id);
       setTimeout(() => {
-          this.removeLine();
-          if (this.mouseOver) {
-            this.showLine();
-          }
-        },200)
+        this.removeLine();
+        if (this.mouseOver) {
+          this.showLine();
+        }
+      }, 200);
     }
   }
 
@@ -76,7 +85,7 @@ export class AnnotationComponent implements OnInit, OnDestroy {
 
   showLine() {
     this.removeLine();
-    if(this.isEditing) return;
+    if (this.isEditing) return;
     if (this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + this.annotation?.id)) {
       this.line = this.utils.createLineBetweenIds(
         environment.ANNOTATION_ON_CARD_PREFIX + this.annotation?.id,
@@ -96,16 +105,23 @@ export class AnnotationComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeAnnotationColor(newColor: string){
-    if(this.annotation){
+  changeAnnotationColor(newColor: string) {
+    if (this.annotation) {
       this.annotation.color = newColor;
       this.updateAnnotation.emit(this.annotation);
     }
   }
 
-  addNewComment(){
-    if(this.annotation){
-        this.annotation.comment = 'My comment';
-      }
+  addNewComment() {
+    if (this.annotation) {
+      this.annotation.comment = 'My comment';
     }
+  }
+
+  dragStart(e: DragEvent) {
+    if (this.annotation && this.documentID) {
+      const reference = this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID)
+      e.dataTransfer?.setData('text/html', reference);
+    }
+  }
 }

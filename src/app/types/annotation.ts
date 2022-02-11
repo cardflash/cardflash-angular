@@ -5,6 +5,6 @@ export interface Annotation{
   color: string;
   points: [number,number,number,number][];
   text?: string;
-  imgSrc?: string;
+  imgID?: string;
   comment?: string;
 }

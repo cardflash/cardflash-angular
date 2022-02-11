@@ -2,6 +2,8 @@
   class="annotationOuterWrapper"
   id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   #annotationOuterWrapper
+  draggable="true"
+  (dragstart)="dragStart($event)"
 >
   <div
     class="annotationWrapper"
@@ -22,7 +24,7 @@
       [(ngModel)]="annotation.text"
     ></textarea>
     <!-- <pre>{{ annotation?.id }}</pre> -->
-    <img *ngIf="annotation?.imgSrc" src="{{ annotation?.imgSrc }}" />
+    <img *ngIf="imgSrc !== null" src="{{imgSrc }}" />
     <div class="commentWrapper">
       <textarea
         class="commentTextarea"

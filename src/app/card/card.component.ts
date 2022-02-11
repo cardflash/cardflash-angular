@@ -22,6 +22,7 @@ import { CardService } from './card.service';
 import { Router } from '@angular/router';
 import { Annotation } from '../types/annotation';
 import { environment } from 'src/environments/environment';
+import { env } from 'process';
 
 const ImageEditor = require('tui-image-editor');
 
@@ -96,152 +97,6 @@ export class CardComponent implements OnInit, AfterViewInit {
     private cardService: CardService
   ) {}
 
-  public readonly EDITOR_CONFIG = {
-    highlight: {
-      options: [
-        {
-          model: 'yellowMarker',
-          class: 'marker-yellow',
-          title: 'Yellow marker',
-          color: 'var(--ck-highlight-marker-yellow)',
-          type: 'marker',
-        },
-        {
-          model: 'greenMarker',
-          class: 'marker-green',
-          title: 'Green marker',
-          color: 'var(--ck-highlight-marker-green)',
-          type: 'marker',
-        },
-        {
-          model: 'pinkMarker',
-          class: 'marker-pink',
-          title: 'Pink marker',
-          color: 'var(--ck-highlight-marker-pink)',
-          type: 'marker',
-        },
-        {
-          model: 'blueMarker',
-          class: 'marker-blue',
-          title: 'Blue marker',
-          color: 'var(--ck-highlight-marker-blue)',
-          type: 'marker',
-        },
-        {
-          model: 'lightYellowMarker',
-          class: 'marker-light-yellow',
-          title: 'Light yellow marker',
-          color: '#fef8934f',
-          type: 'marker',
-        },
-        {
-          model: 'lightBlueMarker',
-          class: 'marker-light-blue',
-          title: 'Light blue marker',
-          color: '#5eacf94f',
-          type: 'marker',
-        },
-        {
-          model: 'lightGreenMarker',
-          class: 'marker-light-green',
-          title: 'Light green marker',
-          color: '#5ef98c4f',
-          type: 'marker',
-        },
-        {
-          model: 'lightPinkMarker',
-          class: 'marker-light-pink',
-          title: 'Light pink marker',
-          color: '#f95ef34f',
-          type: 'marker',
-        },
-        {
-          model: 'redPen',
-          class: 'pen-red',
-          title: 'Red pen',
-          color: 'var(--ck-highlight-pen-red)',
-          type: 'pen',
-        },
-        {
-          model: 'greenPen',
-          class: 'pen-green',
-          title: 'Green pen',
-          color: 'var(--ck-highlight-pen-green)',
-          type: 'pen',
-        },
-      ],
-    },
-    htmlSupport: {
-      allow: [
-        {
-          name: 'span',
-          attributes: true,
-        },
-        {
-          name: 'img',
-          attributes: true,
-        },
-        {
-          name: 'div',
-          attributes: true,
-        },
-      ],
-    },
-    toolbar: {
-      items: [
-        'bold',
-        'italic',
-        'highlight',
-        'underline',
-        'strikethrough',
-        'removeFormat'
-      ]
-    },
-    language: 'en',
-    blockToolbar: [
-      'heading',
-      'horizontalLine',
-      'alignment',
-      'bulletedList',
-      'numberedList',
-      'indent',
-      'outdent',
-      'link',
-      'blockQuote',
-      'specialCharacters',
-      'fontSize',
-      'fontBackgroundColor',
-      'fontColor',
-      'subscript',
-      'superscript',
-      'code',
-      'codeBlock',
-      'insertTable',
-      'imageUpload',
-      'imageInsert',
-      'mediaEmbed',
-      'htmlEmbed',
-      'undo',
-      'redo'
-    ],
-    image: {
-      toolbar: [
-        'imageTextAlternative',
-        'imageStyle:inline',
-        'imageStyle:block',
-        'imageStyle:side',
-        'linkImage'
-      ]
-    },
-    table: {
-      contentToolbar: [
-        'tableColumn',
-        'tableRow',
-        'mergeTableCells'
-      ]
-    },
-    licenseKey: '',
-  };
 
   ngOnInit(): void {
     if (!this.card.creationTime) {
@@ -451,6 +306,25 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
   }
 
+  getServerImageList(){
+    if (
+      this.frontEditorComponent?.editorInstance &&
+      this.backEditorComponent?.editorInstance
+    ) {
+    const frontSourceEl: HTMLElement =
+    this.frontEditorComponent.editorInstance.sourceElement;
+  const backSourceEl: HTMLElement =
+    this.backEditorComponent.editorInstance.sourceElement;
+    let serverImages : string[] = [];
+    
+    frontSourceEl.querySelectorAll('[data-imageid]').forEach((el) => serverImages.push(el.getAttribute('data-imageid')!))
+    backSourceEl.querySelectorAll('[data-imageid]').forEach((el) => serverImages.push(el.getAttribute('data-imageid')!))
+    return serverImages;
+    }else{
+      return []
+    }
+  }
+
   getImages() {
     if (
       this.frontEditorComponent?.editorInstance &&
@@ -467,10 +341,10 @@ export class CardComponent implements OnInit, AfterViewInit {
       let backImgs = backSourceEl.querySelectorAll('img');
 
       frontImgs.forEach((node) => {
-        if (node.src.indexOf('data:') == 0) imagelist.push(node.src);
+        if (node.src.indexOf('data:') === 0) imagelist.push(node.src);
       });
       backImgs.forEach((node) => {
-        if (node.src.indexOf('data:') == 0) imagelist.push(node.src);
+        if (node.src.indexOf('data:') === 0) imagelist.push(node.src);
       });
       return imagelist;
     } else {
@@ -525,9 +399,11 @@ export class CardComponent implements OnInit, AfterViewInit {
         ankiID = exRes.result.result[0];
       }
       console.log(alreadyOnAnki);
-      if (this.card.$id && this.card.imgs) {
-        for (let i = 0; i < this.card.imgs.length; i++) {
-          const src = this.dataService.getFileView(this.card.imgs[i]);
+      const serverImages = this.getServerImageList();
+      console.log({serverImages})
+      if (serverImages) {
+        for (let i = 0; i < serverImages.length; i++) {
+          const src = this.dataService.getFileView(serverImages[i]);
           const dataURL = await imgSrcToDataURL(
             src.href,
             'image/png',
@@ -769,7 +645,6 @@ export class CardComponent implements OnInit, AfterViewInit {
         const copy = [...this.card.imgs];
         for (let i = 0; i < copy.length; i++) {
           const id = copy[i];
-          console.log(id);
           if (
             this.card.front.indexOf(id) < 0 &&
             this.card.back.indexOf(id) < 0

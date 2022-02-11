@@ -24,6 +24,7 @@
       [authorization]="true"
     ></ngx-extended-pdf-viewer>
   </div>
+
   <div class="annotationsColumn">
     <h2>Annotations</h2>
     <canvas style="display: none" #previewCanvas></canvas>
@@ -32,12 +33,23 @@
       <app-annotation
         *ngFor="let annotation of annotations.value"
         [annotation]="annotation"
+        [documentID]="documentid"
         (showInDocument)="scrollToAnnotation({ annotationID: $event, where: 'both' })"
         (deleteAnnotation)="deleteAnnotation($event.id)"
         (updateAnnotation)="updateAnnotation($event)"
       >
       </app-annotation>
     </div>
+  </div>
+
+  <div class="card cardColumn">
+    <app-card class="currentCard"
+    [active]="true"
+    [card]="currentCard"
+    [frontActive]="this.frontSelected"
+    (deleteAnnotation)="deleteAnnotation($event.annotationID)"
+    (scrollToAnnotation)="scrollToAnnotation($event)"
+  ></app-card>
   </div>
 </div>
 <div
