@@ -269,7 +269,7 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
           action: 'storeMediaFile',
           version: 6,
           params: {
-            filename: card.creationTime + '-' + i + '_SERVER' + '.png',
+            filename: "API_" + serverImages[i]+".png",
             data: dataURL.substring(22),
           },
         };
@@ -284,11 +284,11 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
         } else {
           newBackContent = newBackContent.replace(
             src.href,
-            card.creationTime + '-' + i + '_SERVER' + '.png'
+            "API_" + serverImages[i]+".png"
           );
           newFrontContent = newFrontContent.replace(
             src.href,
-            card.creationTime + '-' + i + '_SERVER' + '.png'
+            "API_" + serverImages[i]+".png"
           );
         }
       }
@@ -479,6 +479,7 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
           imgSavePromises.push(new Promise<void>(async (resolve,reject) => {
             this.dataApi.saveFile(new File([await imgSrcToBlob(node.src)],card.creationTime+'_img.png')).then((file) => {
             node.src = this.dataApi.getFileView(file.$id).href;
+            node.setAttribute('data-imageid',file.$id)
             card.imgIDs?.push(file.$id)
             resolve()
             })
