@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { CardEntry, CardEntryContent } from '../data-api.service';
 import { DataService } from '../data.service';
 import { DocumentService } from '../document.service';
-import { Card } from '../types/card';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CardService {
 
-  public cards$ : BehaviorSubject<Map<string,Card> | undefined> = new BehaviorSubject<Map<string,Card> | undefined>(undefined);
+  public cards$ : BehaviorSubject<Map<string,any> | undefined> = new BehaviorSubject<Map<string,any> | undefined>(undefined);
 
   constructor(private dataService: DataService, private documentService: DocumentService) { 
   }
@@ -25,47 +25,41 @@ export class CardService {
     return content;
   }
 
-  public replaceImageLinksForCard(card: Card){
-    if(card.imgs){
-    const prefixed = card.imgs.map((val) => "__SERVER__:"+val)
-    const serverNamingFunc = (i : number) => this.dataService.getFileView(card.imgs![i]).href;
+  public replaceImageLinksForCard(card: CardEntry | CardEntryContent){
+    if(card.imgIDs){
+    const prefixed = card.imgIDs.map((val) => "__SERVER__:"+val)
+    const serverNamingFunc = (i : number) => this.dataService.getFileView(card.imgIDs![i]).href;
     card.front = CardService.replaceImageLinks(card.front,prefixed,serverNamingFunc);
     card.back = CardService.replaceImageLinks(card.back,prefixed,serverNamingFunc);
   }
   }
 
 
-  async addCard(card: Card){
-    const res = await this.dataService.createDocument('cards', card);
-    this.refresh();
-    return res;
+  async addCard(card: CardEntry | CardEntryContent){
+    // const res = await this.dataService.createDocument('cards', card);
+    // this.refresh();
+    // return res;
   }
 
-  async updateCard(card: Card){
-    const res = await this.dataService.updateDocument('cards', card);
-    this.refresh();
-    return res;
+  async updateCard(card:  CardEntry | CardEntryContent){
+    // const res = await this.dataService.updateDocument('cards', card);
+    // this.refresh();
+    // return res;
   }
 
-  async deleteCard(card: Card){
-    if(card.imgs){
-      for(let i = 0; i<card.imgs.length; i++){
-        const imgSuccess = await this.dataService.deleteFile(card.imgs[i]);
-      }
-    }
-    await this.dataService.deleteDocument('cards',card);
-    this.refresh();
+  async deleteCard(card:  CardEntry | CardEntryContent){
+
   }
 
   async refresh(){
-    this.documentService.refresh();
-    const cards = await this.dataService.fetchCollection('cards');
-    if(cards){
-      console.log(cards);
-      cards.forEach((card) => this.replaceImageLinksForCard(card));
-      this.cards$.next(cards);
-    }
+  //   this.documentService.refresh();
+  //   const cards = await this.dataService.fetchCollection('cards');
+  //   if(cards){
+  //     console.log(cards);
+  //     cards.forEach((card) => this.replaceImageLinksForCard(card));
+  //     this.cards$.next(cards);
+  //   }
 
-  }
+ }
 
 }

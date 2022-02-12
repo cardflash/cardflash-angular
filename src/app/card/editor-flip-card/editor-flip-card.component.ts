@@ -12,8 +12,8 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
+import { CardEntry, CardEntryContent } from 'src/app/data-api.service';
 import { Annotation } from 'src/app/types/annotation';
-import { Card } from 'src/app/types/card';
 import * as CustomBalloonEditor from 'src/ckeditor/ckeditor.js';
 import { environment } from 'src/environments/environment';
 @Component({
@@ -24,14 +24,14 @@ import { environment } from 'src/environments/environment';
 export class EditorFlipCardComponent implements OnInit, AfterViewInit {
   FrontEditor: any;
   BackEditor: any;
-  @Input('card') public card: Card = {
-    localID: '0',
+  @Input('card') public card: CardEntry | CardEntryContent = {
     front: '',
     back: '',
     page: 0,
     hiddenText: '',
     chapter: '',
     title: '',
+    creationTime: Date.now()
   };
 
   @Output('scrollToAnnotation') scrollToAnnotationEvent: EventEmitter<{
@@ -42,11 +42,11 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
     where: 'pdf' | 'card' | 'both';
   }>();
 
-  @Output('edit') public editEmitter: EventEmitter<Card> =
-    new EventEmitter<Card>();
+  @Output('edit') public editEmitter: EventEmitter< CardEntry | CardEntryContent> =
+    new EventEmitter< CardEntry | CardEntryContent>();
 
-  @Output('delete') public deleteEmitter: EventEmitter<Card> =
-    new EventEmitter<Card>();
+  @Output('delete') public deleteEmitter: EventEmitter< CardEntry | CardEntryContent> =
+    new EventEmitter< CardEntry | CardEntryContent>();
 
   @ViewChildren('annotationHelperFront') annotationHelperFront?: QueryList<
     ElementRef<HTMLDivElement>

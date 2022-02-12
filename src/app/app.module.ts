@@ -25,7 +25,7 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { LoginComponent } from './account/login/login.component';
-import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
+// import { FromPdfComponent } from './create/from-pdf/from-pdf.component';
 import { CardsComponent } from './cards/cards.component'; 
 import {MatSidenavModule} from '@angular/material/sidenav'; 
 import {MatTabsModule} from '@angular/material/tabs';
@@ -45,7 +45,7 @@ import { AnnotationComponent } from './extended-pdf/annotation/annotation.compon
     AppComponent,
     NotificationComponent,
     LoginComponent,
-    FromPdfComponent,
+    // FromPdfComponent,
     CardsComponent,
     DocumentsComponent,
     CardsForDocumentComponent,

@@ -1,5 +1,4 @@
 import { Annotation } from "./annotation";
-import { Card } from "./card";
 
 export interface PDFDocument{
   $id?: string,
@@ -9,6 +8,6 @@ export interface PDFDocument{
   creationTime: number,
   annotations?: string[],
   currentPage: number,
-  cards?: Card[],
+  cards?: any[],
   tags?: string[]
 }

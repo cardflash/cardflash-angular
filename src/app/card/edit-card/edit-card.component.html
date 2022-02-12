@@ -9,10 +9,10 @@
         <mat-card-header>
           <mat-card-title>{{this.document.name}}</mat-card-title>
           <mat-card-subtitle>Linked Document</mat-card-subtitle>
-          <img mat-card-sm-image  mat-card-avatar [src]="this.dataService.getFilePreview(this.document.fileid)">
+          <img mat-card-sm-image  mat-card-avatar [src]="this.dataApi.getFilePreview(this.document.fileid)">
         </mat-card-header>
         <mat-card-actions class="cardActions">
-          <a mat-flat-button target="_blank" [href]="this.dataService.getFileView(this.document.fileid).href">View document</a>
+          <a mat-flat-button target="_blank" [href]="this.dataApi.getFileView(this.document.fileid).href">View document</a>
           <button mat-flat-button color="accent" routerLink="/documents/{{this.document.$id}}/cards/">View cards <mat-icon>inventory</mat-icon></button>
           <button mat-flat-button color="primary" routerLink="/create/from-document/{{this.document.$id}}/" fragment="CARD_{{this.card?.$id}}">View with annotations <mat-icon>picture_as_pdf</mat-icon></button>
         </mat-card-actions>
@@ -22,6 +22,7 @@
 <app-card *ngIf="this.card" [card]="this.card"[active]="true" (delete)="this.deleteCard()"></app-card>
 
 <h3>Preview:</h3>
+<mat-progress-spinner class="centerSpinner" mode="indeterminate" *ngIf="!this.card && !this.requestFailed"></mat-progress-spinner>
 <app-flip-card  *ngIf="this.card" 
 [card]="this.card"></app-flip-card>
 

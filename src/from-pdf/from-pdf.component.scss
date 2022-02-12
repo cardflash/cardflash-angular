@@ -1,0 +1,135 @@
+#pdf-column{
+  width: 55%;
+  float: left;
+}
+#cards-column{
+  width: 45%;
+  float: right;
+  overflow: auto;
+  max-height: calc(100vh - 64px);
+}
+
+.toolbarSpace{
+  margin-right: 20px;
+}
+
+.ocrSpinner{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.oerLanguageField{
+  font-size: 12px;
+  max-width: 120px;
+}
+
+.headerOptions{
+  margin-left: 70px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.headerOptions .pdfFileSelector{
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 200px;
+  border: 1px dashed rgba(167, 167, 167, 0.473);
+  padding: 15px;
+}
+
+.defaultTitleField, .ankiDeckField{
+  width: 44%
+}
+
+
+.fieldWrapper{
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.currentCardActions{
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  
+}
+
+.finishButton{
+  width: 60%;
+  margin-bottom: 5px;
+}
+.currentCardSideToggle{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cards{
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+// .mat-button-toggle-checked {
+//   background-color: rgb(123, 200, 251);
+// }
+// .mat-button-toggle-disabled{
+//   background-color: rgb(202, 202, 202);
+// }
+
+// .mat-button-toggle-checked.mat-button-toggle-disabled{
+//   background-color: rgb(159, 189, 211);
+// }
+
+
+#selectionTools{
+  position: absolute;
+  z-index: 3;
+  text-align: center;
+  display: none;
+}
+
+.staticCards{
+  flex: 0 0 300px;
+  margin: 10px;
+}
+.currentCard{
+  flex: 0 0 100%;
+}
+
+.loadingIndicator{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 15%;
+  z-index: 3;
+  padding: 50px;
+  background: rgb(92,232,237);
+  background: linear-gradient(30deg, rgba(92,232,237,0.7077031496192228) 0%, rgba(29,65,253,0.4640056706276261) 60%, rgba(179,115,245,0.7973390039609594) 100%);
+  border-radius: 20px;
+}
+
+.loadingSpinner{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.closeLoadingButton{
+  position: absolute;
+  top: 0;
+  right: 3px;
+  padding: 5px;
+  color: whitesmoke;
+}
+
+

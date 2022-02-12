@@ -118,8 +118,17 @@ export class AnnotationComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleEdit(){
+    if(this.isEditing){
+      if (this.annotation) {
+        this.updateAnnotation.emit(this.annotation);
+      }
+    }
+    this.isEditing = !this.isEditing;
+  }
+
   dragStart(e: DragEvent) {
-    if (this.annotation && this.documentID) {
+    if (this.annotation && this.documentID && !this.isEditing) {
       const reference = this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID)
       e.dataTransfer?.setData('text/html', reference);
     }

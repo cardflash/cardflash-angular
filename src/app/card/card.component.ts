@@ -13,16 +13,16 @@ import {
 } from '@angular/core';
 import * as CustomBalloonEditor from 'src/ckeditor/ckeditor.js';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
-import { Card } from '../types/card';
 import { HttpClient } from '@angular/common/http';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { DataService } from '../data.service';
 import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
-import { CardService } from './card.service';
 import { Router } from '@angular/router';
 import { Annotation } from '../types/annotation';
 import { environment } from 'src/environments/environment';
 import { env } from 'process';
+import { CardEntry, CardEntryContent } from '../data-api.service';
+import { UtilsService } from '../utils.service';
 
 const ImageEditor = require('tui-image-editor');
 
@@ -55,20 +55,20 @@ export class CardComponent implements OnInit, AfterViewInit {
     where: 'pdf' | 'card' | 'both';
   }>();
 
-  @Input('card') card: Card = {
-    localID: '0',
+  @Input('card') card: CardEntryContent= {
     page: 0,
     title: '',
     chapter: '',
     front: '',
     back: '',
     hiddenText: '',
+    creationTime: -1
   };
 
   public annotations: { id: string; color: string }[] = [];
 
-  @Output('cardChange') cardChange: EventEmitter<Card> =
-    new EventEmitter<Card>();
+  @Output('cardChange') cardChange: EventEmitter<CardEntryContent | CardEntry> =
+    new EventEmitter<CardEntryContent | CardEntry>();
 
   @Input('frontActive') frontActive: boolean = true;
   @Input('active') active: boolean = false;
@@ -94,7 +94,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private userNotifierService: UserNotifierService,
     private dataService: DataService,
-    private cardService: CardService
+    public utils: UtilsService
   ) {}
 
 
@@ -105,13 +105,13 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
 
-    setTimeout(() => this.cardUpdated(), 300);
+    // setTimeout(() => this.cardUpdated(), 300);
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.cardUpdated();
-    }, 800);
+    // setTimeout(() => {
+    //   this.cardUpdated();
+    // }, 800);
     this.imageEditorInstance =  new ImageEditor(document.querySelector('#tui-image-editor-container'), {
       usageStatistics: false,
       includeUI: {
@@ -263,48 +263,15 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   cardUpdated() {
-    setTimeout(() => {
-      this.retrieveAnnotations();
-      setTimeout(() => {
-        this.addAnnotationHelpers();
-      }, 300);
-    }, 300);
+    // setTimeout(() => {
+    //   this.retrieveAnnotations();
+    //   setTimeout(() => {
+    //     this.addAnnotationHelpers();
+    //   }, 300);
+    // }, 300);
   }
 
-  retrieveAnnotations() {
-    if (
-      this.frontEditorComponent?.editorInstance &&
-      this.backEditorComponent?.editorInstance
-    ) {
-      const frontSourceEl: HTMLElement =
-        this.frontEditorComponent.editorInstance.sourceElement;
-      const backSourceEl: HTMLElement =
-        this.backEditorComponent.editorInstance.sourceElement;
-
-      let frontEls = frontSourceEl.querySelectorAll('span, div');
-      let backEls = backSourceEl.querySelectorAll('span, div');
-
-      const annotations: Map<string,{ id: string; color: string }> = new Map<string,{id: string, color: string}>();
-      frontEls.forEach((el) => {
-        if (el.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
-          annotations.set(el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
-            id: el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
-            color: el.getAttribute('annotationColor') || '#45454513',
-          });
-        }
-      });
-
-      backEls.forEach((el) => {
-        if (el.id.includes(environment.ANNOTATION_ON_CARD_PREFIX)) {
-          annotations.set(el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),{
-            id: el.id.replace(environment.ANNOTATION_ON_CARD_PREFIX,''),
-            color: el.getAttribute('annotationColor') || '#45454513',
-          });
-        }
-      });
-      this.annotations = Array.from(annotations.values());
-    }
-  }
+ 
 
   getServerImageList(){
     if (
@@ -366,7 +333,7 @@ export class CardComponent implements OnInit, AfterViewInit {
 
   async save(useAnkiConnect: boolean = false) {
     const imagelist = this.getImages();
-    const ankiNamingFunc = (i: number) => this.card.localID + '-' + i + '.png';
+    const ankiNamingFunc = (i: number) => this.card.creationTime + '-' + i + '.png';
     let newFrontContent = this.replaceImageLinks(
       this.card.front,
       imagelist,
@@ -383,7 +350,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         action: 'findNotes',
         version: 6,
         params: {
-          query: 'ID:' + this.card.localID,
+          query: 'ID:' + this.card.creationTime,
         },
       };
       const exProm = this.makeHttpRequest(exReq);
@@ -413,7 +380,7 @@ export class CardComponent implements OnInit, AfterViewInit {
             action: 'storeMediaFile',
             version: 6,
             params: {
-              filename: this.card.localID + '-' + i + '_SERVER' + '.png',
+              filename: this.card.creationTime + '-' + i + '_SERVER' + '.png',
               data: dataURL.substring(22),
             },
           };
@@ -428,11 +395,11 @@ export class CardComponent implements OnInit, AfterViewInit {
           } else {
             newBackContent = newBackContent.replace(
               src.href,
-              this.card.localID + '-' + i + '_SERVER' + '.png'
+              this.card.creationTime + '-' + i + '_SERVER' + '.png'
             );
             newFrontContent = newFrontContent.replace(
               src.href,
-              this.card.localID + '-' + i + '_SERVER' + '.png'
+              this.card.creationTime + '-' + i + '_SERVER' + '.png'
             );
           }
         }
@@ -490,14 +457,14 @@ export class CardComponent implements OnInit, AfterViewInit {
             deckName: this.deckName,
             modelName: 'flashcards.siter.eu-V' + this.MODEL_VERSION,
             fields: {
-              ID: this.card.localID,
+              ID: this.card.creationTime+'',
               Front: newFrontContent,
               Back: newBackContent,
               Title: this.card.title,
               Page: this.card.page.toString(),
               Chapter: this.card.chapter,
               Hidden: this.card.hiddenText,
-              URL: this.card.$id ? environment.BASE_URL + '/cards/' + this.card.$id : environment.BASE_URL + '/cards/local/' + this.card.localID,
+              URL: this.card.$id ? environment.BASE_URL + '/cards/' + this.card.$id : environment.BASE_URL + '/cards/local/' + this.card.creationTime,
             },
             options: {
               allowDuplicate: false,
@@ -520,7 +487,7 @@ export class CardComponent implements OnInit, AfterViewInit {
           action: 'storeMediaFile',
           version: 6,
           params: {
-            filename: this.card.localID + '-' + i + '.png',
+            filename: this.card.creationTime + '-' + i + '.png',
             data: img.substring(22),
           },
         };
@@ -560,16 +527,16 @@ export class CardComponent implements OnInit, AfterViewInit {
       const noteRes = await this.userNotifierService.notifyOnRejectOrError(
         noteProm,
         alreadyOnAnki
-          ? 'Updating Node ' + this.card.localID
-          : 'Adding Note' + this.card.localID,
+          ? 'Updating Node ' + this.card.creationTime
+          : 'Adding Note' + this.card.creationTime,
         'AnkiConnect is not reachable',
         (res) => res.result['error']
       );
       if (noteRes.success) {
         this.userNotifierService.notify(
           alreadyOnAnki
-            ? 'Updating Node ' + this.card.localID + ' was successfull'
-            : 'Adding Note' + this.card.localID + ' was successfull',
+            ? 'Updating Node ' + this.card.creationTime + ' was successfull'
+            : 'Adding Note' + this.card.creationTime + ' was successfull',
           alreadyOnAnki ? 'Make sure that the Explore Page in Anki is not open (otherwise the change will be overwritten)' : '',
           'success',
           true
@@ -579,7 +546,7 @@ export class CardComponent implements OnInit, AfterViewInit {
       const blob = new Blob(
         [
           '"' +
-            this.card.localID +
+            this.card.creationTime +
             '","' +
             newFrontContent.replace(/"/g, '""') +
             '","' +
@@ -592,7 +559,7 @@ export class CardComponent implements OnInit, AfterViewInit {
       if (this.downloadAnchor) {
         this.downloadAnchor.nativeElement.href =
           window.URL.createObjectURL(blob);
-        this.downloadAnchor.nativeElement.download = this.card.localID + '.csv';
+        this.downloadAnchor.nativeElement.download = this.card.creationTime + '.csv';
         this.downloadAnchor.nativeElement.click();
 
         for (let i = 0; i < imagelist.length; i++) {
@@ -602,88 +569,17 @@ export class CardComponent implements OnInit, AfterViewInit {
             'image/octet-stream'
           );
           this.downloadAnchor.nativeElement.download =
-            this.card.localID + '-' + i + '.png';
+            this.card.creationTime + '-' + i + '.png';
           this.downloadAnchor.nativeElement.click();
         }
       }
     }
   }
 
-  async saveToServer() {
-    const originalFront : string = this.card.front;
-    const originalBack : string = this.card.back;
-    console.log("Saving CARD to server", this.dataService.offlineMode);
-    if(!this.dataService.offlineMode){
-    const imagelist = this.getImages();
-    let promises = [];
-    for (let i = 0; i < imagelist.length; i++) {
-      const img = imagelist[i];
-      // img: data:image/png;base64,...
-      const blob: Blob = await imgSrcToBlob(img);
-      promises.push(
-        this.dataService.saveImage(
-          new File([blob], this.card.localID + '-' + i + '.png')
-        )
-      );
-    }
-    const imgRes = await Promise.all(promises);
-    const saveNamingFunc = (i: number) =>
-      this.dataService.getFileView(imgRes[i]).href;
-    this.card.front = this.replaceImageLinks(
-      this.card.front,
-      imagelist,
-      saveNamingFunc
-    );
-    this.card.back = this.replaceImageLinks(
-      this.card.back,
-      imagelist,
-      saveNamingFunc
-    );
 
-    if (this.card.$id) {
-      if (this.card.imgs) {
-        const copy = [...this.card.imgs];
-        for (let i = 0; i < copy.length; i++) {
-          const id = copy[i];
-          if (
-            this.card.front.indexOf(id) < 0 &&
-            this.card.back.indexOf(id) < 0
-          ) {
-            // Image reference was deleted
-            await this.dataService.deleteFile(id);
-            this.card.imgs?.splice(i, 1);
-          }
-        }
-      }
-    }
-
-    if (this.card.imgs) {
-      this.card.imgs = this.card.imgs.concat(imgRes);
-    } else {
-      this.card.imgs = imgRes;
-    }
-  }
-    let res;
-    if (this.card.$id) {
-      res = await this.cardService.updateCard(this.card);
-    } else {
-      res = await this.cardService.addCard(this.card);
-    }
-    if(res.success){
-      console.log("ATTENTION",res);
-      this.card = res.result;
-      return this.card;
-    }else{
-      console.log("ATTENTION: FAILED CARD SAVE",res);
-      this.card.front = originalFront;
-      this.card.back = originalBack;
-      this.cardChange.emit(this.card);
-      return undefined;
-    }
-  }
 
   deleteCard() {
-    this.deleteEvent.emit(this.card.localID);
+    this.deleteEvent.emit(this.card.creationTime+'');
   }
 
   openHiddenTextDialog() {}

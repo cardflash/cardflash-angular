@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Appwrite, Models } from 'appwrite';
+import { Appwrite, Models, Query } from 'appwrite';
 import { environment } from 'src/environments/environment';
 import { Annotation } from './types/annotation';
 
@@ -18,7 +18,7 @@ export interface DocumentEntryContent {
 }
 
 export interface CardEntryContent {
-  // $id: string,
+  $id?: string,
   front: string;
   back: string;
   page: number;
@@ -80,9 +80,12 @@ export class DataApiService {
     return this.appwrite.database.deleteDocument(environment.collectionMap[type], id);
   }
 
-  listEntries<T extends Models.Document>(type: ENTRY_TYPES) {
-    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type]);
+  listEntries<T extends Models.Document>(type: ENTRY_TYPES, queries?: string[]) {
+    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries);
   }
+
+
+  
 
   async getDocument(id: string) {
     return await this.getEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id);
@@ -91,6 +94,11 @@ export class DataApiService {
   async updateDocument(id: string, data: any) {
     return await this.updateEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id, data);
   }
+
+  async updateCard(id: string, data: any) {
+    return await this.updateEntry<CardEntry>(ENTRY_TYPES.CARDS, id, data);
+  }
+
 
   async getCard(id: string) {
     return await this.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id);
@@ -105,9 +113,13 @@ export class DataApiService {
           imgsToRemove.push(this.deleteFile(toDelete.imgIDs[i]));
         }
       }
+      (await this.listDocumentsForCard(id)).forEach((doc) => {
+        const cardIDs = doc.cardIDs || [];
+        imgsToRemove.push(this.updateDocument(doc.$id,{cardIDs: cardIDs.filter((c) => c !== id)}))
+      })
       Promise.all(imgsToRemove)
         .then(() => {
-          this.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
+          this.deleteEntry(ENTRY_TYPES.CARDS, id)
             .then(() => {
               resolve();
             })
@@ -161,9 +173,19 @@ export class DataApiService {
   async listDocuments() {
     return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS)).documents;
   }
+  async listDocumentsForCard(cardID: string){
+    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)])).documents;
+  }
+  async listCards() {
+    return (await this.listEntries<CardEntry>(ENTRY_TYPES.CARDS)).documents;
+  }
 
   async createDocument(data: DocumentEntryContent) {
     return await this.createEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, data);
+  }
+
+  async createCard(data: CardEntryContent) {
+    return await this.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
   }
 
   getFileView(id: string) {

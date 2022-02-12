@@ -18,6 +18,8 @@
     <br />
     <mat-slide-toggle i18n [checked]="this.dataService.config.showSelectionSizeOptions" (change)="this.dataService.config.showSelectionSizeOptions = !this.dataService.config.showSelectionSizeOptions; saveConfig()">Show size options for selection</mat-slide-toggle>
     <br />
+    <mat-slide-toggle i18n [checked]="this.dataService.config.autoAddAnnotationsToCard" (change)="this.dataService.config.autoAddAnnotationsToCard = !this.dataService.config.autoAddAnnotationsToCard; saveConfig()">Automatically add new annotations to card</mat-slide-toggle>
+    <br />
     <mat-form-field
       appearance="fill"
       class="oerLanguageField"

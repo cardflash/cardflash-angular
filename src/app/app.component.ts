@@ -2,7 +2,6 @@ import { AfterViewInit, Component, OnDestroy} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CardService } from './card/card.service';
 import { DataService } from './data.service';
 import { DocumentService } from './document.service';
 import { AccountService } from './services/account.service';
@@ -17,11 +16,8 @@ import { UtilsService } from './utils.service';
 export class AppComponent implements AfterViewInit, OnDestroy {
   anchorSubscription: Subscription | undefined;
   currentLocale : 'en' | 'de' = 'en';
-  constructor(public accountService: AccountService, public dataService: DataService, public cardService: CardService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService, public userNotifier : UserNotifierService, public utilService: UtilsService){
+  constructor(public accountService: AccountService, public dataService: DataService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService, public userNotifier : UserNotifierService, public utilService: UtilsService){
     this.accountService.updateAcc();
-    this.dataService.init().then(() => {
-      this.cardService.refresh();
-    });
     if(window.location.href.includes('/de/')){
       this.currentLocale = 'de';
     }
@@ -58,8 +54,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   async logout(){
     await this.accountService.logout();
-    this.cardService.refresh();
-    this.documentService.refresh();
   }
   getFlagImgURL(locale: string){
     return this.dataService.getFlagURL(locale).href;

@@ -1,10 +1,10 @@
 import { stringify } from '@angular/compiler/src/util';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from 'src/app/data-api.service';
 import { DataService } from 'src/app/data.service';
 import { DocumentService } from 'src/app/document.service';
-import { Card } from 'src/app/types/card';
 import { PDFDocument } from 'src/app/types/pdf-document';
 import { CardService } from '../card.service';
 
@@ -15,63 +15,44 @@ import { CardService } from '../card.service';
 })
 export class EditCardComponent implements OnInit, OnDestroy {
 
-  public card: Card | undefined;
-
-  private subscription : Subscription | undefined;
+  public card:  CardEntry | CardEntryContent | undefined;
 
   private id?: string;
-  private localID?: string;
 
-  public document: PDFDocument | undefined;
-
-  private documentSubscription: Subscription | undefined;
-
-  constructor(private actRoute: ActivatedRoute, private cardService: CardService, private documentService: DocumentService, public dataService: DataService) {
+  public document: DocumentEntry | undefined;
+  public requestFailed: boolean = false;
+  constructor(private actRoute: ActivatedRoute,public router: Router, public dataApi: DataApiService) {
     this.id = actRoute.snapshot.params.id
-    this.localID = actRoute.snapshot.params.localid;
   }
 
   ngOnInit(): void {
-    this.subscription = this.cardService.cards$.subscribe((cards)=> {if(cards !== undefined) this.refresh(cards)})
-    this.documentSubscription = this.documentService.documents$.subscribe((docs) => {if(docs !== undefined) this.refreshDocuments(docs)});
+    if(this.id){
+      this.dataApi.getCard(this.id).then((card) => {
+        this.card = card;
+        this.dataApi.listDocumentsForCard(card.$id).then((docs) => {
+          console.log('list result',{docs})
+          if(docs.length > 0){
+            this.document = docs[0];
+          }
+        })
+      }).catch((reason) => {
+        this.requestFailed = true;
+      })
+    }
+    // this.subscription = this.cardService.cards$.subscribe((cards)=> {if(cards !== undefined) this.refresh(cards)})
+    // this.documentSubscription = this.documentService.documents$.subscribe((docs) => {if(docs !== undefined) this.refreshDocuments(docs)});
 
   } 
 
   ngOnDestroy(){
-    this.subscription?.unsubscribe();
-    this.documentSubscription?.unsubscribe();
   }
 
-  refreshDocuments(docs: Map<string,PDFDocument>){
-    if(docs == undefined) return;
 
-    docs.forEach((doc) => {
-      if(doc.cards){
-        const index = doc.cards.findIndex((card) => (card.$id  && card.$id == this.id));
-        if(index >= 0){
-          this.document = doc;
-          return;
-        }
-      }
-    })
 
-  }
-
-  refresh(cards: Map<string,Card>){
-    if(this.id){
-      this.card = cards.get(this.id);
-    }else if(this.localID){
-      cards.forEach((card) => {
-        if(card.localID === this.localID){
-          this.card = card;
-        }
-      })
-    }
-  }
-
-  deleteCard(){
-    if(this.card){
-      this.cardService.deleteCard(this.card);
+  async deleteCard(){
+    if(this.card?.$id){
+      await this.dataApi.deleteCard(this.card.$id)
+      this.router.navigateByUrl('cards')
     }
   }
 

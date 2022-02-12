@@ -29,7 +29,10 @@
 }
 
 .cardColumn {
-    max-width: 400px;
+    max-width: 430px;
+    min-width: 430px;
+    overflow-y: auto;
+    height: 96vh;
 }
 
 .annotationsColumn {
@@ -74,3 +77,9 @@
     left: 15px;
     bottom: 100px;
   }
+
+.otherCardsDiv {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}

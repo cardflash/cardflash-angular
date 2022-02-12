@@ -2,7 +2,7 @@
   class="annotationOuterWrapper"
   id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   #annotationOuterWrapper
-  draggable="true"
+  [draggable]="!isEditing"
   (dragstart)="dragStart($event)"
 >
   <div
@@ -50,11 +50,11 @@
     </div>
   </div>
   <div class="actionButtons">
-    <button mat-icon-button (click)="isEditing = !isEditing" title="Edit">
+    <button mat-icon-button (click)="toggleEdit()" title="Edit">
       <mat-icon>{{ isEditing ? "save" : "edit" }}</mat-icon>
     </button>
     <br />
-    <button
+    <button *ngIf="isEditing"
       mat-icon-button
       (click)="deleteAnnotation.emit(this.annotation)"
       color="warn"

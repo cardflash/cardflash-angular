@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Card } from 'src/app/types/card';
-import { CardService } from '../card.service';
+import { CardEntry, CardEntryContent } from 'src/app/data-api.service';
 
 @Component({
   selector: 'app-flip-card',
@@ -9,20 +8,19 @@ import { CardService } from '../card.service';
 })
 export class FlipCardComponent implements OnInit {
 
-  @Input('card') public card : Card = {localID: '0', front: '', back: '',page: 0, hiddenText: '', chapter: '', title: ''} 
+  @Input('card') public card : CardEntry | CardEntryContent = {front: '', back: '',page: 0, hiddenText: '', chapter: '', title: '', creationTime: Date.now()} 
 
     
-  @Output('edit') public editEmitter: EventEmitter<Card> = new EventEmitter<Card>();
+  @Output('edit') public editEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
 
-  @Output('delete') public deleteEmitter: EventEmitter<Card> = new EventEmitter<Card>();
+  @Output('delete') public deleteEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
   
-  constructor(public cardService: CardService) { }
+  constructor() { }
 
   ngOnInit(): void {
   }
 
   async deleteCard(){
-    this.cardService.deleteCard(this.card);
   }
 
   editCard(){

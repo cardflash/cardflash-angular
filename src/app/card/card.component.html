@@ -162,20 +162,13 @@
         <!-- <span matPrefix>p.</span> -->
         <input matInput type="number" [(ngModel)]="this.card.page" />
       </mat-form-field>
-      <button mat-stroked-button aria-label="Save to Anki" (click)="save(true)">
+      <button mat-stroked-button aria-label="Save to Anki" (click)="this.utils.saveCard(this.card,'anki',this.deckName)">
         <mat-icon>save</mat-icon> Anki
       </button>
       <button
         mat-stroked-button
-        aria-label="Save to Server"
-        (click)="saveToServer()"
-      >
-        <mat-icon>save</mat-icon> Server
-      </button>
-      <button
-        mat-stroked-button
         aria-label="Download card"
-        (click)="save(false)"
+        (click)="this.utils.saveCard(this.card,'download')"
       >
         <mat-icon>file_download</mat-icon>
       </button>

@@ -12,5 +12,5 @@ export interface Config {
     autoAddServer: boolean,
     showSelectionSizeOptions: boolean,
     autoDrawLines: boolean,
-    
+    autoAddAnnotationsToCard: boolean,
 }

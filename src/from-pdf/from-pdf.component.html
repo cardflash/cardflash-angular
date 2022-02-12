@@ -1,0 +1,220 @@
+<div class="mat-app-background">
+  <mat-toolbar>
+    <mat-toolbar-row>
+    <div class="headerOptions">
+    <mat-button-toggle-group multiple>
+      <mat-button-toggle
+      title="Allow selection with left-mouse/touch"
+      i18n-title
+      [checked]="this.dataService.config.selectionOnTop"
+      (change)="selectionOnTopChange($event); this.saveConfig()"
+      >
+        <mat-icon>layers</mat-icon>
+      </mat-button-toggle>
+  
+      <mat-button-toggle
+      i18n-title
+      title="Allow selection with left-mouse/touch once"
+      [checked]="!this.dataService.config.selectionOnTop && zIndex >= 1 && !dragging"
+      (change)="zIndex >= 1 ? (zIndex = -1) : (zIndex = 1); this.saveConfig()"
+      [disabled]="this.dataService.config.selectionOnTop">
+        <mat-icon>crop</mat-icon>
+      </mat-button-toggle>
+  
+      <mat-button-toggle
+      i18n-title
+      title="Draw selection semi-permanently on pdf"
+      [checked]="this.dataService.config.drawOnPdf"
+      (change)="this.dataService.config.drawOnPdf = !this.dataService.config.drawOnPdf; this.saveConfig()"
+      >
+        <mat-icon>edit</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <input [disabled]="this.document"
+          class="pdfFileSelector"
+          (change)="onFileSelected(); this.saveConfig()"
+          type="file"
+          accept=".pdf"
+          #fileSelector
+          i18n-label
+          label="Select a pdf file"
+          i18n-title
+          title="{{this.document ? 'Online document selected.' : ''}}"
+        />
+        
+        <mat-button-toggle-group multiple>
+        <mat-button-toggle
+        title="Add selection as image to card"
+        i18n-title
+        [checked]="this.dataService.config.addImageOption"
+        (change)="this.dataService.config.addImageOption = !this.dataService.config.addImageOption; this.saveConfig()"
+        >
+          <mat-icon>image</mat-icon>
+        </mat-button-toggle>
+  
+        <mat-button-toggle
+        i18n-title
+        title="Add selection as visible text to card"
+        [checked]="this.dataService.config.addTextOption"
+        (change)="this.dataService.config.addTextOption = !this.dataService.config.addTextOption; this.saveConfig()"
+        >
+          <mat-icon>format_shapes</mat-icon>
+        </mat-button-toggle>
+  
+        <mat-button-toggle
+        title="Add selection as hidden text to card"
+        i18n-title
+        [disabled]="!this.dataService.config.addTextOption"
+        [checked]="this.dataService.config.addTextAsHidden"
+        (change)="this.dataService.config.addTextAsHidden = !this.dataService.config.addTextAsHidden; this.saveConfig()"
+        >
+          <mat-icon>visibility_off</mat-icon>
+        </mat-button-toggle>
+  
+        <mat-button-toggle
+        title="Use OCR for text recognition"
+        i18n-title
+        [disabled]="!this.dataService.config.addTextOption"
+        [checked]="this.dataService.config.addOcrTextOption"
+        (change)="this.dataService.config.addOcrTextOption = !this.dataService.config.addOcrTextOption; this.saveConfig()"
+        >
+        <mat-spinner [diameter]="30" class="ocrSpinner" *ngIf="ocrLoadingNum > 0"></mat-spinner>
+        <mat-icon>highlight</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+  </div>
+  </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="loadingIndicator" *ngIf="busy">
+    <button mat-icon-button class="closeLoadingButton" (click)="busy = false"><mat-icon>close</mat-icon></button>
+    <h2 i18n>Loading document...</h2>
+    <p i18n>Please wait a moment while we load your document and cards.</p>
+    <mat-spinner class="loadingSpinner"></mat-spinner>
+  </div>
+  <div id="pdf-column">
+  <canvas style="display: none" #previewCanvas></canvas>
+  
+  <canvas
+    #selCanv
+    width="816px"
+    height="1056px"
+    style="position: absolute; display: block; left: 0; right: 0; cursor: crosshair !important;"
+    [ngStyle]="{ 'z-index': zIndex }"
+    tabindex="0"
+    (mousedown)="mouseDown($event)"
+    (mouseup)="finishRect()"
+    (touchend)="finishRect()"
+    (mousemove)="mouseMove($event)"
+    (mouseleave)="finishRect()"
+    (contextmenu)="mouseDown($event)"
+  ></canvas>
+
+    <div id="selectionTools" #selectionTools *ngIf="getSelection()">
+      <mat-button-toggle-group>
+        <mat-button-toggle [checked]="this.frontSelected" (change)="this.frontSelected = true">
+          Front <mat-icon>flip_to_front</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle [checked]="!this.frontSelected" (change)="this.frontSelected = false">
+          Back <mat-icon>flip_to_back</mat-icon>
+        </mat-button-toggle>
+        </mat-button-toggle-group>
+        <br />
+        <div *ngIf="this.dataService.config.showSelectionSizeOptions">
+          <mat-button-toggle-group  class="smallerToggleButtons">
+            <mat-button-toggle *ngFor="let selType of selectionInsertTypes" [checked]="this.selectionInsertType === selType" (change)="this.selectionInsertType = selType">
+              <small>{{selType}}</small>
+            </mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+      <mat-button-toggle-group>
+        <mat-button-toggle (click)="addHighlightForSelection()">
+          <mat-icon>text_fields</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle *ngFor="let color of availableAnnotationColors" (click)="addHighlightForSelection(color);">
+          <mat-icon [style]="'color: '+color.hex.substr(0,7)+'90'">circle</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  <div *ngIf="!disablePDFViewer">
+  <ngx-extended-pdf-viewer 
+  #ngxPdfViewer
+    [listenToURL]="true"
+    [src]="pdfSrc"
+    [useBrowserLocale]="true"
+    [(page)]="this.page"
+    [textLayer]="true"
+    (textLayerRendered)="this.textLayerRendered($event)"
+    [zoom]="'page-fit'"
+    [(sidebarVisible)]="sidebarVisible"
+    (sidebarVisibleChange)="calcScaling()"
+    (pagesLoaded)="loadComplete($event)"
+    (pdfLoaded)="pdfLoadComplete($event)"
+    (pdfLoadingFailed)="pdfLoadFailed($event)"
+    (pageRendered)="pageRendered($event)"
+    [ignoreKeys]="['1', '2', 'w', 's','space']"
+    [enablePinchOnMobile]="true"
+    [showBorders]="false"
+    [pageViewMode]="this.dataService.config.singlePageMode ? 'single' : 'multiple'"
+    [height]="'100%'"
+    [handTool]="false"
+    [authorization]="true"
+    [delayFirstView]="50"
+  ></ngx-extended-pdf-viewer>
+  </div>
+  </div>
+  <div id="cards-column">
+    {{this.documentid}}
+    <div class="fieldWrapper">
+      <mat-form-field class="defaultTitleField" appearance="outline" style="margin-bottom: -1.25em">
+        <mat-label i18n>Default Title</mat-label>
+        <input matInput placeholder="Default Document Title" i18n-placeholder
+        [(ngModel)]="this.title" [matAutocomplete]="titleAuto">
+        <mat-autocomplete autoActiveFirstOption #titleAuto="matAutocomplete">
+          <mat-option *ngFor="let option of this.titleOptions" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+        <mat-icon matSuffix>book</mat-icon>
+      </mat-form-field>
+      <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
+        <mat-label i18n>Anki Deck</mat-label>
+        <input matInput placeholder="Deck Name" i18n=placeholder
+        [(ngModel)]="this.dataService.config.deckName">
+        <mat-icon matSuffix>inbox</mat-icon>
+      </mat-form-field>
+  </div>
+  <div class="currentCardActions">
+    <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()" i18n>
+      New Card
+    </button>
+      <br>
+    <mat-button-toggle-group class="currentCardSideToggle">
+      <mat-button-toggle 
+      [checked]="this.frontSelected"
+      (change)="this.frontSelected = !this.frontSelected; this.saveConfig()"
+      i18n >
+        Front
+      </mat-button-toggle>
+      <mat-button-toggle
+      [checked]="!this.frontSelected"
+      (change)="this.frontSelected = !this.frontSelected; this.saveConfig()" i18n>
+        Back
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+    <div class="cards" #cardsDiv>
+      <app-card class="currentCard"
+        [(card)]="currentCard"
+        [active]="true"
+        [frontActive]="this.frontSelected"
+        (delete)="deleteCurrentCard()"
+        (deleteAnnotation)="deleteAnnotation($event.annotationID)"
+        [deckName]="this.dataService.config.deckName"
+        (scrollToAnnotation)="scrollToAnnotation($event)"
+      ></app-card>
+      <!-- <app-card *ngFor="let card of getCards()" [card]="card"  (scrollToAnnotation)="scrollToAnnotation($event)"></app-card> -->
+  
+      <app-editor-flip-card [id]="'CARD_'+card.$id" #flipCard class="staticCards" *ngFor="let card of getCards()"[card]="card" (edit)="this.editCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card.localID)" (scrollToAnnotation)="scrollToAnnotation($event)"></app-editor-flip-card>
+    </div>
+  </div>
+  </div>

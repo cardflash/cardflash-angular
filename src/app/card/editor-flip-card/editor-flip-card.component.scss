@@ -11,7 +11,7 @@
   --editor-min-height: 300px;
   min-height: var(--editor-min-height);
   max-height:var(--editor-max-height);
-  overflow: auto;
+  overflow: hidden;
   text-align: center;
 }
 

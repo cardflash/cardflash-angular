@@ -2,7 +2,7 @@
   <div class="pdfViewer">
     <ngx-extended-pdf-viewer
       #ngxPdfViewer
-      [listenToURL]="true"
+      [listenToURL]="false"
       [src]="pdfSrc"
       [useBrowserLocale]="true"
       [(page)]="currPageNumber"
@@ -42,14 +42,39 @@
     </div>
   </div>
 
-  <div class="card cardColumn">
+  <div class="card cardColumn" #cardsDiv>
+    <h2>Cards</h2>
+    <div class="currentCardActions">
+      <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()" i18n>
+        New Card
+      </button>
+        <br>
+      <mat-button-toggle-group class="currentCardSideToggle">
+        <mat-button-toggle 
+        [checked]="this.frontSelected"
+        (change)="this.frontSelected = !this.frontSelected;"
+        i18n >
+          Front
+        </mat-button-toggle>
+        <mat-button-toggle
+        [checked]="!this.frontSelected"
+        (change)="this.frontSelected = !this.frontSelected;" i18n>
+          Back
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
     <app-card class="currentCard"
     [active]="true"
     [card]="currentCard"
     [frontActive]="this.frontSelected"
     (deleteAnnotation)="deleteAnnotation($event.annotationID)"
     (scrollToAnnotation)="scrollToAnnotation($event)"
+    [deckName]="this.dataService.config.deckName"
   ></app-card>
+  <div class="otherCardsDiv">
+    <app-editor-flip-card [id]="'CARD_'+card.$id" #flipCard class="staticCards" *ngFor="let card of cards;trackBy:getCardId"[card]="card" (edit)="this.updateCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card)" (scrollToAnnotation)="scrollToAnnotation($event)"></app-editor-flip-card>
+  </div>
+   
   </div>
 </div>
 <div

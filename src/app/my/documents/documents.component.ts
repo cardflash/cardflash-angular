@@ -12,7 +12,6 @@ import { DataApiService, DocumentEntry, DocumentEntryContent } from 'src/app/dat
 import { DataService } from 'src/app/data.service';
 import { DocumentService } from 'src/app/document.service';
 import { UserNotifierService } from 'src/app/services/notifier/user-notifier.service';
-import { Card } from 'src/app/types/card';
 import { PDFDocument } from 'src/app/types/pdf-document';
 
 @Component({
@@ -150,8 +149,9 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     }
   }
 
-  deleteDocument(doc: DocumentEntry) {
-    // this.documentsService.deleteDocument(doc);
+  async deleteDocument(doc: DocumentEntry) {
+    await this.dataApi.deleteDocument(doc.$id,doc)
+    this.refresh()
   }
 
   addTagToDoc(doc: DocumentEntry, tag: string) {

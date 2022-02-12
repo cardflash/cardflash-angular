@@ -8,6 +8,7 @@ export const environment = {
   API_PROJECT: '6200475f2c3292dbc7b1',
   BASE_URL: 'http://localhost:4200',
   PDF_ANNOT_URL : 'http://localhost:4200/extended-pdf',
+  ANKI_MODEL_VERSION: '3.0a',
   MIN_PW_LENGTH: 6,
   MAX_PW_LENGTH: 32,
   collectionMap: {'cards': 'cards', documents: 'documents'}  as any,
