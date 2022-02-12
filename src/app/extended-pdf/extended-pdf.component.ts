@@ -6,7 +6,9 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  QueryList,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { imgSrcToBlob } from 'blob-util';
@@ -14,6 +16,7 @@ import { customAlphabet } from 'nanoid';
 import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
 import { CardComponent } from '../card/card.component';
+import { EditorFlipCardComponent } from '../card/editor-flip-card/editor-flip-card.component';
 import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from '../data-api.service';
 import { DataService } from '../data.service';
 import { DocumentService } from '../document.service';
@@ -87,7 +90,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     creationTime: Date.now()
   };
   @ViewChild(CardComponent) cardComp?: CardComponent;
-
+  
+  @ViewChildren('flipCard')
+  public flipCardChilds?: QueryList<EditorFlipCardComponent>;
+  
   public cards: CardEntry[] = [];
   
   ngOnInit(): void {
@@ -587,6 +593,12 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       this.currPageNumber = annotation.page;
     }
 
+    if (event.where === 'card' || event.where === 'both') {
+      this.flipCardChilds?.forEach((fc) =>
+        fc.flipToSideForAnnotation(event.annotationID)
+      );
+    }
+
     switch (event.where) {
       case 'pdf':
         setTimeout(async () => {
@@ -643,7 +655,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
           } while(this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID) && this.dataService.config.autoDrawLines)
             if(this.currentLeaderLines.has(event.annotationID)){
               this.currentLeaderLines.delete(event.annotationID);
-              leaderLine.remove();
+              if(leaderLine){
+                leaderLine.remove();
+              }
             }
         }, 500);
 
@@ -861,6 +875,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     const cardIsNew = !card.$id;
     const saveOrUpdatePromise : Promise<CardEntry> = card.$id ? this.dataApi.updateCard(card.$id,card) : this.dataApi.createCard(card)
     saveOrUpdatePromise.then((res) => {
+      if(this.dataService.config.autoAddAnki){
+        this.utils.saveCard(res,'anki',this.dataService.config.deckName)
+      }
       if(cardIsNew){
         this.cards.push(res);
         const cardIDs = this.document?.cardIDs || [];
@@ -870,10 +887,11 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
           this.saveDocument();
         }
       }
+    }).catch((reas) => {
+      if(this.dataService.config.autoAddAnki){
+        this.utils.saveCard(card,'anki',this.dataService.config.deckName)
+      }
     })
-    if(this.dataService.config.autoAddAnki){
-      this.utils.saveCard(card,'anki',this.dataService.config.deckName)
-    }
       
   }
 

@@ -7,7 +7,7 @@ import { CardsForDocumentComponent } from './my/documents/cards-for-document/car
 import { DocumentsComponent } from './my/documents/documents.component';
 import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
 const routes: Routes = [
-  { path: '', redirectTo: '/cards', pathMatch: 'full' },
+  { path: '', redirectTo: '/documents', pathMatch: 'full' },
   {
     path: 'login',
     component: LoginComponent,
@@ -50,6 +50,10 @@ const routes: Routes = [
   },
   {
     path: 'doc/:id',
+    component: ExtendedPdfComponent
+  },
+  {
+    path: 'doc',
     component: ExtendedPdfComponent
   }
 ];

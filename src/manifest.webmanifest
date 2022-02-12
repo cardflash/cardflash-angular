@@ -1,12 +1,17 @@
 {
-  "name": "flashcards.siter.eu - PDF Flashcard creator",
-  "short_name": "Create Flashcards",
+  "name": "flashcards.wolke7.cloud - Create Flashcards from PDFs",
+  "short_name": "flashcards.wolke7.cloud",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
   "icons": [
+    {
+    "src": "assets/favicons/favicon-32x32.png",
+    "sizes": "32x32",
+    "type": "image/png"
+},
     {
       "src": "assets/favicons/android-chrome-192x192.png",
       "sizes": "192x192",

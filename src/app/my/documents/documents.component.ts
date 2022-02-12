@@ -62,8 +62,15 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   refresh(){
     this.documentPromise = this.dataApi.listDocuments();
     this.documentPromise.then((docs) => {
-      this.allTags = docs.map(doc => doc.tags).reduce((prev,curr) => (curr !== undefined) ? prev?.concat(curr) : prev, []) || [];
+      const tags : Set<string> = new Set<string>();
+      for (const doc of docs){
+        if(doc.tags){
+          doc.tags.forEach((tag) => tags.add(tag))
+        }
+      }
+      this.allTags = [...tags.values()];
     })
+
   }
 
   async updateData(docs: Document[]) {
@@ -175,7 +182,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   updateNameForDoc(doc: DocumentEntry, newName: string){
     doc.name = newName;
-    this.dataApi.updateDocument(doc.$id,{tags: doc.tags})
+    this.dataApi.updateDocument(doc.$id,{name: newName})
   }
 
   tagClicked(value: string){

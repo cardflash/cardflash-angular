@@ -169,7 +169,7 @@ async createModelinAnki(): Promise<boolean> {
     action: 'createModel',
     version: 6,
     params: {
-      modelName: 'flashcards.siter.eu-V' + environment.ANKI_MODEL_VERSION,
+      modelName: 'flashcards_wolke7.cloud-V' + environment.ANKI_MODEL_VERSION,
       inOrderFields: [
         'ID',
         'Front',
@@ -183,7 +183,7 @@ async createModelinAnki(): Promise<boolean> {
       css: ckEditorCss,
       cardTemplates: [
         {
-          Name: 'flashcards.siter.eu Card-V' + environment.ANKI_MODEL_VERSION,
+          Name: 'flashcards_wolke7.cloud Card-V' + environment.ANKI_MODEL_VERSION,
           Front:
             "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}}</div>",
           Back: "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}} <hr id=answer> {{Back}} <br><br> ID: {{ID}}; Page: {{Page}}  <a href=\"{{URL}}\">View online</a></div>",

@@ -322,15 +322,11 @@ export class EditorFlipCardComponent implements OnInit, AfterViewInit {
         this.frontEditorComponent.editorInstance.sourceElement;
       const backSourceEl: HTMLElement =
         this.backEditorComponent.editorInstance.sourceElement;
-      const frontEl = frontSourceEl.querySelector(
-        '#' + environment.ANNOTATION_ON_CARD_PREFIX + annotationID
-      );
-      const backEl = backSourceEl.querySelector(
-        '#' + environment.ANNOTATION_ON_CARD_PREFIX + annotationID
-      );
-      if (frontEl && this.flipped) {
+      const frontEls = frontSourceEl.querySelectorAll(`[data-annotationid=_${annotationID}]`)
+      const backEls = backSourceEl.querySelectorAll(`[data-annotationid=_${annotationID}]`)
+      if (frontEls.length > 0 && this.flipped) {
         this.flipped = false;
-      } else if (backEl && !this.flipped) {
+      } else if (backEls.length > 0 && !this.flipped) {
         this.flipped = true;
       }
     }

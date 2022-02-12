@@ -72,8 +72,8 @@ export class DataService {
 
   initLocalForage(){
     localforage.config({
-      name: 'flashcards_siter.eu',
-      storeName: 'flashcards_siter_eu',
+      name: 'flashcards_wolke7.cloud',
+      storeName: 'flashcards_wolke7.cloud',
       driver: [ localforage.LOCALSTORAGE, localforage.INDEXEDDB, localforage.WEBSQL]
     });
   }
