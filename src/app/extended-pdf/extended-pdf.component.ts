@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  OnDestroy,
   OnInit,
   Output,
   QueryList,
@@ -29,7 +30,7 @@ import { UtilsService } from '../utils.service';
   templateUrl: './extended-pdf.component.html',
   styleUrls: ['./extended-pdf.component.scss'],
 })
-export class ExtendedPdfComponent implements OnInit, AfterViewInit {
+export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public currPageNumber: number = 1;
   public pdfSrc: string = '/assets/pdfs/flashcards_siter_eu.pdf';
   public frontSelected: boolean = true;
@@ -125,6 +126,12 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     }, 5);
   }
 
+  ngOnDestroy(): void {
+      for(const k of this.currentLeaderLines.keys()){
+        this.removeLeaderLinesForAnnotation(k);
+      }
+  }
+
   async loadFromDoc(doc: DocumentEntry) {
       if (doc) {
         this.document = doc;
@@ -211,7 +218,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     this.actRoute.fragment.subscribe((frag) => {
     if(frag && this.getAnnotationByID(frag)){
       console.log({frag})
-      this.scrollToAnnotation({annotationID: frag, where: 'both'})
+      this.scrollToAnnotation({annotationID: frag, where: 'all', drawLeaderLines: true})
       this.router.navigate([],{fragment: undefined})
     }
   })  
@@ -345,7 +352,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     const y = this.getMin(rect.y1, rect.y2) - canvasRect.top;
     const width = this.getAbs(rect.x1 - rect.x2);
     const height = this.getAbs(rect.y1 - rect.y2);
-
+    if(width <= 0 || height <= 0){
+      return undefined;
+    }
     const data = context.getImageData(
       x * this.scale,
       y * this.scale,
@@ -481,13 +490,12 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
       if (context) {
         switch (annotation.type) {
           case 'area':
-            context.fillStyle = annotation.color.substring(0, 7) + '20';
+            context.fillStyle = annotation.color.substring(0, 7) + '08';
             context.strokeStyle = annotation.color.substring(0, 7) + '90';
             context.setLineDash([20, 3]);
             context.lineWidth = 2;
             annotation.points.forEach((point) => {
               const rect = viewport.convertToViewportRectangle(point);
-              context.lineWidth = 1;
               context.strokeRect(
                 rect[0],
                 rect[1],
@@ -552,24 +560,13 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
         jumpDiv.onclick = async (event: any) => {
           this.scrollToAnnotation({
             annotationID: annotation.id,
-            where: 'both',
+            where: 'all',
+            drawLeaderLines: true
           });
         };
         page.div.appendChild(jumpDiv);
-
-        const anchorDiv = document.createElement('div');
-        anchorDiv.setAttribute('id', environment.ANNOTATION_ANCHOR_PREFIX + annotation.id);
-        anchorDiv.setAttribute('class', 'annotationToolOverlay annotationJumpOverlay');
-        anchorDiv.setAttribute('title', 'Scroll into view');
-        anchorDiv.setAttribute(
-          'style',
-          ` position: absolute;
-            left: ${Math.max(rect[0], rect[2]) - 1}px;
-            top: ${Math.min(rect[1], rect[3]) - 30}px;`
-        );
-        page.div.appendChild(anchorDiv);
         let observer = new IntersectionObserver((e) => this.handleAnnotationIntersection(e, annotation.id) );
-        observer.observe(anchorDiv);
+        observer.observe(jumpDiv);
       }
     }
   }
@@ -578,7 +575,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     if(e.length < 1 ) return;
 
     if(e[0].isIntersecting && this.dataService.config.autoDrawLines){
-      this.scrollToAnnotation({annotationID: annotationID, where: "both"});
+      this.scrollToAnnotation({annotationID: annotationID, where: "auto", drawLeaderLines: true});
+    }else if(!e[0].isIntersecting){
+      this.removeLeaderLinesForAnnotation(annotationID);
     }
   }
 
@@ -593,101 +592,118 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     return undefined;
   }
 
-  async scrollToAnnotation(event: { annotationID: string; where: 'pdf' | 'card' | 'both' }) {
+  // auto <=> on pdf and annotation (used when auto draw lines is activated)
+  // leader lines are only drawn if parameter is true and where is set to either auto or all
+  async scrollToAnnotation(event: { annotationID: string; where: 'pdf' | 'annotations' | 'card' | 'auto' | 'all', drawLeaderLines?: boolean}) {
     const annotation: Annotation | undefined = this.getAnnotationByID(event.annotationID);
-    if (
+    if ( 
       annotation &&
-      !this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID)
+      !this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID) && (event.where === 'pdf' || event.where === 'all')
     ) {
       this.currPageNumber = annotation.page;
-    }
-
-    if (event.where === 'card' || event.where === 'both') {
-      this.flipCardChilds?.forEach((fc) =>
-        fc.flipToSideForAnnotation(event.annotationID)
-      );
-    }
-
-    switch (event.where) {
-      case 'pdf':
+      // wait a moment to allow pdf reader to load page
+      await new Promise<void>((resolve) => {
         setTimeout(async () => {
-          this.utils.scrollIDIntoView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID);
-        }, 400);
-        break;
-      case 'card':
-        let el = document.getElementById(
-          environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID
-        );
-        if (el !== null) {
-          el.classList.add('highlight');
+        resolve()
+        }, 300);
+      })
+    }
+
+  // event.where === 'auto' || 
+    if(event.where === 'pdf' ||event.where === 'all'){
+      setTimeout(async () => {
+        this.utils.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
+      }, 400);
+    }
+    if(event.where === 'card' || event.where === 'all'){
+      this.flipCardChilds?.forEach((fc) =>
+      fc.flipToSideForAnnotation(event.annotationID)
+    );
+
+      const cardEls = document.querySelectorAll(`[data-annotationid=_${event.annotationID}]`);
+      if(cardEls.length > 0){
+        console.log({cardEls})
+      let minEl = cardEls[cardEls.length-1]
+      // cardEls.forEach((el) => ( el.scrollHeight < minEl.scrollHeight) && (minEl = el))
+      if(!this.utils.isElementInView(minEl)){
+        minEl.scrollIntoView({ behavior: 'auto',block: 'start' });
+      }
+      if(event.drawLeaderLines){
+      for (let i = 0; i < cardEls.length; i++) {
+        const el = cardEls[i];
+        if(event.where === 'all' && this.utils.isElementInView(el)){
+          const annotationEl = document.getElementById(environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID)
+          if(annotationEl){
+            const line = this.utils.createLineBetweenElements(el,annotationEl,annotation?.color,3,false,false)
+            setTimeout(() => {
+              line.remove();
+            },1500)
+          }
         }
-        console.log('Card', { el });
-        this.utils.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-        const timeout = setTimeout(() => {
+        }
+      }
+      }
+    }
+    if(event.where === 'annotations' || event.where === 'auto' || event.where === 'all'){
+      let el = document.getElementById(
+        environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID
+      );
+      if (el !== null) {
+        el.classList.add('highlight');
+        el.scrollIntoView({ behavior: 'auto',block: 'start' })
+        setTimeout(() => {
           if (el !== null) {
             el.classList.remove('highlight');
           }
-          clearTimeout(timeout);
         }, 1000);
-        break;
-      default:
-        setTimeout(async () => {
-          if(this.currentLeaderLines.has(event.annotationID)){
-            return;
-          }
-          
-          this.utils.scrollIDIntoView(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID);
-          this.utils.scrollIDIntoView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID);
-          const leaderLine = this.utils.createLineBetweenIds(
-            environment.ANNOTATION_ON_CARD_PREFIX + annotation?.id,
+      }
+    }
+
+    if(event.drawLeaderLines){
+      if(event.where === 'auto' || (event.where === 'all')){
+        // also check for value bc it might be undefined? In that case we will simply overwrite it with new one
+        if(!(this.currentLeaderLines.has(event.annotationID) && this.currentLeaderLines.get(event.annotationID))){
+          // Draw new leaderLines between pdf and annotation
+        const leaderLine = this.utils.createLineBetweenIds(
+            environment.ANNOTATION_ELEMENT_PREFIX + annotation?.id,
             environment.ANNOTATION_JMP_PREFIX + annotation?.id,
             annotation?.color,
-            5,false
+            event.where === 'all' ? 7 : 5,false
             );
 
-            document.querySelectorAll(`[data-annotationid=_${event.annotationID}]`).forEach((el) => {
-              if(!this.utils.isElementInView(el)){
-                el.scrollIntoView({ behavior: 'auto',block: 'start' });
-              }
-              const annotationEl = document.getElementById(environment.ANNOTATION_ON_CARD_PREFIX + event.annotationID)
-              if(annotationEl){
-                const line = this.utils.createLineBetweenElements(el,annotationEl,annotation?.color,3,false,false)
-                setTimeout(() => {
-                  line.remove();
-                },1500)
-              }
-            })
-
-          this.currentLeaderLines.set(event.annotationID,leaderLine);
-          do {
-            await new Promise(res => setTimeout(res,1500))
-          } while(this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID) && this.dataService.config.autoDrawLines)
-            if(this.currentLeaderLines.has(event.annotationID)){
-              if(leaderLine){
-              leaderLine.remove();
-              this.currentLeaderLines.delete(event.annotationID);
-              }
+        this.currentLeaderLines.set(event.annotationID,leaderLine);
+        // Don't remove line if autoDraw is activated: The intersectionObserver will take care of that when its out of view
+        if(event.where === 'all'){
+          setTimeout(async () => {
+            if(!(this.dataService.config.autoDrawLines && this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID))){
+              this.removeLeaderLinesForAnnotation(event.annotationID)
             }
-        }, 500);
+            }, 1500);
+        }
+      }else{
+        console.log('leaderLine already exists',event.annotationID,this.currentLeaderLines.get(event.annotationID))
+      }
+      }
 
-        break;
+    }
+  }
+
+  removeLeaderLinesForAnnotation(annotationID: string){
+    if(this.currentLeaderLines.has(annotationID)){
+      const ll = this.currentLeaderLines.get(annotationID);
+      if(ll){
+        ll.remove();
+        this.currentLeaderLines.delete(annotationID);
+      }
     }
   }
 
   removeDivWithID(id: string) {
-
-    if(this.currentLeaderLines.has(id)){
-      this.currentLeaderLines.get(id).remove();
-      this.currentLeaderLines.delete(id);
-    }
+    this.removeLeaderLinesForAnnotation(id);
 
     const jmpDiv = document.querySelector('#' + environment.ANNOTATION_JMP_PREFIX + id);
     if (jmpDiv) {
       jmpDiv.parentNode?.removeChild(jmpDiv);
-    }
-    const ancDiv = document.querySelector('#' + environment.ANNOTATION_ANCHOR_PREFIX + id);
-    if (ancDiv) {
-      ancDiv.parentNode?.removeChild(ancDiv);
     }
     const delDiv = document.querySelector('#' + environment.ANNOTATION_DEL_PREFIX + id);
     if (delDiv) {

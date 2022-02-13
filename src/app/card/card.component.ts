@@ -47,13 +47,6 @@ export class CardComponent implements OnInit, AfterViewInit {
     annotationID: string;
   }> = new EventEmitter<{ annotationID: string }>();
 
-  @Output('scrollToAnnotation') scrollToAnnotationEvent: EventEmitter<{
-    annotationID: string;
-    where: 'pdf' | 'card' | 'both';
-  }> = new EventEmitter<{
-    annotationID: string;
-    where: 'pdf' | 'card' | 'both';
-  }>();
 
   @Input('card') card: CardEntryContent= {
     page: 0,
@@ -679,10 +672,10 @@ export class CardComponent implements OnInit, AfterViewInit {
     annotationID: string,
     where: 'pdf' | 'card' | 'both' = 'card'
   ) {
-    this.scrollToAnnotationEvent.emit({
-      annotationID: annotationID,
-      where: where,
-    });
+    // this.scrollToAnnotationEvent.emit({
+    //   annotationID: annotationID,
+    //   where: where,
+    // });
   }
 
   deleteAnnotation(annotationID: string) {

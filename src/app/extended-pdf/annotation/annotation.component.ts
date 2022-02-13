@@ -56,7 +56,7 @@ export class AnnotationComponent implements OnInit, OnDestroy {
   }
 
   getAnnotationOnCardPrefix() {
-    return environment.ANNOTATION_ON_CARD_PREFIX;
+    return environment.ANNOTATION_ELEMENT_PREFIX;
   }
 
   clicked() {
@@ -88,7 +88,7 @@ export class AnnotationComponent implements OnInit, OnDestroy {
     if (this.isEditing) return;
     if (this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + this.annotation?.id)) {
       this.line = this.utils.createLineBetweenIds(
-        environment.ANNOTATION_ON_CARD_PREFIX + this.annotation?.id,
+        environment.ANNOTATION_ELEMENT_PREFIX + this.annotation?.id,
         environment.ANNOTATION_JMP_PREFIX + this.annotation?.id,
         this.annotation?.color,
         10,

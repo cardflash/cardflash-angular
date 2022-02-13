@@ -40,7 +40,7 @@
         *ngFor="let annotation of annotations.value"
         [annotation]="annotation"
         [documentID]="documentid"
-        (showInDocument)="scrollToAnnotation({ annotationID: $event, where: 'both' })"
+        (showInDocument)="scrollToAnnotation({ annotationID: $event, where: 'all', drawLeaderLines: true})"
         (deleteAnnotation)="deleteAnnotation($event.id)"
         (updateAnnotation)="updateAnnotation($event)"
       >
@@ -74,11 +74,10 @@
     [card]="currentCard"
     [frontActive]="this.frontSelected"
     (deleteAnnotation)="deleteAnnotation($event.annotationID)"
-    (scrollToAnnotation)="scrollToAnnotation($event)"
     [deckName]="this.dataService.config.deckName"
   ></app-card>
   <div class="otherCardsDiv">
-    <app-editor-flip-card [id]="'CARD_'+card.$id" #flipCard class="staticCards" *ngFor="let card of cards;trackBy:getCardId"[card]="card" (edit)="this.updateCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card)" (scrollToAnnotation)="scrollToAnnotation($event)"></app-editor-flip-card>
+    <app-editor-flip-card [id]="'CARD_'+card.$id" #flipCard class="staticCards" *ngFor="let card of cards;trackBy:getCardId"[card]="card" (edit)="this.updateCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card)"></app-editor-flip-card>
   </div>
    
   </div>
