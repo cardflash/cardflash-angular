@@ -151,7 +151,7 @@ hr.solid {
   height: 70%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2000;
+  z-index: 3;
   top: 30px;
   padding: 20px;
   background: rgb(92,232,237);
@@ -161,6 +161,7 @@ hr.solid {
   opacity: 1;
   padding-bottom: 50px;
 }
+
 .overlayBackdrop{
   position: absolute;
   top:0;

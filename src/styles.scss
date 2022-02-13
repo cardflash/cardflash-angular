@@ -7,7 +7,7 @@ html, body {
   --editor-min-height: 250px;
   --editor-max-height: 250px;
 }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: hidden }
 
 
 .ck-editor__editable {

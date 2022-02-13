@@ -1,5 +1,11 @@
 <div class="mainArea">
   <div class="pdfViewer">
+    <div class="loadingIndicator" *ngIf="busy">
+    <button mat-icon-button class="closeLoadingButton" (click)="busy = false"><mat-icon>close</mat-icon></button>
+    <h2 i18n>Loading document...</h2>
+    <p i18n>Please wait a moment while we load your document and cards.</p>
+    <mat-spinner class="loadingSpinner"></mat-spinner>
+  </div>
     <ngx-extended-pdf-viewer
       #ngxPdfViewer
       [listenToURL]="false"

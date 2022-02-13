@@ -214,6 +214,15 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   change() {
+  console.log("CHANGE")
+    if(!window.onbeforeunload){
+      window.addEventListener('beforeunload', function (e) {
+        // Cancel the event
+        e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+        // Chrome requires returnValue to be set
+        e.returnValue = '';
+      });
+    }
     this.cardChange.emit(this.card);
     this.addAnnotationHelpers();
   }

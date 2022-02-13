@@ -96,8 +96,11 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   
   public cards: CardEntry[] = [];
   
+  public busy: boolean = false;
+
   ngOnInit(): void {
     if (this.documentid) {
+      this.busy = true;
       this.dataApi.getDocument(this.documentid).then((res) => {
         this.document = res;
         this.loadFromDoc(res);
@@ -122,18 +125,12 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     }, 5);
   }
 
-  loadFromDoc(doc: DocumentEntry) {
+  async loadFromDoc(doc: DocumentEntry) {
       if (doc) {
         this.document = doc;
         this.currPageNumber = doc.currentPage;
-        if (this.document.cardIDs) {
-          this.cards = [];
-          this.document.cardIDs.forEach((cardID) => {
-            this.dataApi.getCard(cardID).then((card) => {
-              this.cards.push(card);
-            })
-          })
-        }
+        const src = this.dataApi.getFileView(this.document?.fileid).href;
+        this.pdfSrc = src;
         if (this.document && this.document.annotationsJSON){
           for (let i = 0; i < this.document.annotationsJSON.length; i++) {
             const annotJSON = this.document.annotationsJSON[i];
@@ -146,8 +143,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
             }
           }
         }
-        const src = this.dataApi.getFileView(this.document?.fileid).href;
-        this.pdfSrc = src;
+    this.loadCards()
     }
   }
 
@@ -160,7 +156,6 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
 
   async pagesLoadComplete(e: any) {
     console.log('pagesLoadComplete');
-    
     const outline = await this.getPdfViewerApplication().pdfDocument.getOutline();
     this.pdfOutline = [];
     if (outline) {
@@ -211,6 +206,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   }
 
   pdfLoaded(e: any) {
+    this.busy = false;
     setTimeout(() => {
     this.actRoute.fragment.subscribe((frag) => {
     if(frag && this.getAnnotationByID(frag)){
@@ -221,7 +217,20 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
   })  
 },2000)}
 
-  pdfLoadFailed(e: any) {}
+  pdfLoadFailed(e: any) {
+  }
+
+  async loadCards(){
+    if (this.document && this.document.cardIDs) {
+      this.cards = [];
+      const allCardsProm : Promise<CardEntry>[] = []
+      for (let i = 0; i < this.document.cardIDs.length; i++) {
+        const cardID = this.document.cardIDs[i];
+        allCardsProm.push(this.dataApi.getCard(cardID))
+      }
+    this.cards = await Promise.all(allCardsProm)
+  }
+  }
 
   pageRendered(e: PageRenderedEvent) {
     let pdfCanv: HTMLCanvasElement = e.source.canvas;
@@ -654,9 +663,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
             await new Promise(res => setTimeout(res,1500))
           } while(this.utils.isIDInView(environment.ANNOTATION_ANCHOR_PREFIX + event.annotationID) && this.dataService.config.autoDrawLines)
             if(this.currentLeaderLines.has(event.annotationID)){
-              this.currentLeaderLines.delete(event.annotationID);
               if(leaderLine){
-                leaderLine.remove();
+              leaderLine.remove();
+              this.currentLeaderLines.delete(event.annotationID);
               }
             }
         }, 500);
@@ -871,6 +880,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit {
     if(!card.$id && !card.front && !card.back ){
       return;
     }
+    
+    window.addEventListener('beforeunload', function (e) {
+      delete e['returnValue'];
+    });
     card = await this.utils.replaceWithServerImgs(card);
     const cardIsNew = !card.$id;
     const saveOrUpdatePromise : Promise<CardEntry> = card.$id ? this.dataApi.updateCard(card.$id,card) : this.dataApi.createCard(card)
