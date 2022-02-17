@@ -7,4 +7,5 @@ export interface Annotation{
   text?: string;
   imgID?: string;
   comment?: string;
+  hiddenText?: string
 }

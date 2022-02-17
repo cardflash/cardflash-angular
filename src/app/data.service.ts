@@ -32,7 +32,8 @@ export class DataService {
     autoAddServer: true,
     showSelectionSizeOptions: false,
     autoDrawLines: false,
-    autoAddAnnotationsToCard: true
+    autoAddAnnotationsToCard: true,
+    enableAnnotationLinking: true
   }
   public prefs : any = {config: DataService.DEFAULT_CONFIG};
 
@@ -72,8 +73,8 @@ export class DataService {
 
   initLocalForage(){
     localforage.config({
-      name: 'flashcards_wolke7.cloud',
-      storeName: 'flashcards_wolke7.cloud',
+      name: 'cardflash_net',
+      storeName: 'cardflash_net',
       driver: [ localforage.LOCALSTORAGE, localforage.INDEXEDDB, localforage.WEBSQL]
     });
   }

@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NavigationEnd, NavigationStart, Router, RoutesRecognized } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { NotificationData } from 'src/app/types/notification-data';
 import { NotificationComponent } from './notification/notification.component';
 
@@ -11,7 +10,6 @@ import { NotificationComponent } from './notification/notification.component';
 export class UserNotifierService implements OnDestroy{
 
   private readonly POSITION :  "top" | "bottom" | "middle" = "middle";
-  private routerSubscription: Subscription | undefined;
   public loadStatus = 0;
 
   constructor(private snackBar: MatSnackBar, private router: Router) {
@@ -28,9 +26,6 @@ export class UserNotifierService implements OnDestroy{
 
    }
   ngOnDestroy(): void {
-    if(this.routerSubscription){
-      this.routerSubscription.unsubscribe();
-    }
   }
 
   async notify(title: string, message: string, type: string, autoHide: boolean = false){

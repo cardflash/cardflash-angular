@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Appwrite, Models, Query } from 'appwrite';
+import { REPL_MODE_SLOPPY } from 'repl';
 import { environment } from 'src/environments/environment';
 import { Annotation } from './types/annotation';
 
@@ -30,6 +31,10 @@ export interface CardEntryContent {
   // $collection?: string,
   // $read?: string[],
   // $write?: string[]
+}
+
+interface EntryWithCreationTime extends Models.Document {
+  creationTime: number
 }
 
 export const ENTRY_TYPES = {
@@ -80,8 +85,9 @@ export class DataApiService {
     return this.appwrite.database.deleteDocument(environment.collectionMap[type], id);
   }
 
-  listEntries<T extends Models.Document>(type: ENTRY_TYPES, queries?: string[]) {
-    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries);
+  listEntries<T extends EntryWithCreationTime>(type: ENTRY_TYPES, queries: string[] | undefined , newestFirst: boolean | undefined) {
+    console.log({newestFirst})
+    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries,undefined,undefined,undefined,undefined,['creationTime'],[newestFirst ? 'DESC' : 'ASC']);
   }
 
 
@@ -170,14 +176,14 @@ export class DataApiService {
     });
   }
 
-  async listDocuments() {
-    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS)).documents;
+  async listDocuments(newestFirst: boolean) {
+    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
   }
   async listDocumentsForCard(cardID: string){
-    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)])).documents;
+    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)],undefined)).documents;
   }
-  async listCards() {
-    return (await this.listEntries<CardEntry>(ENTRY_TYPES.CARDS)).documents;
+  async listCards(newestFirst: boolean) {
+    return (await this.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents;
   }
 
   async createDocument(data: DocumentEntryContent) {

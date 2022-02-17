@@ -5,6 +5,7 @@ import { CardEntry, CardEntryContent, DataApiService } from './data-api.service'
 import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { Annotation } from './types/annotation';
 import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
+import { DataService } from './data.service';
 
 declare var LeaderLine: any;
 
@@ -24,7 +25,7 @@ export class UtilsService {
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
   
-  constructor(private dataApi: DataApiService, private http: HttpClient, private userNotifierService: UserNotifierService,) { }
+  constructor(private dataApi: DataApiService, private http: HttpClient, private userNotifierService: UserNotifierService, private dataService: DataService) { }
 
 
   isIDInView(id: string){
@@ -97,21 +98,28 @@ export class UtilsService {
   generateReferenceFromAnnotation(annotation: Annotation, documentID: string){
     let reference = '';
     if (annotation.imgID) {
-      reference = `<figure class="image"><img src="${this.dataApi.getFileView(annotation.imgID).href}"  data-imageid="${annotation.imgID}"></figure>`;
+      reference = `<figure class="image"><img src="${this.dataApi.getFileView(annotation.imgID).href}" alt="${annotation.hiddenText}" data-imageid="${annotation.imgID}"></figure>`;
     }
     const color = this.availableAnnotationColors.find(
       (val) => val.hex === annotation?.color
     );
     let innerEl = '';
     if (color) {
-      innerEl = `[<mark class="${color.marker}">
+      innerEl = `<mark class="${color.marker}">
       <span data-annotationid="_${annotation.id}">${
         annotation?.text || annotation.id
-      }</span></mark>]`;
-    } else {
-      innerEl = `<span data-annotationid="_${annotation.id}">[${annotation?.text || annotation.id}]</span>`;
+      }</span></mark>`;
+      if(this.dataService.config.enableAnnotationLinking){
+        innerEl = '[' + innerEl + ']'
+      }
+    } else if(annotation.text || this.dataService.config.enableAnnotationLinking) {
+      innerEl = `<span data-annotationid="_${annotation.id}">${this.dataService.config.enableAnnotationLinking ? '[' : ''}${annotation?.text || '📌'}${this.dataService.config.enableAnnotationLinking ? ']' : ''}</span>`;
     }
-    reference += `<a href="${environment.PDF_ANNOT_URL}/${documentID}#${annotation?.id}">${innerEl}</a><br/>`;
+    if(this.dataService.config.enableAnnotationLinking){
+      reference += `<a href="${environment.PDF_ANNOT_URL}/${documentID}#${annotation?.id}">${innerEl}</a><br/>`;
+    }else{
+      reference += `${innerEl}<br/>`;
+    }
     return reference;
 }
 
@@ -162,14 +170,14 @@ makeHttpRequest(bodyData: any) {
 }
 
 async createModelinAnki(): Promise<boolean> {
-  const ckEditorCss: string = await this.http
-    .get('assets/card-styles.css', { responseType: 'text' })
-    .toPromise();
+  // const ckEditorCss: string = await this.http
+  //   .get('assets/card-styles.css', { responseType: 'text' })
+  //   .toPromise();
   let bodyData = {
     action: 'createModel',
     version: 6,
     params: {
-      modelName: 'flashcards_wolke7.cloud-V' + environment.ANKI_MODEL_VERSION,
+      modelName: 'cardflash.net-V' + environment.ANKI_MODEL_VERSION,
       inOrderFields: [
         'ID',
         'Front',
@@ -180,10 +188,10 @@ async createModelinAnki(): Promise<boolean> {
         'URL',
         'Hidden',
       ],
-      css: ckEditorCss,
+      // css: ckEditorCss,
       cardTemplates: [
         {
-          Name: 'flashcards_wolke7.cloud Card-V' + environment.ANKI_MODEL_VERSION,
+          Name: 'cardflash.net Card-V' + environment.ANKI_MODEL_VERSION,
           Front:
             "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}}</div>",
           Back: "<div class='ck-content'><h4 style='margin: 0'>{{Title}}</h4><br><h5 style='margin: 0'>{{Chapter}}</h5><br> {{Front}} <hr id=answer> {{Back}} <br><br> ID: {{ID}}; Page: {{Page}}  <a href=\"{{URL}}\">View online</a></div>",
@@ -307,7 +315,7 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
         params: {
           note: {
             deckName: deckName,
-            modelName: 'flashcards.siter.eu-V' + environment.ANKI_MODEL_VERSION,
+            modelName: 'cardflash.net-V' + environment.ANKI_MODEL_VERSION,
             id: ankiID,
             fields: {
               Front: newFrontContent,
@@ -344,7 +352,7 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
       params: {
         note: {
           deckName: deckName,
-          modelName: 'flashcards.siter.eu-V' + environment.ANKI_MODEL_VERSION,
+          modelName: 'cardflash.net-V' + environment.ANKI_MODEL_VERSION,
           fields: {
             ID: card.creationTime+'',
             Front: newFrontContent,
@@ -363,7 +371,7 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
               checkChildren: false,
             },
           },
-          tags: ['flashcards.siter.eu'],
+          tags: ['cardflash.net'],
           picture: [],
         },
       },

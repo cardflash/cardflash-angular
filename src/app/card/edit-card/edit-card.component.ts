@@ -1,12 +1,6 @@
-import { stringify } from '@angular/compiler/src/util';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from 'src/app/data-api.service';
-import { DataService } from 'src/app/data.service';
-import { DocumentService } from 'src/app/document.service';
-import { PDFDocument } from 'src/app/types/pdf-document';
-import { CardService } from '../card.service';
 
 @Component({
   selector: 'app-edit-card',

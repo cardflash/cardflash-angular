@@ -1,9 +1,7 @@
 import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
-import { DataService } from '../data.service';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 
 @Component({
@@ -13,6 +11,7 @@ import { UserNotifierService } from '../services/notifier/user-notifier.service'
 })
 export class CardsComponent implements OnInit, OnDestroy {
   public cards : CardEntry[]  = [];
+  public newestFirst: boolean = true;
   constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService) { }
 
   async ngOnInit() {
@@ -23,7 +22,7 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   async refresh(){
-    this.cards = await this.dataApi.listCards()
+    this.cards = await this.dataApi.listCards(this.newestFirst)
   }
 
 

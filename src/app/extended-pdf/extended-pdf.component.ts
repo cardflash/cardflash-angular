@@ -20,9 +20,7 @@ import { CardComponent } from '../card/card.component';
 import { EditorFlipCardComponent } from '../card/editor-flip-card/editor-flip-card.component';
 import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from '../data-api.service';
 import { DataService } from '../data.service';
-import { DocumentService } from '../document.service';
 import { Annotation } from '../types/annotation';
-import { PDFDocument } from '../types/pdf-document';
 import { UtilsService } from '../utils.service';
 
 @Component({
@@ -72,12 +70,14 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public document: DocumentEntry | undefined;
   public documentid: string | undefined;
 
-  constructor(public utils: UtilsService, public dataService: DataService, private dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router, private documentService: DocumentService) {this.documentid = actRoute.snapshot.params.id;}
+  constructor(public utils: UtilsService, public dataService: DataService, private dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router) {this.documentid = actRoute.snapshot.params.id;}
 
   public currentLeaderLines : Map<string,any> = new Map<string,any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
 
   public areaSelectWithNormalMouse: boolean = false;
+
+  public isCurrentlySelectingArea : boolean = false;
 
   private pdfOutline: { page: number; title: string }[] = [];
 
@@ -259,29 +259,28 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   mouseDownOnPage(e: MouseEvent, pageEl: HTMLDivElement){
     if(this.areaSelectWithNormalMouse){
       console.log('contextMenuOnPage', { e }, { pageEl });
-      e.preventDefault();
-      this.rect.x1 = e.x;
-      this.rect.y1 = e.y;
-      this.rect.x2 = e.x;
-      this.rect.y2 = e.y;
-
-      pageEl.onmouseup = (event: any) => this.mouseUpOnPage(event, pageEl);
-      pageEl.onmousemove = (event: any) => this.mouseMoveOnPage(event, pageEl);
+      this.startAreaSelection(e,pageEl);
       this.areaSelectWithNormalMouse = false;
     }
   }
   contextMenuOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
     if (!this.getSelection()) {
       console.log('contextMenuOnPage', { e }, { pageEl });
-      e.preventDefault();
-      this.rect.x1 = e.x;
-      this.rect.y1 = e.y;
-      this.rect.x2 = e.x;
-      this.rect.y2 = e.y;
-
-      pageEl.onmouseup = (event: any) => this.mouseUpOnPage(event, pageEl);
-      pageEl.onmousemove = (event: any) => this.mouseMoveOnPage(event, pageEl);
+      this.startAreaSelection(e,pageEl);
     }
+  }
+
+  startAreaSelection(e: MouseEvent, pageEl: HTMLDivElement){
+    pageEl.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = 'crosshair'))
+    e.preventDefault();
+    this.rect.x1 = e.x;
+    this.rect.y1 = e.y;
+    this.rect.x2 = e.x;
+    this.rect.y2 = e.y;
+    this.isCurrentlySelectingArea = true;
+
+    pageEl.onmouseup = (event: any) => this.mouseUpOnPage(event, pageEl);
+    pageEl.onmousemove = (event: any) => this.mouseMoveOnPage(event, pageEl);
   }
 
   mouseMoveOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
@@ -296,6 +295,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       pageEl.removeAllListeners('mousemove');
       pageEl.removeAllListeners('mouseup');
     }
+
+    pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''))
+    this.isCurrentlySelectingArea = false;
     this.addAreaSelection(this.rect);
     console.log('Area selection ended: ', this.rect);
     this.rect.x1 = 0;
@@ -309,6 +311,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     const y_min = this.getMin(rect.y1, rect.y2);
     const x_max = this.getMax(rect.x1, rect.x2);
     const y_max = this.getMax(rect.y1, rect.y2);
+    const sortedRect = {x1: x_min, x2: x_max, y1: y_min, y2: y_max};
     const pdfPoint = this.getPDFPoint({
       left: x_min,
       right: x_max,
@@ -321,7 +324,6 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       if (pageDetected) {
         page = pageDetected;
       }
-      const imgSrc = this.getImageFromSelection(rect, page);
       const id = this.nanoid();
       const newAnnotation : Annotation = {
         id: id,
@@ -330,13 +332,21 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         points: [pdfPoint],
         page: page,
       };
-      if(imgSrc && this.documentid){
-      const blob: Blob = await imgSrcToBlob(imgSrc);
-        const imgRes = await this.dataApi.saveFile(new File([blob], this.documentid + '_' + id + '.png'))
-        if (imgRes.$id !== ""){
-          newAnnotation.imgID = imgRes.$id;
+      const text = this.getTextFromPosition(sortedRect,page)
+      if (this.dataService.config.addTextOption){
+        newAnnotation.text = text;
+      }else{
+        newAnnotation.hiddenText = text;
+        const imgSrc = this.getImageFromSelection(sortedRect,page)
+        if(imgSrc && this.documentid){
+          const blob: Blob = await imgSrcToBlob(imgSrc);
+            const imgRes = await this.dataApi.saveFile(new File([blob], this.documentid + '_' + id + '.png'))
+            if (imgRes.$id !== ""){
+              newAnnotation.imgID = imgRes.$id;
+            }
         }
-    }
+      }
+
       this.addAnnotation(newAnnotation);
     }
   }
@@ -348,10 +358,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
     const canvasRect = (page.canvas as HTMLCanvasElement).getBoundingClientRect();
     const context: CanvasRenderingContext2D = page.canvas.getContext('2d');
-    const x = this.getMin(rect.x1, rect.x2) - canvasRect.left;
-    const y = this.getMin(rect.y1, rect.y2) - canvasRect.top;
-    const width = this.getAbs(rect.x1 - rect.x2);
-    const height = this.getAbs(rect.y1 - rect.y2);
+    const x = rect.x1 - canvasRect.left;
+    const y = rect.y1 - canvasRect.top;
+    const width = rect.x2 - rect.x1;
+    const height = rect.y2 - rect.y1;
     if(width <= 0 || height <= 0){
       return undefined;
     }
@@ -368,6 +378,37 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       return this.previewCanvas.nativeElement.toDataURL();
     } else {
       return undefined;
+    }
+  }
+
+  getTextFromPosition( rect: { x1: number; x2: number; y1: number; y2: number }, pageNumber: number) {
+    const pageRef: HTMLElement | null = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1]?.div;
+
+    const pageRect = pageRef?.getBoundingClientRect();
+    console.log({pageRef});
+    const textLayer: Element | null | undefined =
+      pageRef?.querySelector('.textLayer');
+
+    const spans: NodeListOf<HTMLSpanElement> | null | undefined =
+      textLayer?.querySelectorAll('span');
+    console.log({spans},{rect},{pageRect})
+    if (pageRef && textLayer && spans && pageRect) {
+      let ret = '';
+      spans.forEach((span) => {
+        const x = parseFloat(span.style.left) + pageRect.left;
+        const y = parseFloat(span.style.top) + pageRect.top;
+        if (
+          x >= rect.x1 &&
+          x <= rect.x2 &&
+          y >= rect.y1 &&
+          y <= rect.y2
+        ) {
+          ret += ' ' + span.textContent;
+        }
+      });
+      return ret;
+    } else {
+      return '';
     }
   }
 

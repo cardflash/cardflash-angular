@@ -1,5 +1,6 @@
 <div class="mainArea">
-  <div class="pdfViewer">
+  <div class="pdfViewer" 
+  [ngStyle]="{'cursor': (this.isCurrentlySelectingArea ? 'crosshair !important' : '')}">
     <div class="loadingIndicator" *ngIf="busy">
     <button mat-icon-button class="closeLoadingButton" (click)="busy = false"><mat-icon>close</mat-icon></button>
     <h2 i18n>Loading document...</h2>
@@ -73,7 +74,6 @@
     [active]="true"
     [card]="currentCard"
     [frontActive]="this.frontSelected"
-    (deleteAnnotation)="deleteAnnotation($event.annotationID)"
     [deckName]="this.dataService.config.deckName"
   ></app-card>
   <div class="otherCardsDiv">
@@ -113,7 +113,7 @@
 <div class="area-fab">
   <button
     mat-fab
-    color="primary"
+    color="{{this.areaSelectWithNormalMouse ? 'accent' : ''}}"
     aria-label="Select area"
     (click)="this.areaSelectWithNormalMouse = true"
   >

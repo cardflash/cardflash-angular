@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { Annotation } from '../../types/annotation';
 import { environment } from '../../../environments/environment';
-import { TextJustification } from 'annotpdf';
 import { UtilsService } from 'src/app/utils.service';
 import { DataApiService } from 'src/app/data-api.service';
 @Component({

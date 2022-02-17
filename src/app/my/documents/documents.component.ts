@@ -6,11 +6,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { nanoid } from 'nanoid';
-import { Subscription } from 'rxjs';
 import { DataApiService, DocumentEntry, DocumentEntryContent } from 'src/app/data-api.service';
-import { DataService } from 'src/app/data.service';
-import { DocumentService } from 'src/app/document.service';
 import { UserNotifierService } from 'src/app/services/notifier/user-notifier.service';
 import { PDFDocument } from 'src/app/types/pdf-document';
 
@@ -36,7 +32,8 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   public isBusy: boolean = false;
   public selectedTag: string | undefined = undefined;
-  subscription: Subscription | undefined;
+
+  public newestFirst: boolean = true;
 
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
   constructor(
@@ -49,18 +46,10 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.userNotifier.loadStatus = 60;
     this.refresh();
-  //   this.subscription = this.documentsService.documents$.subscribe((docs) => {
-  //     if (docs !== undefined){
-  //       this.userNotifier.loadStatus = 80;
-  //       this.updateData(docs)
-  //       this.userNotifier.loadStatus = 100;
-  //     }
-  // }
-    // );
   }
 
   refresh(){
-    this.documentPromise = this.dataApi.listDocuments();
+    this.documentPromise = this.dataApi.listDocuments(this.newestFirst);
     this.documentPromise.then((docs) => {
       const tags : Set<string> = new Set<string>();
       for (const doc of docs){
@@ -68,7 +57,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
           doc.tags.forEach((tag) => tags.add(tag))
         }
       }
-      this.allTags = [...tags.values()];
+      this.allTags = [...tags.values()].sort((a,b) => a.localeCompare(b));
     })
 
   }
@@ -94,7 +83,6 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
   }
 
   creationTimeOrder(

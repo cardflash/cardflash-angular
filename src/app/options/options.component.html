@@ -20,6 +20,8 @@
     <br />
     <mat-slide-toggle i18n [checked]="this.dataService.config.autoAddAnnotationsToCard" (change)="this.dataService.config.autoAddAnnotationsToCard = !this.dataService.config.autoAddAnnotationsToCard; saveConfig()">Automatically add new annotations to card</mat-slide-toggle>
     <br />
+    <mat-slide-toggle i18n [checked]="this.dataService.config.enableAnnotationLinking" (change)="this.dataService.config.enableAnnotationLinking = !this.dataService.config.enableAnnotationLinking; saveConfig()">Link Annotation on Cards to Document</mat-slide-toggle>
+    <br />
     <mat-form-field
       appearance="fill"
       class="oerLanguageField"
@@ -34,8 +36,21 @@
           {{ lang.short }} - {{ lang.long }}
         </mat-option>
       </mat-select>
-    </mat-form-field>
-    <br />
+    </mat-form-field>   <br />
+    <mat-button-toggle
+      class="coloredToggle"
+      title="Add Text for Area Selection (instead of Image)"
+      i18n-title
+      [checked]="this.dataService.config.addTextOption"
+      (change)="
+        this.dataService.config.addTextOption =
+          !this.dataService.config.addTextOption;
+        this.saveConfig()
+      "
+      i18n>
+    Add Text for Area Selection
+  </mat-button-toggle>
+  <br />
     <mat-button-toggle
       class="coloredToggle"
       title="Automatically add cards to Anki"

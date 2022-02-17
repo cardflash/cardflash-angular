@@ -11,25 +11,7 @@
       <div
         class="front-div"
         [ngClass]="{ active: active && frontActive }"
-        (scroll)="onScroll($event)"
       >
-        <div
-          #annotationHelperFront
-          class="annotationHelper"
-          *ngFor="let annotation of this.annotations"
-          [id]="'ANNHEL_' + annotation.id"
-        >
-          <button
-            mat-mini-fab
-            class="navigationButton"
-            title="Scroll to annotation"
-            i18n-title
-            (click)="scrollToAnnotation(annotation.id,'pdf')"
-            [ngStyle]="{ 'background-color': annotation.color }"
-          >
-            <mat-icon>navigate_before</mat-icon>
-          </button>
-        </div>
         <ckeditor
           #frontEditor
           [editor]="FrontEditor"
@@ -44,23 +26,7 @@
         <mat-card-subtitle i18n="card back side">Back</mat-card-subtitle>
       </mat-card-header>
       <div class="back-div"
-      [ngClass]="{ active: active && !frontActive }"
-      (scroll)="onScroll($event)">
-        <div
-        #annotationHelperBack
-        class="annotationHelper"
-        *ngFor="let annotation of this.annotations"
-      >
-        <button
-          mat-mini-fab
-          class="navigationButton"
-          title="Scroll to annotation"
-          (click)="scrollToAnnotation(annotation.id,'pdf')"
-          [ngStyle]="{ 'background-color': annotation.color }"
-        >
-          <mat-icon>navigate_before</mat-icon>
-        </button>
-      </div>
+      [ngClass]="{ active: active && !frontActive }">
         <ckeditor
           #backEditor
           [editor]="BackEditor"
@@ -111,48 +77,9 @@
           <mat-label i18n>Hidden Text</mat-label>
           <textarea matInput [(ngModel)]="this.card.hiddenText"></textarea>
         </mat-form-field>
-        <div>
-          <h4 i18n>Annotations</h4>
-          <div
-            *ngFor="let annotation of this.annotations"
-            class="annotationDiv"
-          >
-            <button
-              mat-mini-fab
-              class="navigationButton"
-              title="Scroll to annotation"
-              (click)="scrollToAnnotation(annotation.id,'both')"
-              [ngStyle]="{ 'background-color': annotation.color }"
-            >
-              <mat-icon>navigate_next</mat-icon>
-            </button>
-            <p>
-              <span [ngStyle]="{ 'background-color': annotation.color }">{{
-                annotation.id
-              }}</span>
-            </p>
-            <button mat-icon-button>
-              <mat-icon color="warn" (click)="deleteAnnotation(annotation.id)"
-                >delete_outline</mat-icon
-              >
-            </button>
-          </div>
-        </div>
       </mat-expansion-panel>
     </mat-accordion>
-    <a #downloadAnchor href="#" download="selection.png"></a>
     <div class="cardActions">
-      <!-- <mat-form-field
-        class=""
-        appearance="standard"
-        style="margin-bottom: -1.25em"
-        class="smallField"
-      >
-        <mat-label *ngIf="!this.card.$id">Card ID</mat-label>
-        <mat-label *ngIf="this.card.$id">Server ID</mat-label>
-        <input matInput *ngIf="!this.card.$id" type="text" readonly [ngModel]="this.card.localID" />
-        <input matInput *ngIf="this.card.$id" type="text" readonly [ngModel]="this.card.$id" />
-      </mat-form-field> -->
       <mat-form-field
         class="miniField"
         appearance="standard"

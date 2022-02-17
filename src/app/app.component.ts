@@ -1,9 +1,5 @@
 import { AfterViewInit, Component, OnDestroy} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { DataService } from './data.service';
-import { DocumentService } from './document.service';
 import { AccountService } from './services/account.service';
 import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { UtilsService } from './utils.service';
@@ -14,41 +10,18 @@ import { UtilsService } from './utils.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
-  anchorSubscription: Subscription | undefined;
   currentLocale : 'en' | 'de' = 'en';
-  constructor(public accountService: AccountService, public dataService: DataService, private route: ActivatedRoute, private router: Router, private documentService: DocumentService, public userNotifier : UserNotifierService, public utilService: UtilsService){
+  constructor(public accountService: AccountService, public dataService: DataService, public userNotifier : UserNotifierService, public utilService: UtilsService){
     this.accountService.updateAcc();
     if(window.location.href.includes('/de/')){
       this.currentLocale = 'de';
     }
   }
   ngOnDestroy(): void {
-      if(this.anchorSubscription){
-        this.anchorSubscription.unsubscribe();
-    }
   }
 
   ngAfterViewInit(): void {
 
-    // this.anchorSubscription = this.route.fragment.subscribe(fragment => {
-    //   if(fragment){
-    //     console.log('fragment',fragment)
-    //     this.utilService.createLineBetweenIds(environment.ANNOTATION_ON_CARD_PREFIX+fragment,environment.ANNOTATION_JMP_PREFIX+fragment)
-    //     if(document.querySelector('#'+fragment)){
-    //       document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
-    //       this.router.navigate([],{fragment: undefined})
-        
-    //     }else{
-    //       setTimeout(() => {
-    //         if(document.querySelector('#'+fragment)){
-    //           document.querySelector('#'+fragment)?.scrollIntoView({behavior: 'smooth'});
-    //           this.router.navigate([],{fragment: undefined})
-    //         }
-    //       },6000)
-    //     }
-    //   }
-    // } 
-    //   );
   }
 
 

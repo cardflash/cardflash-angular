@@ -13,4 +13,5 @@ export interface Config {
     showSelectionSizeOptions: boolean,
     autoDrawLines: boolean,
     autoAddAnnotationsToCard: boolean,
+    enableAnnotationLinking: boolean
 }

@@ -23,8 +23,17 @@
       </mat-card>
     </div>
     <div class="document">
-    <h5 i18n>Filter with Tags: {{this.selectedTag}}</h5>
-    <mat-chip-list aria-label="Filter by tags" i18n-aria-label>
+      <span style="padding-bottom: 0.5rem; display: block">{{newestFirst ? 'Newest first' : 'Oldest first'}}</span>
+      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="newestFirst" (change)="(newestFirst = !newestFirst); this.refresh()">
+        <mat-button-toggle [value]="true" aria-label="Newest first" title="Newest first">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="false" aria-label="Oldest first" title="Oldest first">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-chip-list aria-label="Filter by tags" i18n-aria-label>
+      <h5 i18n>Filter by tag:</h5>
       <mat-chip selectable="true" [selected]="tag === this.selectedTag" (click)="tagClicked(tag)" [value]="tag" color="primary" *ngFor="let tag of this.allTags" removable="false">{{tag}}
     </mat-chip>
     </mat-chip-list>
