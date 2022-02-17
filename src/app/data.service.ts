@@ -24,7 +24,7 @@ export class DataService {
     autoAddAnki: false,
     deckName : "Default",
     addImageOption: true,
-    addTextOption: true,
+    addTextOption: false,
     addOcrTextOption: false,
     ocrLanguage: "eng",
     addTextAsHidden: true,
