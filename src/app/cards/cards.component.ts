@@ -11,6 +11,7 @@ import { UserNotifierService } from '../services/notifier/user-notifier.service'
 })
 export class CardsComponent implements OnInit, OnDestroy {
   public cards : CardEntry[]  = [];
+  public filteredCards : CardEntry[]  = [];
   public newestFirst: boolean = true;
   constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService) { }
 
@@ -23,6 +24,7 @@ export class CardsComponent implements OnInit, OnDestroy {
 
   async refresh(){
     this.cards = await this.dataApi.listCards(this.newestFirst)
+    this.filteredCards = this.cards;
   }
 
 
@@ -45,6 +47,7 @@ export class CardsComponent implements OnInit, OnDestroy {
   deleteCard(card: CardEntry | CardEntryContent){
     if(card.$id){
       this.cards = this.cards.filter((c) => c.$id !== card.$id)
+      this.filteredCards = this.filteredCards.filter((c) => c.$id !== card.$id)
       this.dataApi.deleteCard(card.$id)
     }
   }
@@ -60,9 +63,14 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   search(query: string){
-}
-
-
-
+    if(query.length === 0){
+      this.filteredCards = this.cards;
+    }else{
+      const lower = query.toLowerCase();
+      this.filteredCards = this.cards.filter((card) => {
+        return card.front.toLowerCase().indexOf(lower) >= 0 || card.back.toLowerCase().indexOf(lower) >= 0 || card.hiddenText.toLowerCase().indexOf(lower) >= 0;
+      })
+          }
+  }
 
 }

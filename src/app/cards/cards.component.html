@@ -13,7 +13,7 @@
 </div>
 
 <div class="cards">
-<app-static-card class="flexChild" *ngFor="let card of cards; trackBy:trackyByCardId"
+<app-static-card class="flexChild" *ngFor="let card of filteredCards; trackBy:trackyByCardId"
 [card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
 </div>
 </div>

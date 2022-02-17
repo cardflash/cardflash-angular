@@ -110,7 +110,7 @@
     </div>
   </div>
 </div>
-<div class="imageEditOption">
+<!-- <div class="imageEditOption">
 <div class="imageDrop" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
   <h3 i18n>Edit image <mat-icon>layers</mat-icon></h3>
   <p *ngIf="!imageInEditingURL" i18n>Drag an image from the editor here to edit it.</p>
@@ -122,9 +122,7 @@
   <button mat-flat-button (click)="imageInEditingURL = ''" i18n>Clear</button>
 </div>
 </div>
-
-
-</div>
+</div> -->
 <div *ngIf="this.showimageEditOverlay" class="overlayBackdrop"></div>
 <div #imageEditOverlay tabindex="0" class="imageEditOverlay" [ngClass]="{'hiddenOverlay': !this.showimageEditOverlay}" (keydown.esc)="finishImageEditing(false)">
   <button mat-icon-button class="cancelImgEditButton" (click)="finishImageEditing(false)"><mat-icon>close</mat-icon></button>

@@ -2,6 +2,7 @@
 .cards{
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .card{
@@ -15,12 +16,12 @@
 
 
 .flexChild{
-  flex: 1 1 0px;
+  // flex: 1 1 0px;
   // min-width: 500px;
-  background-color: rgba(226, 244, 255, 0.287);
-  border: rgb(226, 244, 255) 2px solid;
-  border-radius: 50px;
-  margin: 30px;
+  // background-color: rgba(226, 244, 255, 0.287);
+  // border: rgb(226, 244, 255) 2px solid;
+  // border-radius: 50px;
+  // margin: 30px;
   min-width: min(75%,500px);
 }
 

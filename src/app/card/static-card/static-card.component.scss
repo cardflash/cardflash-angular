@@ -5,6 +5,8 @@
   margin-right: auto;
   max-width: 500px;
   position: relative;
+  background: white;
+  border-radius: 10px;
 }
 .cardActions{
   display: flex;
@@ -33,3 +35,11 @@
   transform: scale(0.5);
 }
 
+
+.deleteButton > mat-icon {
+  color: red;
+}
+
+.menu {
+  float: right;
+}

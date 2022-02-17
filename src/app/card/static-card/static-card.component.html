@@ -2,20 +2,26 @@
 <div class="card">
   <div class="cardHeaderTitle">
     <span>{{this.card.title || "-"}}</span>
+    <button mat-icon-button [matMenuTriggerFor]="menu" class="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item aria-label="Edit icon button" title="edit" (click)="editEmitter.emit(this.card)" i18n-title>
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+      <button mat-menu-item class="deleteButton" aria-label="Delete icon button" (click)="deleteEmitter.emit(this.card)" title="delete" i18n-title>
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </mat-menu>
   </div>
   <div  class="cardChapter">
     <span>{{this.card.chapter || "-"}}</span>
   </div>
-  <hr>
   <app-static-card-side [content]="card.front" name="Front" i18n-name>
   </app-static-card-side>
 <app-static-card-side [content]="card.back" name="Back" i18n-name></app-static-card-side>
-<div class="cardActions">
-<button mat-icon-button color="warn" aria-label="Delete icon button" (click)="deleteEmitter.emit(this.card)" title="delete" i18n-title>
-  <mat-icon>delete</mat-icon>
-</button>
-<button mat-icon-button aria-label="Edit icon button" title="edit" (click)="editEmitter.emit(this.card)" i18n-title>
-  <mat-icon>edit</mat-icon>
-</button>
 </div>
-</div>
+
+

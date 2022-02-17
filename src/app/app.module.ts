@@ -33,7 +33,7 @@ import { OptionsComponent } from './options/options.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
 import { AnnotationComponent } from './extended-pdf/annotation/annotation.component'; 
-
+import {MatMenuModule} from '@angular/material/menu'; 
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,6 +70,7 @@ import { AnnotationComponent } from './extended-pdf/annotation/annotation.compon
     MatExpansionModule,
     MatSlideToggleModule,
     MatProgressBarModule,
+    MatMenuModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'

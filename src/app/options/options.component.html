@@ -1,22 +1,101 @@
 <mat-accordion>
-  <mat-expansion-panel [(expanded)]="this.expanded">
+  <mat-expansion-panel [(expanded)]="this.expanded" style="max-width: 20rem">
     <mat-expansion-panel-header>
       <mat-panel-title i18n>Options</mat-panel-title>
     </mat-expansion-panel-header>
     <div class="optionsList">
-    <mat-slide-toggle i18n [checked]="this.dataService.config.singlePageMode" (change)="this.dataService.config.singlePageMode = !this.dataService.config.singlePageMode; saveConfig()">Single Page Mode</mat-slide-toggle>
+      <mat-slide-toggle
+        i18n
+        class="wrap"
+        [checked]="this.dataService.config.singlePageMode"
+        (change)="
+          this.dataService.config.singlePageMode = !this.dataService.config.singlePageMode;
+          saveConfig()
+        "
+        >Single Page Mode</mat-slide-toggle
+      >
+      <br />
+      <mat-slide-toggle
+        i18n
+        class="wrap"
+        [checked]="this.dataService.config.showSelectionSizeOptions"
+        (change)="
+          this.dataService.config.showSelectionSizeOptions =
+            !this.dataService.config.showSelectionSizeOptions;
+          saveConfig()
+        "
+        >Show size options for selection</mat-slide-toggle
+      >
+      <br />
+      <mat-slide-toggle
+        i18n
+        class="wrap"
+        [checked]="this.dataService.config.autoAddAnnotationsToCard"
+        (change)="
+          this.dataService.config.autoAddAnnotationsToCard =
+            !this.dataService.config.autoAddAnnotationsToCard;
+          saveConfig()
+        "
+        >Automatically add new annotations to card</mat-slide-toggle
+      >
+      <br />
+      <mat-slide-toggle
+        i18n
+        class="wrap"
+        [checked]="this.dataService.config.enableAnnotationLinking"
+        (change)="
+          this.dataService.config.enableAnnotationLinking =
+            !this.dataService.config.enableAnnotationLinking;
+          saveConfig()
+        "
+        >Link Annotation on Cards to Document</mat-slide-toggle
+      >
+      <br />
+      <mat-slide-toggle
+        i18n
+        class="wrap"
+        [checked]="this.dataService.config.autoDrawLines"
+        (change)="
+          this.dataService.config.autoDrawLines = !this.dataService.config.autoDrawLines;
+          saveConfig()
+        "
+        >Automatically draw line between annotation and pdf</mat-slide-toggle
+      >
+      <br />
+      <mat-slide-toggle
+      i18n
+      class="wrap"
+      [checked]="this.dataService.config.addTextOption"
+      (change)="
+        this.dataService.config.addTextOption = !this.dataService.config.addTextOption; saveConfig()
+      "
+      >Add Text for Area Selection (instead of Image)</mat-slide-toggle
+    >
+      <br />
+      <mat-slide-toggle
+        i18n
+        class="wrap"
+        [checked]="this.dataService.config.autoAddAnki"
+        (change)="
+          this.dataService.config.autoAddAnki = !this.dataService.config.autoAddAnki; saveConfig()
+        "
+        >Automatically add cards to Anki</mat-slide-toggle
+      >
     <br />
-    <mat-slide-toggle i18n [checked]="this.dataService.config.showSelectionSizeOptions" (change)="this.dataService.config.showSelectionSizeOptions = !this.dataService.config.showSelectionSizeOptions; saveConfig()">Show size options for selection</mat-slide-toggle>
-    <br />
-    <mat-slide-toggle i18n [checked]="this.dataService.config.autoAddAnnotationsToCard" (change)="this.dataService.config.autoAddAnnotationsToCard = !this.dataService.config.autoAddAnnotationsToCard; saveConfig()">Automatically add new annotations to card</mat-slide-toggle>
-    <br />
-    <mat-slide-toggle i18n [checked]="this.dataService.config.enableAnnotationLinking" (change)="this.dataService.config.enableAnnotationLinking = !this.dataService.config.enableAnnotationLinking; saveConfig()">Link Annotation on Cards to Document</mat-slide-toggle>
-    <br />
-    <mat-slide-toggle i18n [checked]="this.dataService.config.autoDrawLines" (change)="this.dataService.config.autoDrawLines = !this.dataService.config.autoDrawLines; saveConfig()">Automatically draw line between annotation and pdf</mat-slide-toggle>
-    <br />
-    <mat-slide-toggle i18n [checked]="this.dataService.config.autoAddAnki" (change)="this.dataService.config.autoAddAnki = !this.dataService.config.autoAddAnki; saveConfig()">Automatically add cards to Anki</mat-slide-toggle>
-    <br />
-    <!-- <mat-form-field
+      <!-- <mat-button-toggle
+      class="coloredToggle"
+      title="Add Text for Area Selection (instead of Image)"
+      i18n-title
+      [checked]="this.dataService.config.addTextOption"
+      (change)="
+        this.dataService.config.addTextOption =
+          !this.dataService.config.addTextOption;
+        this.saveConfig()
+      "
+      i18n>
+    Add Text for Area Selection
+  </mat-button-toggle> -->
+      <!-- <mat-form-field
       appearance="fill"
       class="oerLanguageField"
       style="margin-bottom: -1.5em"
@@ -31,7 +110,7 @@
         </mat-option>
       </mat-select>
     </mat-form-field> -->
-  <!-- <br />
+      <!-- <br />
     <mat-button-toggle
       class="coloredToggle"
       title="Automatically add cards to Anki"
@@ -45,7 +124,7 @@
       i18n>
       <mat-icon>repeat</mat-icon> Anki
     </mat-button-toggle> -->
-    <!-- <mat-button-toggle
+      <!-- <mat-button-toggle
       class="coloredToggle"
       title="Automatically save cards to Server"
       i18n-title
@@ -59,14 +138,19 @@
       <mat-icon>repeat</mat-icon>
       <mat-icon>cloud</mat-icon>
     </mat-button-toggle> -->
-    <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em" >
-      <mat-label i18n>Anki Deck</mat-label>
-      <input matInput placeholder="Deck Name" i18n-placeholder [disabled]="!this.dataService.config.autoAddAnki"
-      [(ngModel)]="this.dataService.config.deckName">
-      <mat-icon matSuffix>inbox</mat-icon>
-    </mat-form-field>
-    <br />
-    <!-- <mat-button-toggle
+      <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
+        <mat-label i18n>Anki Deck</mat-label>
+        <input
+          matInput
+          placeholder="Deck Name"
+          i18n-placeholder
+          [disabled]="!this.dataService.config.autoAddAnki"
+          [(ngModel)]="this.dataService.config.deckName"
+        />
+        <mat-icon matSuffix>inbox</mat-icon>
+      </mat-form-field>
+      <br />
+      <!-- <mat-button-toggle
     [checked]="dataService.offlineMode"
     (change)="
       dataService.offlineMode = !dataService.offlineMode;
@@ -74,6 +158,6 @@
     "
     i18n >Offline Mode</mat-button-toggle
   > -->
-  </div>
+    </div>
   </mat-expansion-panel>
 </mat-accordion>

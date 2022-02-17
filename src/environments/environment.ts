@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  API_ENDPOINT: 'https://api.wolke7.cloud/v1',
+  API_ENDPOINT: 'https://api.cardflash.net/v1',
   API_PROJECT: '6200475f2c3292dbc7b1',
   BASE_URL: 'http://localhost:4200',
   PDF_ANNOT_URL : 'http://localhost:4200/doc',
