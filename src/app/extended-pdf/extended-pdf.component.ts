@@ -33,7 +33,6 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public pdfSrc: string = '/assets/pdfs/flashcards_siter_eu.pdf';
   public frontSelected: boolean = true;
 
-
   public selectionInsertTypes: ['h1', 'h2', 'normal', 'small'] = ['h1', 'h2', 'normal', 'small'];
 
   public selectionInsertType: 'small' | 'normal' | 'h1' | 'h2' = 'normal';
@@ -70,14 +69,22 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public document: DocumentEntry | undefined;
   public documentid: string | undefined;
 
-  constructor(public utils: UtilsService, public dataService: DataService, private dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router) {this.documentid = actRoute.snapshot.params.id;}
+  constructor(
+    public utils: UtilsService,
+    public dataService: DataService,
+    private dataApi: DataApiService,
+    private actRoute: ActivatedRoute,
+    private router: Router
+  ) {
+    this.documentid = actRoute.snapshot.params.id;
+  }
 
-  public currentLeaderLines : Map<string,any> = new Map<string,any>();
+  public currentLeaderLines: Map<string, any> = new Map<string, any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
 
   public areaSelectWithNormalMouse: boolean = false;
 
-  public isCurrentlySelectingArea : boolean = false;
+  public isCurrentlySelectingArea: boolean = false;
 
   private pdfOutline: { page: number; title: string }[] = [];
 
@@ -88,15 +95,15 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     hiddenText: '',
     chapter: '',
     title: '',
-    creationTime: Date.now()
+    creationTime: Date.now(),
   };
   @ViewChild(CardComponent) cardComp?: CardComponent;
-  
+
   @ViewChildren('flipCard')
   public flipCardChilds?: QueryList<EditorFlipCardComponent>;
-  
+
   public cards: CardEntry[] = [];
-  
+
   public busy: boolean = false;
 
   ngOnInit(): void {
@@ -105,7 +112,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataApi.getDocument(this.documentid).then((res) => {
         this.document = res;
         this.loadFromDoc(res);
-      })
+      });
     }
   }
 
@@ -118,8 +125,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     document.addEventListener('selectionchange', () => this.onSelect());
 
     this.currentLineDrawerInterval = setInterval(() => {
-      for(const l of this.currentLeaderLines.values()){
-        if(l){
+      for (const l of this.currentLeaderLines.values()) {
+        if (l) {
           l.position();
         }
       }
@@ -127,30 +134,30 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      for(const k of this.currentLeaderLines.keys()){
-        this.removeLeaderLinesForAnnotation(k);
-      }
+    for (const k of this.currentLeaderLines.keys()) {
+      this.removeLeaderLinesForAnnotation(k);
+    }
   }
 
   async loadFromDoc(doc: DocumentEntry) {
-      if (doc) {
-        this.document = doc;
-        this.currPageNumber = doc.currentPage;
-        const src = this.dataApi.getFileView(this.document?.fileid).href;
-        this.pdfSrc = src;
-        if (this.document && this.document.annotationsJSON){
-          for (let i = 0; i < this.document.annotationsJSON.length; i++) {
-            const annotJSON = this.document.annotationsJSON[i];
-            let annot: Annotation = JSON.parse(annotJSON);
-            if (this.annotationForPage.has(annot.page)) {
-              const forPage = this.annotationForPage.get(annot.page);
-              forPage!.push(annot);
-            } else {
-              this.annotationForPage.set(annot.page, [annot]);
-            }
+    if (doc) {
+      this.document = doc;
+      this.currPageNumber = doc.currentPage;
+      const src = this.dataApi.getFileView(this.document?.fileid).href;
+      this.pdfSrc = src;
+      if (this.document && this.document.annotationsJSON) {
+        for (let i = 0; i < this.document.annotationsJSON.length; i++) {
+          const annotJSON = this.document.annotationsJSON[i];
+          let annot: Annotation = JSON.parse(annotJSON);
+          if (this.annotationForPage.has(annot.page)) {
+            const forPage = this.annotationForPage.get(annot.page);
+            forPage!.push(annot);
+          } else {
+            this.annotationForPage.set(annot.page, [annot]);
           }
         }
-    this.loadCards()
+      }
+      this.loadCards();
     }
   }
 
@@ -168,11 +175,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     if (outline) {
       for (let i = 0; i < outline.length; i++) {
         const outlineEl = outline[i];
-        await this.addToPdfOutline(
-          outlineEl.dest,
-          outlineEl.title,
-          outlineEl.items
-        );
+        await this.addToPdfOutline(outlineEl.dest, outlineEl.title, outlineEl.items);
       }
     }
   }
@@ -215,40 +218,40 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   pdfLoaded(e: any) {
     this.busy = false;
     setTimeout(() => {
-    this.actRoute.fragment.subscribe((frag) => {
-    if(frag && this.getAnnotationByID(frag)){
-      console.log({frag})
-      this.scrollToAnnotation({annotationID: frag, where: 'all', drawLeaderLines: true})
-      this.router.navigate([],{fragment: undefined})
-    }
-  })  
-},2000)}
-
-  pdfLoadFailed(e: any) {
+      this.actRoute.fragment.subscribe((frag) => {
+        if (frag && this.getAnnotationByID(frag)) {
+          console.log({ frag });
+          this.scrollToAnnotation({ annotationID: frag, where: 'all', drawLeaderLines: true });
+          this.router.navigate([], { fragment: undefined });
+        }
+      });
+    }, 2000);
   }
 
-  async loadCards(){
+  pdfLoadFailed(e: any) {}
+
+  async loadCards() {
     if (this.document && this.document.cardIDs) {
       this.cards = [];
-      const allCardsProm : Promise<CardEntry>[] = []
+      const allCardsProm: Promise<CardEntry>[] = [];
       for (let i = 0; i < this.document.cardIDs.length; i++) {
         const cardID = this.document.cardIDs[i];
-        allCardsProm.push(this.dataApi.getCard(cardID))
+        allCardsProm.push(this.dataApi.getCard(cardID));
       }
-    this.cards = await Promise.all(allCardsProm)
-  }
+      this.cards = await Promise.all(allCardsProm);
+    }
   }
 
   pageRendered(e: PageRenderedEvent) {
     let pdfCanv: HTMLCanvasElement = e.source.canvas;
     e.source.div.oncontextmenu = (event: any) => this.contextMenuOnPage(event, e.source.div);
     e.source.div.onmousedown = (event: any) => this.mouseDownOnPage(event, e.source.div);
-      const pageCanvContext = pdfCanv.getContext('2d');
-      if (pageCanvContext) {
-        const dpr = window.devicePixelRatio || 1;
-        pageCanvContext.scale(dpr, dpr);
-        this.drawAnnotationsOnPage(e.pageNumber);
-        this.calcScaling();
+    const pageCanvContext = pdfCanv.getContext('2d');
+    if (pageCanvContext) {
+      const dpr = window.devicePixelRatio || 1;
+      pageCanvContext.scale(dpr, dpr);
+      this.drawAnnotationsOnPage(e.pageNumber);
+      this.calcScaling();
     }
   }
 
@@ -256,22 +259,24 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   calcScaling() {}
 
-  mouseDownOnPage(e: MouseEvent, pageEl: HTMLDivElement){
-    if(this.areaSelectWithNormalMouse){
+  mouseDownOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
+    if (this.areaSelectWithNormalMouse) {
       console.log('contextMenuOnPage', { e }, { pageEl });
-      this.startAreaSelection(e,pageEl);
+      this.startAreaSelection(e, pageEl);
       this.areaSelectWithNormalMouse = false;
     }
   }
   contextMenuOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
     if (!this.getSelection()) {
       console.log('contextMenuOnPage', { e }, { pageEl });
-      this.startAreaSelection(e,pageEl);
+      this.startAreaSelection(e, pageEl);
     }
   }
 
-  startAreaSelection(e: MouseEvent, pageEl: HTMLDivElement){
-    pageEl.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = 'crosshair'))
+  startAreaSelection(e: MouseEvent, pageEl: HTMLDivElement) {
+    pageEl
+      .querySelectorAll('*')
+      .forEach((e) => e instanceof HTMLElement && (e.style.cursor = 'crosshair'));
     e.preventDefault();
     this.rect.x1 = e.x;
     this.rect.y1 = e.y;
@@ -296,7 +301,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       pageEl.removeAllListeners('mouseup');
     }
 
-    pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''))
+    pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''));
     this.isCurrentlySelectingArea = false;
     this.addAreaSelection(this.rect);
     console.log('Area selection ended: ', this.rect);
@@ -311,7 +316,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     const y_min = this.getMin(rect.y1, rect.y2);
     const x_max = this.getMax(rect.x1, rect.x2);
     const y_max = this.getMax(rect.y1, rect.y2);
-    const sortedRect = {x1: x_min, x2: x_max, y1: y_min, y2: y_max};
+    const sortedRect = { x1: x_min, x2: x_max, y1: y_min, y2: y_max };
     const pdfPoint = this.getPDFPoint({
       left: x_min,
       right: x_max,
@@ -325,25 +330,27 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         page = pageDetected;
       }
       const id = this.nanoid();
-      const newAnnotation : Annotation = {
+      const newAnnotation: Annotation = {
         id: id,
         type: 'area',
         color: '#ffa62170',
         points: [pdfPoint],
         page: page,
       };
-      const text = this.getTextFromPosition(sortedRect,page)
-      if (this.dataService.config.addTextOption){
+      const text = this.getTextFromPosition(sortedRect, page);
+      if (this.dataService.config.addTextOption) {
         newAnnotation.text = text;
-      }else{
+      } else {
         newAnnotation.hiddenText = text;
-        const imgSrc = this.getImageFromSelection(sortedRect,page)
-        if(imgSrc && this.documentid){
+        const imgSrc = this.getImageFromSelection(sortedRect, page);
+        if (imgSrc && this.documentid) {
           const blob: Blob = await imgSrcToBlob(imgSrc);
-            const imgRes = await this.dataApi.saveFile(new File([blob], this.documentid + '_' + id + '.png'))
-            if (imgRes.$id !== ""){
-              newAnnotation.imgID = imgRes.$id;
-            }
+          const imgRes = await this.dataApi.saveFile(
+            new File([blob], this.documentid + '_' + id + '.png')
+          );
+          if (imgRes.$id !== '') {
+            newAnnotation.imgID = imgRes.$id;
+          }
         }
       }
 
@@ -362,7 +369,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     const y = rect.y1 - canvasRect.top;
     const width = rect.x2 - rect.x1;
     const height = rect.y2 - rect.y1;
-    if(width <= 0 || height <= 0){
+    if (width <= 0 || height <= 0) {
       return undefined;
     }
     const data = context.getImageData(
@@ -381,28 +388,26 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  getTextFromPosition( rect: { x1: number; x2: number; y1: number; y2: number }, pageNumber: number) {
-    const pageRef: HTMLElement | null = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1]?.div;
+  getTextFromPosition(
+    rect: { x1: number; x2: number; y1: number; y2: number },
+    pageNumber: number
+  ) {
+    const pageRef: HTMLElement | null =
+      this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1]?.div;
 
     const pageRect = pageRef?.getBoundingClientRect();
-    console.log({pageRef});
-    const textLayer: Element | null | undefined =
-      pageRef?.querySelector('.textLayer');
+    console.log({ pageRef });
+    const textLayer: Element | null | undefined = pageRef?.querySelector('.textLayer');
 
     const spans: NodeListOf<HTMLSpanElement> | null | undefined =
       textLayer?.querySelectorAll('span');
-    console.log({spans},{rect},{pageRect})
+    console.log({ spans }, { rect }, { pageRect });
     if (pageRef && textLayer && spans && pageRect) {
       let ret = '';
       spans.forEach((span) => {
         const x = parseFloat(span.style.left) + pageRect.left;
         const y = parseFloat(span.style.top) + pageRect.top;
-        if (
-          x >= rect.x1 &&
-          x <= rect.x2 &&
-          y >= rect.y1 &&
-          y <= rect.y2
-        ) {
+        if (x >= rect.x1 && x <= rect.x2 && y >= rect.y1 && y <= rect.y2) {
           ret += ' ' + span.textContent;
         }
       });
@@ -496,9 +501,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  addAnnotation(newAnnotation: Annotation){
-    if(this.dataService.config.autoAddAnnotationsToCard){
-      this.addAnnotationToCard(newAnnotation,this.frontSelected? 'front' : 'back')
+  addAnnotation(newAnnotation: Annotation) {
+    if (this.dataService.config.autoAddAnnotationsToCard) {
+      this.addAnnotationToCard(newAnnotation, this.frontSelected ? 'front' : 'back');
     }
     const annotations = this.annotationForPage.get(newAnnotation.page) || [];
     annotations.push(newAnnotation);
@@ -508,19 +513,19 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     this.saveDocument();
   }
 
-  addAnnotationToCard(annotation: Annotation, side: 'front' | 'back'){
-   if(this.documentid){
-     const reference = this.utils.generateReferenceFromAnnotation(annotation,this.documentid)
-     if(this.currentCard.front === '' && this.currentCard.front === ''){
-       this.currentCard.title = this.document?.name || '';
-      this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber)
-     }
-     if(side === 'front'){
-       this.currentCard.front += reference;
-     }else{
-      this.currentCard.back += reference;
+  addAnnotationToCard(annotation: Annotation, side: 'front' | 'back') {
+    if (this.documentid) {
+      const reference = this.utils.generateReferenceFromAnnotation(annotation, this.documentid);
+      if (this.currentCard.front === '' && this.currentCard.front === '') {
+        this.currentCard.title = this.document?.name || '';
+        this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber);
+      }
+      if (side === 'front') {
+        this.currentCard.front += reference;
+      } else {
+        this.currentCard.back += reference;
+      }
     }
-  }
   }
 
   drawAnnotationOnPage(pageNumber: number, annotation: Annotation) {
@@ -602,22 +607,24 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
           this.scrollToAnnotation({
             annotationID: annotation.id,
             where: 'all',
-            drawLeaderLines: true
+            drawLeaderLines: true,
           });
         };
         page.div.appendChild(jumpDiv);
-        let observer = new IntersectionObserver((e) => this.handleAnnotationIntersection(e, annotation.id) );
+        let observer = new IntersectionObserver((e) =>
+          this.handleAnnotationIntersection(e, annotation.id)
+        );
         observer.observe(jumpDiv);
       }
     }
   }
 
-  handleAnnotationIntersection(e: IntersectionObserverEntry[], annotationID: string){
-    if(e.length < 1 ) return;
+  handleAnnotationIntersection(e: IntersectionObserverEntry[], annotationID: string) {
+    if (e.length < 1) return;
 
-    if(e[0].isIntersecting && this.dataService.config.autoDrawLines){
-      this.scrollToAnnotation({annotationID: annotationID, where: "auto", drawLeaderLines: true});
-    }else if(!e[0].isIntersecting){
+    if (e[0].isIntersecting && this.dataService.config.autoDrawLines) {
+      this.scrollToAnnotation({ annotationID: annotationID, where: 'auto', drawLeaderLines: true });
+    } else if (!e[0].isIntersecting) {
       this.removeLeaderLinesForAnnotation(annotationID);
     }
   }
@@ -635,63 +642,75 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // auto <=> on pdf and annotation (used when auto draw lines is activated)
   // leader lines are only drawn if parameter is true and where is set to either auto or all
-  async scrollToAnnotation(event: { annotationID: string; where: 'pdf' | 'annotations' | 'card' | 'auto' | 'all', drawLeaderLines?: boolean}) {
+  async scrollToAnnotation(event: {
+    annotationID: string;
+    where: 'pdf' | 'annotations' | 'card' | 'auto' | 'all';
+    drawLeaderLines?: boolean;
+  }) {
     const annotation: Annotation | undefined = this.getAnnotationByID(event.annotationID);
-    if ( 
+    if (
       annotation &&
-      !this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID) && (event.where === 'pdf' || event.where === 'all')
+      !this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID) &&
+      (event.where === 'pdf' || event.where === 'all')
     ) {
       this.currPageNumber = annotation.page;
       // wait a moment to allow pdf reader to load page
       await new Promise<void>((resolve) => {
         setTimeout(async () => {
-        resolve()
+          resolve();
         }, 300);
-      })
+      });
     }
 
-  // event.where === 'auto' || 
-    if(event.where === 'pdf' ||event.where === 'all'){
+    if (event.where === 'annotations' || event.where === 'auto' || event.where === 'all') {
+      this.utils.scrollIDIntoView(environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID);
+    }
+    // event.where === 'auto' ||
+    if (event.where === 'pdf' || event.where === 'all') {
       setTimeout(async () => {
         this.utils.scrollIDIntoView(environment.ANNOTATION_JMP_PREFIX + event.annotationID);
       }, 400);
     }
-    if(event.where === 'card' || event.where === 'all'){
-      this.flipCardChilds?.forEach((fc) =>
-      fc.flipToSideForAnnotation(event.annotationID)
-    );
+    if (event.where === 'card' || event.where === 'all') {
+      this.flipCardChilds?.forEach((fc) => fc.flipToSideForAnnotation(event.annotationID));
 
       const cardEls = document.querySelectorAll(`[data-annotationid=_${event.annotationID}]`);
-      if(cardEls.length > 0){
-        console.log({cardEls})
-      let minEl = cardEls[cardEls.length-1]
-      // cardEls.forEach((el) => ( el.scrollHeight < minEl.scrollHeight) && (minEl = el))
-      if(!this.utils.isElementInView(minEl)){
-        minEl.scrollIntoView({ behavior: 'auto',block: 'start' });
-      }
-      if(event.drawLeaderLines){
-      for (let i = 0; i < cardEls.length; i++) {
-        const el = cardEls[i];
-        if(event.where === 'all' && this.utils.isElementInView(el)){
-          const annotationEl = document.getElementById(environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID)
-          if(annotationEl){
-            const line = this.utils.createLineBetweenElements(el,annotationEl,annotation?.color,3,false,false)
-            setTimeout(() => {
-              line.remove();
-            },1500)
+      if (cardEls.length > 0) {
+        console.log({ cardEls });
+        let minEl = cardEls[cardEls.length - 1];
+        // cardEls.forEach((el) => ( el.scrollHeight < minEl.scrollHeight) && (minEl = el))
+        if (!this.utils.isElementInView(minEl)) {
+          minEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+        if (event.drawLeaderLines) {
+          for (let i = 0; i < cardEls.length; i++) {
+            const el = cardEls[i];
+            if (event.where === 'all' && this.utils.isElementInView(el)) {
+              const annotationEl = document.getElementById(
+                environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID
+              );
+              if (annotationEl) {
+                const line = this.utils.createLineBetweenElements(
+                  el,
+                  annotationEl,
+                  annotation?.color,
+                  3,
+                  false,
+                  false
+                );
+                setTimeout(() => {
+                  line.remove();
+                }, 1500);
+              }
+            }
           }
         }
-        }
-      }
       }
     }
-    if(event.where === 'annotations' || event.where === 'auto' || event.where === 'all'){
-      let el = document.getElementById(
-        environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID
-      );
+    if (event.where === 'annotations' || event.where === 'auto' || event.where === 'all') {
+      let el = document.getElementById(environment.ANNOTATION_ELEMENT_PREFIX + event.annotationID);
       if (el !== null) {
         el.classList.add('highlight');
-        el.scrollIntoView({ behavior: 'auto',block: 'start' })
         setTimeout(() => {
           if (el !== null) {
             el.classList.remove('highlight');
@@ -700,39 +719,54 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if(event.drawLeaderLines){
-      if(event.where === 'auto' || (event.where === 'all')){
+    if (event.drawLeaderLines) {
+      if (event.where === 'auto' || event.where === 'all') {
         // also check for value bc it might be undefined? In that case we will simply overwrite it with new one
-        if(!(this.currentLeaderLines.has(event.annotationID) && this.currentLeaderLines.get(event.annotationID))){
+        if (
+          !(
+            this.currentLeaderLines.has(event.annotationID) &&
+            this.currentLeaderLines.get(event.annotationID)
+          )
+        ) {
           // Draw new leaderLines between pdf and annotation
-        const leaderLine = this.utils.createLineBetweenIds(
+
+          const leaderLine = this.utils.createLineBetweenIds(
             environment.ANNOTATION_ELEMENT_PREFIX + annotation?.id,
             environment.ANNOTATION_JMP_PREFIX + annotation?.id,
             annotation?.color,
-            event.where === 'all' ? 7 : 5,false
-            );
+            event.where === 'all' ? 7 : 5,
+            false
+          );
 
-        this.currentLeaderLines.set(event.annotationID,leaderLine);
-        // Don't remove line if autoDraw is activated: The intersectionObserver will take care of that when its out of view
-        if(event.where === 'all'){
-          setTimeout(async () => {
-            if(!(this.dataService.config.autoDrawLines && this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID))){
-              this.removeLeaderLinesForAnnotation(event.annotationID)
-            }
+          this.currentLeaderLines.set(event.annotationID, leaderLine);
+          // Don't remove line if autoDraw is activated: The intersectionObserver will take care of that when its out of view
+          if (event.where === 'all') {
+            setTimeout(async () => {
+              if (
+                !(
+                  this.dataService.config.autoDrawLines &&
+                  this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID)
+                )
+              ) {
+                this.removeLeaderLinesForAnnotation(event.annotationID);
+              }
             }, 1500);
+          }
+        } else {
+          console.log(
+            'leaderLine already exists',
+            event.annotationID,
+            this.currentLeaderLines.get(event.annotationID)
+          );
         }
-      }else{
-        console.log('leaderLine already exists',event.annotationID,this.currentLeaderLines.get(event.annotationID))
       }
-      }
-
     }
   }
 
-  removeLeaderLinesForAnnotation(annotationID: string){
-    if(this.currentLeaderLines.has(annotationID)){
+  removeLeaderLinesForAnnotation(annotationID: string) {
+    if (this.currentLeaderLines.has(annotationID)) {
       const ll = this.currentLeaderLines.get(annotationID);
-      if(ll){
+      if (ll) {
         ll.remove();
         this.currentLeaderLines.delete(annotationID);
       }
@@ -818,8 +852,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async deleteAnnotation(id: string) {
     const annotation = this.getAnnotationByID(id);
-    if(annotation?.imgID){
-      await this.dataApi.deleteFile(annotation.imgID)
+    if (annotation?.imgID) {
+      await this.dataApi.deleteFile(annotation.imgID);
     }
     if (annotation) {
       const filteredAnnot = this.annotationForPage
@@ -830,65 +864,65 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         this.saveDocument();
       }
       const context = this.tryGetPageCanvasContext(annotation.page);
-      if(context != null){
-      const page = this.getPdfViewerApplication().pdfViewer._pages[annotation.page - 1];
-      const viewport = page.viewport;
+      if (context != null) {
+        const page = this.getPdfViewerApplication().pdfViewer._pages[annotation.page - 1];
+        const viewport = page.viewport;
 
-      const pageRef = await (this.getPdfViewerApplication().pdfViewer as any).pdfDocument.getPage(
-        annotation.page
-      );
-      const renderRes = await pageRef.render({
-        canvasContext: context,
-        viewport: viewport,
-      });
-      setTimeout(() => {
-        this.drawAnnotationsOnPage(annotation.page);
-      }, 300);
-    }
+        const pageRef = await (this.getPdfViewerApplication().pdfViewer as any).pdfDocument.getPage(
+          annotation.page
+        );
+        const renderRes = await pageRef.render({
+          canvasContext: context,
+          viewport: viewport,
+        });
+        setTimeout(() => {
+          this.drawAnnotationsOnPage(annotation.page);
+        }, 300);
+      }
       this.removeDivWithID(id);
     }
   }
 
-  tryGetPageCanvasContext(pageNumber: number){
+  tryGetPageCanvasContext(pageNumber: number) {
     const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
-    const canvas = page.div.querySelector('div.canvasWrapper > canvas')
-    if(canvas){
+    const canvas = page.div.querySelector('div.canvasWrapper > canvas');
+    if (canvas) {
       return canvas.getContext('2d');
-    }else{
+    } else {
       return null;
     }
   }
 
   async updateAnnotation(changedAnnotation: Annotation) {
-    console.log({changedAnnotation})
+    console.log({ changedAnnotation });
     const annotation = this.getAnnotationByID(changedAnnotation.id);
     if (annotation) {
       annotation.color = changedAnnotation.color;
       annotation.text = changedAnnotation.text;
 
       const context = this.tryGetPageCanvasContext(annotation.page);
-      if(context != null){
-      const page = this.getPdfViewerApplication().pdfViewer._pages[annotation.page - 1];
-      console.log({context},{page})
-      const viewport = page.viewport;
-      const pageRef = await (this.getPdfViewerApplication().pdfViewer as any).pdfDocument.getPage(
-        annotation.page
-      );
-      const renderRes = await pageRef.render({
-        canvasContext: context,
-        viewport: viewport,
-      });
-      setTimeout(() => {
-        this.drawAnnotationsOnPage(annotation.page);
-      }, 200);
-    }
+      if (context != null) {
+        const page = this.getPdfViewerApplication().pdfViewer._pages[annotation.page - 1];
+        console.log({ context }, { page });
+        const viewport = page.viewport;
+        const pageRef = await (this.getPdfViewerApplication().pdfViewer as any).pdfDocument.getPage(
+          annotation.page
+        );
+        const renderRes = await pageRef.render({
+          canvasContext: context,
+          viewport: viewport,
+        });
+        setTimeout(() => {
+          this.drawAnnotationsOnPage(annotation.page);
+        }, 200);
+      }
 
       this.saveDocument();
     }
   }
 
   // This is just an itial idea to show all lines of a page once we scroll to it. Maybe the Intersection Observer API is a better fit.
-  onPageChange(newPageNumber: number){
+  onPageChange(newPageNumber: number) {
     // const annotations = this.annotationForPage.get(newPageNumber)
     // if(annotations){
     //   annotations.forEach((annotation) => this.scrollToAnnotation({annotationID: annotation.id,where: 'both'}))
@@ -907,66 +941,69 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       const jsonAnnot = flatAnnotations.map((annot) => JSON.stringify(annot));
       this.document.annotationsJSON = jsonAnnot;
       console.log(this.document);
-      this.document.cardIDs = this.cards.map((c)=> c.$id);
-      await this.dataApi.updateDocument(this.document.$id,this.document)
+      this.document.cardIDs = this.cards.map((c) => c.$id);
+      await this.dataApi.updateDocument(this.document.$id, this.document);
     }
   }
 
-  updateCard(card: CardEntry | CardEntryContent){
+  updateCard(card: CardEntry | CardEntryContent) {
     this.finishCard(card);
   }
 
-  deleteCard(card: CardEntry | CardEntryContent){
-    if(card.$id){
-      this.dataApi.deleteCard(card.$id)
-      this.cards = this.cards.filter((c)=> c.$id !== card.$id)
+  deleteCard(card: CardEntry | CardEntryContent) {
+    if (card.$id) {
+      this.dataApi.deleteCard(card.$id);
+      this.cards = this.cards.filter((c) => c.$id !== card.$id);
     }
   }
 
-  getCardId(index: number, card: CardEntry | CardEntryContent){
+  getCardId(index: number, card: CardEntry | CardEntryContent) {
     return card.$id || index;
   }
 
-  async finishCard(newCard?: CardEntryContent | CardEntry){
-    const cardCopy = {...this.currentCard}
+  async finishCard(newCard?: CardEntryContent | CardEntry) {
+    const cardCopy = { ...this.currentCard };
     await this.saveCard(cardCopy);
     this.nextCard(newCard);
   }
 
-  async saveCard(card: CardEntry | CardEntryContent){
-    if(!card.$id && !card.front && !card.back ){
+  async saveCard(card: CardEntry | CardEntryContent) {
+    if (!card.$id && !card.front && !card.back) {
       return;
     }
-    
+
     window.addEventListener('beforeunload', function (e) {
       delete e['returnValue'];
     });
     card = await this.utils.replaceWithServerImgs(card);
     const cardIsNew = !card.$id;
-    const saveOrUpdatePromise : Promise<CardEntry> = card.$id ? this.dataApi.updateCard(card.$id,card) : this.dataApi.createCard(card)
-    saveOrUpdatePromise.then((res) => {
-      if(this.dataService.config.autoAddAnki){
-        this.utils.saveCard(res,'anki',this.dataService.config.deckName)
-      }
-      if(cardIsNew){
-        this.cards.push(res);
-        const cardIDs = this.document?.cardIDs || [];
-        cardIDs.push(res.$id);
-        if(this.document){
-          this.document.cardIDs = cardIDs;
-          this.saveDocument();
+    const saveOrUpdatePromise: Promise<CardEntry> = card.$id
+      ? this.dataApi.updateCard(card.$id, card)
+      : this.dataApi.createCard(card);
+    saveOrUpdatePromise
+      .then((res) => {
+        if (this.dataService.config.autoAddAnki) {
+          this.utils.saveCard(res, 'anki', this.dataService.config.deckName);
         }
-      }
-    }).catch((reas) => {
-      if(this.dataService.config.autoAddAnki){
-        this.utils.saveCard(card,'anki',this.dataService.config.deckName)
-      }
-    })
-      
+        if (cardIsNew) {
+          this.cards.push(res);
+          const cardIDs = this.document?.cardIDs || [];
+          cardIDs.push(res.$id);
+          if (this.document) {
+            this.document.cardIDs = cardIDs;
+            this.saveDocument();
+          }
+        }
+      })
+      .catch((reas) => {
+        if (this.dataService.config.autoAddAnki) {
+          this.utils.saveCard(card, 'anki', this.dataService.config.deckName);
+        }
+      });
   }
 
   async nextCard(newCard?: CardEntryContent | CardEntry) {
-    if(!newCard){
+    if (!newCard) {
       newCard = {
         front: '',
         back: '',
@@ -995,8 +1032,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!('num' in dest) || !('gen' in dest)) {
       dest = dest[0];
     }
-    const pageIndex: number =
-      await this.getPdfViewerApplication().pdfDocument.getPageIndex(dest); //returns pageNr-1
+    const pageIndex: number = await this.getPdfViewerApplication().pdfDocument.getPageIndex(dest); //returns pageNr-1
     this.pdfOutline.push({ page: pageIndex + 1, title: title });
 
     for (let i = 0; i < items.length; i++) {
@@ -1018,5 +1054,4 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return '';
   }
-
 }

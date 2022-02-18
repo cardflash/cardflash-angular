@@ -105,10 +105,7 @@ export class UtilsService {
     );
     let innerEl = '';
     if (color) {
-      innerEl = `<mark class="${color.marker}">
-      <span data-annotationid="_${annotation.id}">${
-        annotation?.text || annotation.id
-      }</span></mark>`;
+      innerEl = `<mark class="${color.marker}"><span data-annotationid="_${annotation.id}">${annotation?.text || annotation.id}</span></mark>`;
       if(this.dataService.config.enableAnnotationLinking){
         innerEl = '[' + innerEl + ']'
       }
@@ -120,6 +117,7 @@ export class UtilsService {
     }else{
       reference += `${innerEl}<br/>`;
     }
+    console.log({innerEl},{reference},{annotation})
     return reference;
 }
 

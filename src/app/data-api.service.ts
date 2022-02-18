@@ -87,7 +87,7 @@ export class DataApiService {
 
   listEntries<T extends EntryWithCreationTime>(type: ENTRY_TYPES, queries: string[] | undefined , newestFirst: boolean | undefined) {
     console.log({newestFirst})
-    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries,undefined,undefined,undefined,undefined,['creationTime'],[newestFirst ? 'DESC' : 'ASC']);
+    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries,100,undefined,undefined,undefined,['creationTime'],[newestFirst ? 'DESC' : 'ASC']);
   }
 
 

@@ -13,12 +13,13 @@ textarea {
 .annotationOuterWrapper {
     padding-top: 10px;
     display: flex;
+    --highlightColor: rgb(246, 195, 26);
 }
 
 .annotationOuterWrapper.highlight .annotationWrapper {
     // animation: blink 5s ease-in-out;
     filter: saturate(200%);
-    box-shadow: 0px 0px 4px 4px rgb(253, 236, 201); 
+    box-shadow: 0px 0px 10px 10px  var(--highlightColor); 
 }
 
 .commentWrapper {

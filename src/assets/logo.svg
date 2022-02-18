@@ -9,6 +9,9 @@
    id="svg5"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    sodipodi:docname="logo.svg"
+   inkscape:export-filename="/home/aarkue/doc/projects/flashcards/src/assets/logo.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,14 +27,14 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1.5862247"
-     inkscape:cx="414.82142"
-     inkscape:cy="463.67957"
+     inkscape:cx="414.82143"
+     inkscape:cy="463.67958"
      inkscape:window-width="2500"
      inkscape:window-height="1570"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="g836" />
   <defs
      id="defs2" />
   <g
@@ -47,69 +50,74 @@
        inkscape:export-ydpi="96">
       <path
          d="M 14.5,3 A 0.5,0.5 0 0 1 15,3.5 v 9 A 0.5,0.5 0 0 1 14.5,13 H 1.5 A 0.5,0.5 0 0 1 1,12.5 v -9 A 0.5,0.5 0 0 1 1.5,3 Z M 1.5,2 A 1.5,1.5 0 0 0 0,3.5 v 9 A 1.5,1.5 0 0 0 1.5,14 h 13 A 1.5,1.5 0 0 0 16,12.5 v -9 A 1.5,1.5 0 0 0 14.5,2 Z"
-         id="path824" />
-      <path
-         d="M 5,8 A 0.5,0.5 0 0 1 5.5,7.5 h 7 a 0.5,0.5 0 0 1 0,1 h -7 A 0.5,0.5 0 0 1 5,8 Z M 5,5.5 A 0.5,0.5 0 0 1 5.5,5 h 7 a 0.5,0.5 0 0 1 0,1 h -7 A 0.5,0.5 0 0 1 5,5.5 Z m 0,5 A 0.5,0.5 0 0 1 5.5,10 h 7 a 0.5,0.5 0 0 1 0,1 h -7 A 0.5,0.5 0 0 1 5,10.5 Z m -1,-5 a 0.5,0.5 0 1 1 -1,0 0.5,0.5 0 0 1 1,0 z M 4,8 A 0.5,0.5 0 1 1 3,8 0.5,0.5 0 0 1 4,8 Z m 0,2.5 a 0.5,0.5 0 1 1 -1,0 0.5,0.5 0 0 1 1,0 z"
-         id="path826" />
+         id="path824"
+         inkscape:export-filename="/home/aarkue/doc/projects/flashcards/src/assets/path824.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
     </g>
     <g
-       id="g894"
-       transform="matrix(0.15354106,0,0,0.15354106,84.015913,89.905147)"
-       inkscape:export-filename="/home/aarkue/dow/cardflash.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96">
+       id="g907"
+       transform="matrix(0.15470499,0,0,0.15470499,71.539798,73.644942)">
+      <polygon
+         style="fill:#ffd500"
+         points="382.395,228.568 291.215,228.568 330.762,10.199 129.603,283.43 220.785,283.43 181.238,501.799 "
+         id="polygon842"
+         transform="rotate(11.648536,119.40444,4.4517451e-4)" />
       <g
-         id="g840">
-	<polygon
-   style="fill:#f7cf52"
-   points="311.656,0 157.055,0 90.798,196.319 164.417,196.319 88.344,400 289.571,159.509 218.405,159.509 "
-   id="polygon838" />
+         id="g850-3"
+         transform="rotate(11.648536,119.40444,4.4517451e-4)">
+	<path
+   style="fill:#3d3d3d"
+   d="m 181.234,512 c -1.355,0 -2.726,-0.271 -4.033,-0.833 -4.357,-1.878 -6.845,-6.514 -5.999,-11.184 L 208.573,293.63 h -78.969 c -3.846,0 -7.367,-2.164 -9.103,-5.597 -1.735,-3.433 -1.391,-7.55 0.889,-10.648 L 322.548,4.153 c 2.814,-3.822 7.891,-5.196 12.25,-3.32 4.357,1.878 6.845,6.514 5.999,11.184 l -37.37,206.353 h 78.969 c 3.846,0 7.367,2.164 9.103,5.597 1.735,3.433 1.391,7.55 -0.889,10.648 L 189.451,507.846 c -1.97,2.677 -5.052,4.154 -8.217,4.154 z M 149.777,273.231 h 71.007 c 3.023,0 5.89,1.341 7.828,3.662 1.938,2.32 2.747,5.38 2.208,8.355 L 199.116,460.313 362.221,238.768 h -71.007 c -3.023,0 -5.89,-1.341 -7.828,-3.661 -1.938,-2.32 -2.747,-5.38 -2.208,-8.355 L 312.882,51.687 Z"
+   id="path844" />
 
+	
+	
 </g>
       <g
-         id="g842">
+         id="g852-6">
 </g>
       <g
-         id="g844">
+         id="g854-7">
 </g>
       <g
-         id="g846">
+         id="g856-5">
 </g>
       <g
-         id="g848">
+         id="g858-3">
 </g>
       <g
-         id="g850">
+         id="g860-5">
 </g>
       <g
-         id="g852">
+         id="g862-6">
 </g>
       <g
-         id="g854">
+         id="g864-2">
 </g>
       <g
-         id="g856">
+         id="g866-9">
 </g>
       <g
-         id="g858">
+         id="g868-1">
 </g>
       <g
-         id="g860">
+         id="g870-2">
 </g>
       <g
-         id="g862">
+         id="g872">
 </g>
       <g
-         id="g864">
+         id="g874">
 </g>
       <g
-         id="g866">
+         id="g876">
 </g>
       <g
-         id="g868">
+         id="g878">
 </g>
       <g
-         id="g870">
+         id="g880">
 </g>
     </g>
   </g>

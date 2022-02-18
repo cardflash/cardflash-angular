@@ -1,5 +1,6 @@
 <div
   class="annotationOuterWrapper"
+  [style]="{'--highlightColor' : this.annotation?.color}"
   id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   #annotationOuterWrapper
   [draggable]="!isEditing"
