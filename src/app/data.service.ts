@@ -75,7 +75,7 @@ export class DataService {
     localforage.config({
       name: 'cardflash_net',
       storeName: 'cardflash_net',
-      driver: [ localforage.LOCALSTORAGE, localforage.INDEXEDDB, localforage.WEBSQL]
+      driver: [ localforage.INDEXEDDB, localforage.WEBSQL, localforage.INDEXEDDB]
     });
   }
 

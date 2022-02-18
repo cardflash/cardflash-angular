@@ -12,6 +12,7 @@ import { Annotation } from '../../types/annotation';
 import { environment } from '../../../environments/environment';
 import { UtilsService } from 'src/app/utils.service';
 import { DataApiService } from 'src/app/data-api.service';
+import { DomSanitizer } from '@angular/platform-browser';
 @Component({
   selector: 'app-annotation',
   templateUrl: './annotation.component.html',
@@ -41,12 +42,12 @@ export class AnnotationComponent implements OnInit, OnDestroy {
   public mouseOver: boolean = false;
 
   public isEditing: boolean = false;
-  public imgSrc: string | null = null;
-  constructor(public utils: UtilsService, public dataApi: DataApiService) {}
+  public imgSrc: string | undefined = undefined;
+  constructor(public utils: UtilsService, public dataApi: DataApiService,public sanitizer: DomSanitizer) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     if (this.annotation?.imgID) {
-      this.imgSrc = this.dataApi.getFileView(this.annotation.imgID).href;
+      this.imgSrc = (await this.dataApi.getFileView(this.annotation.imgID)).href;
     }
   }
 
@@ -126,9 +127,9 @@ export class AnnotationComponent implements OnInit, OnDestroy {
     this.isEditing = !this.isEditing;
   }
 
-  dragStart(e: DragEvent) {
+  async dragStart(e: DragEvent) {
     if (this.annotation && this.documentID && !this.isEditing) {
-      const reference = this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID)
+      const reference = await this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID,this.imgSrc)
       e.dataTransfer?.setData('text/html', reference);
     }
   }

@@ -25,7 +25,7 @@
       [(ngModel)]="annotation.text"
     ></textarea>
     <!-- <pre>{{ annotation?.id }}</pre> -->
-    <img *ngIf="imgSrc !== null" src="{{imgSrc}}" alt="{{this.annotation?.hiddenText}}" />
+    <img *ngIf="imgSrc !== undefined" [src]="this.sanitizer.bypassSecurityTrustUrl(imgSrc || '')" alt="{{this.annotation?.hiddenText}}" />
     <div class="commentWrapper">
       <textarea
         class="commentTextarea"

@@ -95,10 +95,16 @@ export class UtilsService {
     return line;
   }
 
-  generateReferenceFromAnnotation(annotation: Annotation, documentID: string){
+  async generateReferenceFromAnnotation(annotation: Annotation, documentID: string, annotationImgURL? : string){
+    let imgURL : string | undefined;
+   if(annotationImgURL && annotationImgURL.indexOf('data:') === 0){
+    imgURL = annotationImgURL;
+   }else if(annotation.imgID){
+    imgURL = (await this.dataApi.getFileView(annotation.imgID)).href;
+   }
     let reference = '';
     if (annotation.imgID) {
-      reference = `<figure class="image"><img src="${this.dataApi.getFileView(annotation.imgID).href}" alt="${annotation.hiddenText}" data-imageid="${annotation.imgID}"></figure>`;
+      reference = `<figure class="image"><img src="${imgURL}" alt="${annotation.hiddenText}" data-imageid="${annotation.imgID}"></figure>`;
     }
     const color = this.availableAnnotationColors.find(
       (val) => val.hex === annotation?.color
@@ -265,7 +271,7 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
     console.log({serverImages})
     if (serverImages) {
       for (let i = 0; i < serverImages.length; i++) {
-        const src = this.dataApi.getFileView(serverImages[i]);
+        const src = await this.dataApi.getFileView(serverImages[i]);
         const dataURL = await imgSrcToDataURL(
           src.href,
           'image/png',
@@ -483,8 +489,8 @@ async saveCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download',deckN
         const node = imgs[i]
         if (node.src.indexOf('data:') === 0){
           imgSavePromises.push(new Promise<void>(async (resolve,reject) => {
-            this.dataApi.saveFile(new File([await imgSrcToBlob(node.src)],card.creationTime+'_img.png')).then((file) => {
-            node.src = this.dataApi.getFileView(file.$id).href;
+            this.dataApi.saveFile(new File([await imgSrcToBlob(node.src)],card.creationTime+'_img.png')).then(async (file) => {
+            node.src = (await this.dataApi.getFileView(file.$id)).href;
             node.setAttribute('data-imageid',file.$id)
             card.imgIDs?.push(file.$id)
             resolve()

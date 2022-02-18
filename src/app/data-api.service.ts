@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { Appwrite, Models, Query } from 'appwrite';
 import { REPL_MODE_SLOPPY } from 'repl';
 import { environment } from 'src/environments/environment';
+import { AppwriteProvider } from './data-api-providers/appwrite-provider';
+import { LocalProvider } from './data-api-providers/local-provider';
+import { DataService } from './data.service';
 import { Annotation } from './types/annotation';
+import { DataApiProvider } from './types/data-api-provider';
 
 export interface DocumentEntryContent {
   // $id: string,
@@ -42,72 +46,51 @@ export const ENTRY_TYPES = {
   CARDS: 'cards',
 };
 
+type ENTRY_TYPES = typeof ENTRY_TYPES[keyof typeof ENTRY_TYPES];
 export type DocumentEntry = Models.Document & DocumentEntryContent;
 export type CardEntry = Models.Document & CardEntryContent;
-type ENTRY_TYPES = typeof ENTRY_TYPES[keyof typeof ENTRY_TYPES];
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataApiService {
-  private appwrite: Appwrite;
+  private apiProvider: DataApiProvider;
 
-  constructor() {
-    this.appwrite = new Appwrite();
-    this.appwrite.setEndpoint(environment.API_ENDPOINT);
-    this.appwrite.setProject(environment.API_PROJECT);
+  constructor(private dataService: DataService) {
+    this.apiProvider = new LocalProvider();
+    dataService.init().then((res) => {
+      console.log(dataService.offlineMode)
+      if(!dataService.offlineMode){
+        this.apiProvider = new AppwriteProvider();
+      }else{
+        this.apiProvider = new LocalProvider();
+      }
+    })
   }
 
-  createEntry<T extends Models.Document>(
-    type: ENTRY_TYPES,
-    data: object,
-    read = undefined,
-    write = undefined
-  ) {
-    return this.appwrite.database.createDocument<T>(
-      environment.collectionMap[type],
-      'unique()',
-      data,
-      read,
-      write
-    );
+  setProvider(type: 'appwrite' | 'local'){
+    if(type === 'appwrite'){
+      this.apiProvider = new AppwriteProvider();
+    }else{
+      this.apiProvider = new LocalProvider();
+    }
   }
-
-  getEntry<T extends Models.Document>(type: ENTRY_TYPES, id: string) {
-    return this.appwrite.database.getDocument<T>(environment.collectionMap[type], id);
-  }
-
-  updateEntry<T extends Models.Document>(type: ENTRY_TYPES, id: string, data: any) {
-    return this.appwrite.database.updateDocument<T>(environment.collectionMap[type], id, data);
-  }
-
-  deleteEntry(type: ENTRY_TYPES, id: string) {
-    return this.appwrite.database.deleteDocument(environment.collectionMap[type], id);
-  }
-
-  listEntries<T extends EntryWithCreationTime>(type: ENTRY_TYPES, queries: string[] | undefined , newestFirst: boolean | undefined) {
-    console.log({newestFirst})
-    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries,100,undefined,undefined,undefined,['creationTime'],[newestFirst ? 'DESC' : 'ASC']);
-  }
-
-
-  
 
   async getDocument(id: string) {
-    return await this.getEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id);
+    return await this.apiProvider.getEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id);
   }
 
   async updateDocument(id: string, data: any) {
-    return await this.updateEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id, data);
+    return await this.apiProvider.updateEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id, data);
   }
 
   async updateCard(id: string, data: any) {
-    return await this.updateEntry<CardEntry>(ENTRY_TYPES.CARDS, id, data);
+    return await this.apiProvider.updateEntry<CardEntry>(ENTRY_TYPES.CARDS, id, data);
   }
 
 
   async getCard(id: string) {
-    return await this.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id);
+    return await this.apiProvider.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id);
   }
   
   deleteCard(id: string) {
@@ -125,7 +108,7 @@ export class DataApiService {
       })
       Promise.all(imgsToRemove)
         .then(() => {
-          this.deleteEntry(ENTRY_TYPES.CARDS, id)
+          this.apiProvider.deleteEntry(ENTRY_TYPES.CARDS, id)
             .then(() => {
               resolve();
             })
@@ -162,7 +145,7 @@ export class DataApiService {
       // }
       Promise.all(additionalPromises)
         .then(() => {
-          this.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
+          this.apiProvider.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
             .then(() => {
               resolve();
             })
@@ -177,35 +160,36 @@ export class DataApiService {
   }
 
   async listDocuments(newestFirst: boolean) {
-    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
+    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
   }
   async listDocumentsForCard(cardID: string){
-    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)],undefined)).documents;
+    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)],undefined)).documents;
   }
   async listCards(newestFirst: boolean) {
-    return (await this.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents;
+    return (await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents;
   }
 
   async createDocument(data: DocumentEntryContent) {
-    return await this.createEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, data);
+    return await this.apiProvider.createEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, data);
   }
 
   async createCard(data: CardEntryContent) {
-    return await this.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
+    return await this.apiProvider.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
   }
 
   getFileView(id: string) {
-    return this.appwrite.storage.getFileView(id);
+    console.log('getFileView in data api',{id})
+    return this.apiProvider.getFileView(id);
   }
   getFilePreview(id: string) {
-    return this.appwrite.storage.getFilePreview(id);
+    return this.apiProvider.getFilePreview(id);
   }
 
-  async saveFile(file: File) {
-    return this.appwrite.storage.createFile('unique()', file);
+  saveFile(file: File) {
+    return this.apiProvider.saveFile(file);
   }
 
-  async deleteFile(id: string) {
-    return this.appwrite.storage.deleteFile(id);
+ deleteFile(id: string) {
+    return this.apiProvider.deleteFile(id);
   }
 }

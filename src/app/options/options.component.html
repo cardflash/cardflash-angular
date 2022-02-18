@@ -82,6 +82,17 @@
         >Automatically add cards to Anki</mat-slide-toggle
       >
     <br />
+    <mat-slide-toggle
+    i18n
+    class="wrap"
+    [checked]="this.dataService.offlineMode"
+    (change)="
+      this.dataService.offlineMode = !this.dataService.offlineMode;
+      saveConfig()
+    "
+    >Offline Mode (requires reload)</mat-slide-toggle
+  >
+  <br />
       <!-- <mat-button-toggle
       class="coloredToggle"
       title="Add Text for Area Selection (instead of Image)"
@@ -138,7 +149,7 @@
       <mat-icon>repeat</mat-icon>
       <mat-icon>cloud</mat-icon>
     </mat-button-toggle> -->
-      <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
+      <!-- <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
         <mat-label i18n>Anki Deck</mat-label>
         <input
           matInput
@@ -150,7 +161,7 @@
         <mat-icon matSuffix>inbox</mat-icon>
       </mat-form-field>
       <br />
-      <!-- <mat-button-toggle
+      <mat-button-toggle
     [checked]="dataService.offlineMode"
     (change)="
       dataService.offlineMode = !dataService.offlineMode;

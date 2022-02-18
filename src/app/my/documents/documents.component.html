@@ -75,7 +75,7 @@
         </div>
       </mat-card-content>
       <mat-card-actions class="cardActions">
-        <a mat-flat-button target="_blank" [href]="this.dataApi.getFileView(doc.fileid).href" i18n>View document</a>
+        <!-- <a mat-flat-button target="_blank" [href]="(this.dataApi.getFileView(doc.fileid) | async)?.href" i18n>View document</a> -->
         <button mat-flat-button color="primary" routerLink="/documents/{{doc.$id}}/cards/" i18n>View cards</button>
         <button mat-flat-button color="accent" routerLink="/doc/{{doc.$id}}" i18n>Create cards from PDF</button>
         <button mat-flat-button color="warn" (click)="deleteDocument(doc)" i18n>Delete</button>

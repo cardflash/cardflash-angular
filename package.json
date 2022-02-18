@@ -22,6 +22,7 @@
     "@angular/router": "~12.1.0-",
     "@angular/service-worker": "~12.1.0-",
     "@ckeditor/ckeditor5-angular": "^2.0.2",
+    "@types/uuid": "^8.3.4",
     "annotpdf": "^1.0.14",
     "appwrite": "^6.0.1",
     "blob-util": "^2.0.2",
@@ -34,6 +35,7 @@
     "tesseract.js": "^2.1.4",
     "tslib": "^2.2.0",
     "tui-image-editor": "^3.15.0",
+    "uuid": "^8.3.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

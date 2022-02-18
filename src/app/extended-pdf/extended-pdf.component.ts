@@ -143,7 +143,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     if (doc) {
       this.document = doc;
       this.currPageNumber = doc.currentPage;
-      const src = this.dataApi.getFileView(this.document?.fileid).href;
+      const src = (await this.dataApi.getFileView(this.document?.fileid)).href;
+      console.log({src})
       this.pdfSrc = src;
       if (this.document && this.document.annotationsJSON) {
         for (let i = 0; i < this.document.annotationsJSON.length; i++) {
@@ -513,9 +514,9 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     this.saveDocument();
   }
 
-  addAnnotationToCard(annotation: Annotation, side: 'front' | 'back') {
+  async addAnnotationToCard(annotation: Annotation, side: 'front' | 'back') {
     if (this.documentid) {
-      const reference = this.utils.generateReferenceFromAnnotation(annotation, this.documentid);
+      const reference = await this.utils.generateReferenceFromAnnotation(annotation, this.documentid);
       if (this.currentCard.front === '' && this.currentCard.front === '') {
         this.currentCard.title = this.document?.name || '';
         this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber);
