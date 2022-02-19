@@ -42,6 +42,8 @@ export type CardEntry = Entry & CardEntryContent;
 export class DataApiService {
   private apiProvider: DataApiProvider;
   public config: Config = DEFAULT_CONFIG;
+
+  private fileViewURLCache : Map<string,URL | Promise<URL>> = new Map<string,URL | Promise<URL>>(); 
   constructor() {
     try {
       const provider_setting = window.localStorage.getItem('cardflash_provider')
@@ -114,7 +116,7 @@ export class DataApiService {
 
 
   async getCard(id: string) {
-    return await this.apiProvider.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id);
+    return await this.regenerateImageObjectURLs(await this.apiProvider.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id));
   }
   
   deleteCard(id: string) {
@@ -190,7 +192,7 @@ export class DataApiService {
     return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[{type: 'search', attribute: 'cardIDs', values: [cardID]}],undefined)).documents;
   }
   async listCards(newestFirst: boolean) {
-    return (await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents;
+    return await Promise.all((await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents.map(c => this.regenerateImageObjectURLs(c)));
   }
 
   async createDocument(data: DocumentEntryContent) {
@@ -201,19 +203,63 @@ export class DataApiService {
     return await this.apiProvider.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
   }
 
-  getFileView(id: string) {
+  async getFileView(id: string) {
     console.log('getFileView in data api',{id})
-    return this.apiProvider.getFileView(id);
+    if(this.fileViewURLCache.has(id)){
+      console.log('using cached value for ' + id)
+      return await this.fileViewURLCache.get(id)!;
+    }else{
+      const urlProm =  this.apiProvider.getFileView(id)
+      this.fileViewURLCache.set(id,urlProm);
+      const url = await urlProm;
+      this.fileViewURLCache.set(id,url);
+      return url;
+    }
   }
   getFilePreview(id: string) {
     return this.apiProvider.getFilePreview(id);
   }
 
-  saveFile(file: File) {
-    return this.apiProvider.saveFile(file);
+  async saveFile(file: File) {
+    const res = await this.apiProvider.saveFile(file)
+    console.log('saving file',res)
+    return res;
   }
 
  deleteFile(id: string) {
     return this.apiProvider.deleteFile(id);
+  }
+
+
+  async regenerateImageObjectURLs(
+    card: CardEntry
+  ): Promise<CardEntry> {
+    const domParser = new DOMParser();
+    const docFront = domParser.parseFromString(card.front, 'text/html');
+    const docBack = domParser.parseFromString(card.back, 'text/html');
+    const imgSavePromises: Promise<void>[] = [];
+    for (const side of [docFront, docBack]) {
+      let imgs = side.querySelectorAll<HTMLImageElement>('img[data-imageid]');
+      for (let i = 0; i < imgs.length; i++) {
+        const node = imgs[i];
+        const imageId = node.getAttribute('data-imageid');
+        if (imageId !== null) {
+          imgSavePromises.push(
+            new Promise<void>(async (resolve, reject) => {
+              try {
+                node.src = (await this.getFileView(imageId)).href;
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            })
+          );
+        }
+      }
+    }
+    await Promise.all(imgSavePromises);
+    card.front = docFront.documentElement.outerHTML;
+    card.back = docBack.documentElement.outerHTML;
+    return card;
   }
 }

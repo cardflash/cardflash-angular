@@ -4,11 +4,11 @@
   // width: 100%;
   // height: 50%;
   // overflow-y: scroll;
-  width: 100%;
+  // width: 100%;
   // margin-left: auto;
   // margin-right: auto;
-  min-height: var(--editor-min-height);
-  max-height: var(--editor-max-height);
+  min-height: var(--static-card-width);
+  max-height: var(--static-card-width);
   overflow: auto;
   // font-size: 14px;
   padding-top: 10px;

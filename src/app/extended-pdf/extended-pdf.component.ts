@@ -17,6 +17,7 @@ import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewe
 import { environment } from 'src/environments/environment';
 import { CardComponent } from '../card/card.component';
 import { EditorFlipCardComponent } from '../card/editor-flip-card/editor-flip-card.component';
+import { FlipCardComponent } from '../card/flip-card/flip-card.component';
 import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from '../data-api.service';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Annotation } from '../types/annotation';
@@ -100,7 +101,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CardComponent) cardComp?: CardComponent;
 
   @ViewChildren('flipCard')
-  public flipCardChilds?: QueryList<EditorFlipCardComponent>;
+  public flipCardChilds?: QueryList<FlipCardComponent>;
 
   public cards: CardEntry[] = [];
 
@@ -756,7 +757,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         let minEl = cardEls[cardEls.length - 1];
         // cardEls.forEach((el) => ( el.scrollHeight < minEl.scrollHeight) && (minEl = el))
         if (!this.utils.isElementInView(minEl)) {
-          minEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          minEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
         }
         if (event.drawLeaderLines) {
           for (let i = 0; i < cardEls.length; i++) {

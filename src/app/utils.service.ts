@@ -51,7 +51,7 @@ export class UtilsService {
   scrollIDIntoView(id: string) {
     const el = document.getElementById(id);
     if (el && !this.isIDInView(id)) {
-      el.scrollIntoView({ behavior: 'auto', block: 'start' });
+      el.scrollIntoView({ behavior: 'auto', block: 'nearest' });
     }
   }
 
@@ -112,7 +112,10 @@ export class UtilsService {
     annotationImgURL?: string
   ) {
     let imgURL: string | undefined;
-    if (annotationImgURL && annotationImgURL.indexOf('data:') === 0) {
+    if (
+      annotationImgURL &&
+      (annotationImgURL.indexOf('data:') === 0 || annotationImgURL.indexOf('blob:') === 0)
+    ) {
       imgURL = annotationImgURL;
     } else if (annotation.imgID) {
       imgURL = (await this.dataApi.getFileView(annotation.imgID)).href;
@@ -143,6 +146,38 @@ export class UtilsService {
     console.log({ innerEl }, { reference }, { annotation });
     return reference;
   }
+
+  // async regenerateImageObjectURLs(
+  //   card: CardEntry
+  // ): Promise<CardEntry> {
+  //   const domParser = new DOMParser();
+  //   const docFront = domParser.parseFromString(card.front, 'text/html');
+  //   const docBack = domParser.parseFromString(card.back, 'text/html');
+  //   const imgSavePromises: Promise<void>[] = [];
+  //   for (const side of [docFront, docBack]) {
+  //     let imgs = side.querySelectorAll<HTMLImageElement>('img[data-imageid]');
+  //     for (let i = 0; i < imgs.length; i++) {
+  //       const node = imgs[i];
+  //       const imageId = node.getAttribute('data-imageid');
+  //       if (imageId !== null) {
+  //         imgSavePromises.push(
+  //           new Promise<void>(async (resolve, reject) => {
+  //             try {
+  //               node.src = (await this.dataApi.getFileView(imageId)).href;
+  //               resolve();
+  //             } catch (e) {
+  //               reject(e);
+  //             }
+  //           })
+  //         );
+  //       }
+  //     }
+  //   }
+  //   await Promise.all(imgSavePromises);
+  //   card.front = docFront.documentElement.outerHTML;
+  //   card.back = docBack.documentElement.outerHTML;
+  //   return card;
+  // }
 
   getImages(card: CardEntry | CardEntryContent) {
     let imagelist: string[] = [];
@@ -503,10 +538,10 @@ export class UtilsService {
           if (this.dataApi.config.autoAddAnki) {
             this.exportCard(res, 'anki', this.dataApi.config.deckName);
           }
-          console.log('removing event listener')
+          console.log('removing event listener');
           window.onbeforeunload = function (e) {
             delete e['returnValue'];
-          }
+          };
           resolve({ isNew: cardIsNew, card: res });
         })
         .catch((reas) => {

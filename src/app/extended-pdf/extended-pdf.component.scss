@@ -11,7 +11,7 @@
 .pdfViewer {
     overflow: hidden;
     max-height: 100vh;
-    height: 100vh;
+    // height: 100vh;
     width: 100%;
 }
 
@@ -26,21 +26,32 @@
 
 .mainArea {
     display: flex;
+    justify-content: center;
+}
+
+.cardColumn, .annotationsColumn, .pdfViewer {
+    background-color: white;
+    border-radius: 10px;
+    margin: 0.5rem 0.5rem;
+    padding: 0.5rem 0.5rem;
+    overflow-y: auto;
+    height: calc(100vh - 50px - 1rem - 2rem - 4px);
+    // border: rgb(193, 215, 255) 3px solid;
 }
 
 .cardColumn {
-    max-width: 430px;
-    // min-width: 430px;
+    // max-width: 430px;
+    --editor-min-height: min(30vh,max(30vw,400px));
+    min-width: max(30vw,500px);
     overflow-y: auto;
-    height: 96vh;
+    --flip-card-width: 500px;
+    --flip-card-height: 500px;
 }
 
 .annotationsColumn {
     text-align: center;
     width: 500px;
-    margin: 5px;
     // padding: 5px;
-    height: 96vh;
     overflow: auto;
 }
 
@@ -108,13 +119,24 @@
     align-items: center;
 }
 
+.nextCardButton {
+margin-bottom: 0.5rem;
+}
+
 .topOptions {
     display: flex;
     justify-content: center;
     z-index: 4;
-    margin-left: auto;
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    // margin-left: auto;
+    margin: 0.5rem auto;
+    // position: fixed;
+    // top: 0;
+    // left: 50%;
+    // transform: translateX(-50%);
+}
+
+.bigCards{
+    --flip-card-width: 700px;
+    --flip-card-height: 700px;
+    height: 100%;
 }

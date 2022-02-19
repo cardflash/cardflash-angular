@@ -1,7 +1,6 @@
 <div
   class="annotationOuterWrapper"
   [style]="{'--highlightColor' : this.annotation?.color}"
-  id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   #annotationOuterWrapper
   [draggable]="!isEditing"
   (dragstart)="dragStart($event)"
@@ -15,6 +14,7 @@
     (click)="clicked()"
     (mouseenter)="mouseOver = true; showLine()"
     (mouseleave)="mouseOver = false; removeLine()"
+    id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   >
     <b *ngIf="annotation?.text && !isEditing">{{ annotation?.text }}</b>
     <textarea

@@ -122,14 +122,15 @@ export class LocalProvider implements DataApiProvider{
                 reject('File not found locally')
             }else{
                 const file = new File([arrayBuffer],entry.name,{lastModified: entry.dateCreated, type: entry.mimeType})
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  const res =reader.result;
-                  if(res && !(res instanceof ArrayBuffer)){
-                      resolve(new URL(res))
-                  }
-                };
-                reader.readAsDataURL(file);
+                resolve(new URL(URL.createObjectURL(file)));
+                // const reader = new FileReader();
+                // reader.onloadend = () => {
+                //   const res =reader.result;
+                //   if(res && !(res instanceof ArrayBuffer)){
+                //       resolve(new URL(res))
+                //   }
+                // };
+                // reader.readAsDataURL(file);
             }
           });
     }

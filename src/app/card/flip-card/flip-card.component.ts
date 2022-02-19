@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CardEntry, CardEntryContent } from 'src/app/data-api.service';
+import { StaticCardSideComponent } from '../static-card-side/static-card-side.component';
 
 @Component({
   selector: 'app-flip-card',
@@ -15,16 +16,34 @@ export class FlipCardComponent implements OnInit {
 
   @Output('delete') public deleteEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
   
+  @ViewChild('frontSide',{read: ElementRef})
+  public frontSide? : ElementRef<HTMLElement>;
+
+  @ViewChild('backSide',{read: ElementRef})
+  public backSide? : ElementRef<HTMLElement>;
+  
+  public flipped: boolean = false;
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  async deleteCard(){
-  }
 
-  editCard(){
-
-  }
+  flipToSideForAnnotation(annotationID: string) {
+    console.log(this.frontSide)
+    if(this.backSide && this.frontSide){
+      // const frontSourceEl: HTMLElement =
+      // this.frontSide.;
+      // const backSourceEl: HTMLElement =
+      // this.backSide.;
+      const frontEls = this.frontSide.nativeElement.querySelectorAll(`[data-annotationid=_${annotationID}]`)
+      const backEls = this.backSide.nativeElement.querySelectorAll(`[data-annotationid=_${annotationID}]`)
+      if (frontEls.length > 0 && this.flipped) {
+        this.flipped = false;
+      } else if (backEls.length > 0 && !this.flipped) {
+        this.flipped = true;    
+      }
+    }
+    }
 
 }
