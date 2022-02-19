@@ -1,11 +1,14 @@
 import {
+  Config,
   DataApiProvider,
+  DEFAULT_CONFIG,
   Entry,
   EntryWithCreationTime,
   ENTRY_TYPES,
+  QueryOption,
 } from '../types/data-api-provider';
 
-import { Appwrite, Models } from 'appwrite';
+import { Appwrite, Models, Query } from 'appwrite';
 import { environment } from 'src/environments/environment';
 
 export class AppwriteProvider implements DataApiProvider {
@@ -46,13 +49,42 @@ export class AppwriteProvider implements DataApiProvider {
 
   listEntries<T extends EntryWithCreationTime>(
     type: ENTRY_TYPES,
-    queries: string[] | undefined,
+    queries: QueryOption[] | undefined,
     newestFirst: boolean | undefined
   ) {
+    const appwriteQueries : string[] = [];
+    if(queries !== undefined){
+      for (let i = 0; i < queries.length; i++) {
+        const q = queries[i];
+        let appwriteq : string;
+        switch (q.type) {
+          case 'search':
+            appwriteq = Query.search(q.attribute,q.values[0])
+            break;
+          case '<':
+            appwriteq = Query.lesser(q.attribute,q.values)
+            break;
+          case '<=':
+            appwriteq = Query.lesserEqual(q.attribute,q.values)
+            break;
+            case '<':
+              appwriteq = Query.lesser(q.attribute,q.values)
+              break;
+            case '<=':
+              appwriteq = Query.lesserEqual(q.attribute,q.values)
+              break;
+          default:
+            appwriteq = Query.equal(q.attribute,q.values)
+            break;
+        }
+        appwriteQueries.push(appwriteq)
+        
+      }
+    }
     console.log({ newestFirst });
     return this.appwrite.database.listDocuments<T>(
       environment.collectionMap[type],
-      queries,
+      appwriteQueries,
       100,
       undefined,
       undefined,
@@ -76,4 +108,17 @@ export class AppwriteProvider implements DataApiProvider {
   async deleteFile(id: string) {
     return this.appwrite.storage.deleteFile(id);
   }
+
+  async getPreferences(): Promise<Config> {
+    const prefs = await this.appwrite.account.getPrefs<Config | {}>();
+    if('autoAddAnki' in prefs){
+      return prefs as Config;
+    }else{
+      return DEFAULT_CONFIG;
+    }
+}
+
+async savePreferences(config: Config): Promise<void> {
+  await this.appwrite.account.updatePrefs<Config>(config);
+}
 }

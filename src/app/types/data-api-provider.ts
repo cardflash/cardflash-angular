@@ -1,3 +1,35 @@
+export interface Config {
+  // drawOnPdf: boolean,
+  // selectionOnTop : boolean,
+  autoAddAnki: boolean,
+  deckName : string,
+  // addImageOption: boolean,
+  areaSelectOnlyText: boolean,
+  // addOcrTextOption: boolean,
+  // ocrLanguage: string,
+  // addTextAsHidden: boolean,
+  singlePageMode: boolean,
+  showSelectionSizeOptions: boolean,
+  autoDrawLines: boolean,
+  autoAddAnnotationsToCard: boolean,
+  enableAnnotationLinking: boolean
+}
+
+export const DEFAULT_CONFIG : Config= {
+  autoAddAnki: false,
+  deckName : 'Default',
+  // addImageOption: boolean,
+  areaSelectOnlyText: false,
+  // addOcrTextOption: boolean,
+  // ocrLanguage: string,
+  // addTextAsHidden: boolean,
+  singlePageMode: false,
+  showSelectionSizeOptions: false,
+  autoDrawLines: false,
+  autoAddAnnotationsToCard: true,
+  enableAnnotationLinking: true
+}
+
 export interface Entry {
   $id: string;
   $collection: string;
@@ -21,14 +53,18 @@ export interface FileEntry {
   dateCreated: number;
 }
 
-
-
 export const ENTRY_TYPES = {
   DOCUMENTS: 'documents',
   CARDS: 'cards',
 };
-
 export type ENTRY_TYPES = typeof ENTRY_TYPES[keyof typeof ENTRY_TYPES];
+
+
+export interface QueryOption{
+  type: 'search' | '=' | '<' | '>' | '<=' | '>=',
+  attribute: string,
+  values: string[] //| number[] | boolean[]
+}
 
 export interface DataApiProvider {
   createEntry<T extends Entry>(
@@ -46,7 +82,7 @@ export interface DataApiProvider {
 
   listEntries<T extends EntryWithCreationTime>(
     type: ENTRY_TYPES,
-    queries: string[] | undefined,
+    queries: QueryOption[] | undefined,
     newestFirst: boolean | undefined
   ): Promise<EntryList<T>>;
 
@@ -56,4 +92,8 @@ export interface DataApiProvider {
   saveFile(file: File): Promise<FileEntry>;
 
   deleteFile(id: string): Promise<{}>;
+
+  getPreferences(): Promise<Config>;
+
+  savePreferences(config: Config): Promise<void>;
 }

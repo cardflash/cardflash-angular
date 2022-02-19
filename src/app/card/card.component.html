@@ -81,31 +81,34 @@
     </mat-accordion>
     <div class="cardActions">
       <mat-form-field
-        class="miniField"
-        appearance="standard"
-        style="margin-bottom: -1.25em"
+      class="miniField"
+      appearance="standard"
+      style="margin-bottom: -1.25em"
       >
-        <mat-label i18n>Page #</mat-label>
-        <!-- <span matPrefix>p.</span> -->
-        <input matInput type="number" [(ngModel)]="this.card.page" />
-      </mat-form-field>
-      <button mat-stroked-button aria-label="Save to Anki" (click)="this.utils.saveCard(this.card,'anki',this.deckName)">
+      <mat-label i18n>Page #</mat-label>
+      <!-- <span matPrefix>p.</span> -->
+      <input matInput type="number" [(ngModel)]="this.card.page" />
+    </mat-form-field>
+    <button
+      mat-stroked-button
+      aria-label="Delete card"
+      color="warn"
+      (click)="deleteCard()"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button mat-stroked-button aria-label="Save to Anki" (click)="this.utils.exportCard(this.card,'anki',this.deckName)">
         <mat-icon>save</mat-icon> Anki
       </button>
       <button
         mat-stroked-button
         aria-label="Download card"
-        (click)="this.utils.saveCard(this.card,'download')"
+        (click)="this.utils.exportCard(this.card,'download')"
       >
         <mat-icon>file_download</mat-icon>
       </button>
-      <button
-        mat-stroked-button
-        aria-label="Delete card"
-        color="warn"
-        (click)="deleteCard()"
-      >
-        <mat-icon>delete</mat-icon>
+      <button mat-flat-button aria-label="Save to Anki" (click)="this.utils.saveCard(this.card)" color="primary">
+        <mat-icon>save</mat-icon> Save
       </button>
     </div>
   </div>

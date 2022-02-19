@@ -19,7 +19,7 @@ import { environment } from 'src/environments/environment';
 import { CardComponent } from '../card/card.component';
 import { EditorFlipCardComponent } from '../card/editor-flip-card/editor-flip-card.component';
 import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from '../data-api.service';
-import { DataService } from '../data.service';
+import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Annotation } from '../types/annotation';
 import { UtilsService } from '../utils.service';
 
@@ -71,10 +71,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     public utils: UtilsService,
-    public dataService: DataService,
-    private dataApi: DataApiService,
+    public dataApi: DataApiService,
     private actRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private userNotifier: UserNotifierService
   ) {
     this.documentid = actRoute.snapshot.params.id;
   }
@@ -112,6 +112,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataApi.getDocument(this.documentid).then((res) => {
         this.document = res;
         this.loadFromDoc(res);
+      }).catch(async (reason) => {
+        await this.userNotifier.notify('Loading Document failed', 'Please make sure you have selected the correct provider in the options inside the left side panel. ' + (reason || ''),'danger')
       });
     }
   }
@@ -339,7 +341,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
         page: page,
       };
       const text = this.getTextFromPosition(sortedRect, page);
-      if (this.dataService.config.addTextOption) {
+      if (this.dataApi.config.areaSelectOnlyText) {
         newAnnotation.text = text;
       } else {
         newAnnotation.hiddenText = text;
@@ -503,7 +505,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addAnnotation(newAnnotation: Annotation) {
-    if (this.dataService.config.autoAddAnnotationsToCard) {
+    if (this.dataApi.config.autoAddAnnotationsToCard) {
       this.addAnnotationToCard(newAnnotation, this.frontSelected ? 'front' : 'back');
     }
     const annotations = this.annotationForPage.get(newAnnotation.page) || [];
@@ -623,7 +625,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   handleAnnotationIntersection(e: IntersectionObserverEntry[], annotationID: string) {
     if (e.length < 1) return;
 
-    if (e[0].isIntersecting && this.dataService.config.autoDrawLines) {
+    if (e[0].isIntersecting && this.dataApi.config.autoDrawLines) {
       this.scrollToAnnotation({ annotationID: annotationID, where: 'auto', drawLeaderLines: true });
     } else if (!e[0].isIntersecting) {
       this.removeLeaderLinesForAnnotation(annotationID);
@@ -745,7 +747,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
             setTimeout(async () => {
               if (
                 !(
-                  this.dataService.config.autoDrawLines &&
+                  this.dataApi.config.autoDrawLines &&
                   this.utils.isIDInView(environment.ANNOTATION_JMP_PREFIX + event.annotationID)
                 )
               ) {
@@ -969,38 +971,18 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async saveCard(card: CardEntry | CardEntryContent) {
-    if (!card.$id && !card.front && !card.back) {
-      return;
+    const res = await this.utils.saveCard(card)
+    if(res){
+      if (res.isNew) {
+        this.cards.push(res.card);
+        const cardIDs = this.document?.cardIDs || [];
+        cardIDs.push(res.card.$id);
+        if (this.document) {
+          this.document.cardIDs = cardIDs;
+          this.saveDocument();
+        }
+      }
     }
-
-    window.addEventListener('beforeunload', function (e) {
-      delete e['returnValue'];
-    });
-    card = await this.utils.replaceWithServerImgs(card);
-    const cardIsNew = !card.$id;
-    const saveOrUpdatePromise: Promise<CardEntry> = card.$id
-      ? this.dataApi.updateCard(card.$id, card)
-      : this.dataApi.createCard(card);
-    saveOrUpdatePromise
-      .then((res) => {
-        if (this.dataService.config.autoAddAnki) {
-          this.utils.saveCard(res, 'anki', this.dataService.config.deckName);
-        }
-        if (cardIsNew) {
-          this.cards.push(res);
-          const cardIDs = this.document?.cardIDs || [];
-          cardIDs.push(res.$id);
-          if (this.document) {
-            this.document.cardIDs = cardIDs;
-            this.saveDocument();
-          }
-        }
-      })
-      .catch((reas) => {
-        if (this.dataService.config.autoAddAnki) {
-          this.utils.saveCard(card, 'anki', this.dataService.config.deckName);
-        }
-      });
   }
 
   async nextCard(newCard?: CardEntryContent | CardEntry) {

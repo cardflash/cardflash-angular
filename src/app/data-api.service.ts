@@ -1,15 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Appwrite, Models, Query } from 'appwrite';
-import { REPL_MODE_SLOPPY } from 'repl';
-import { environment } from 'src/environments/environment';
 import { AppwriteProvider } from './data-api-providers/appwrite-provider';
 import { LocalProvider } from './data-api-providers/local-provider';
-import { DataService } from './data.service';
 import { Annotation } from './types/annotation';
-import { DataApiProvider } from './types/data-api-provider';
+import {Config, DataApiProvider, DEFAULT_CONFIG, Entry, ENTRY_TYPES } from './types/data-api-provider';
+
+
 
 export interface DocumentEntryContent {
-  // $id: string,
   name: string;
   fileid: string;
   creationTime: number;
@@ -32,48 +29,75 @@ export interface CardEntryContent {
   title: string;
   creationTime: number;
   imgIDs?: string[];
-  // $collection?: string,
-  // $read?: string[],
-  // $write?: string[]
 }
 
-interface EntryWithCreationTime extends Models.Document {
-  creationTime: number
-}
 
-export const ENTRY_TYPES = {
-  DOCUMENTS: 'documents',
-  CARDS: 'cards',
-};
+export type DocumentEntry = Entry & DocumentEntryContent;
+export type CardEntry = Entry & CardEntryContent;
 
-type ENTRY_TYPES = typeof ENTRY_TYPES[keyof typeof ENTRY_TYPES];
-export type DocumentEntry = Models.Document & DocumentEntryContent;
-export type CardEntry = Models.Document & CardEntryContent;
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataApiService {
   private apiProvider: DataApiProvider;
-
-  constructor(private dataService: DataService) {
-    this.apiProvider = new LocalProvider();
-    dataService.init().then((res) => {
-      console.log(dataService.offlineMode)
-      if(!dataService.offlineMode){
+  public config: Config = DEFAULT_CONFIG;
+  constructor() {
+    try {
+      const provider_setting = window.localStorage.getItem('cardflash_provider')
+      if(provider_setting !== null && provider_setting === 'appwrite'){
         this.apiProvider = new AppwriteProvider();
+      }else if(provider_setting !== null && provider_setting === 'local'){
+        this.apiProvider= new LocalProvider();
       }else{
-        this.apiProvider = new LocalProvider();
+        // Default
+        window.localStorage.setItem('cardflash_provider','local');
+        this.apiProvider= new LocalProvider();
       }
-    })
+    } catch (error) {
+      console.log('localStorage failed')
+      // localStorage fails to work, this properly means that the localProvider will also not work
+      // we should instead use the appwrite backend
+      this.apiProvider= new AppwriteProvider();
+    }
+  }
+
+
+  async fetchConfig(){
+    this.config = await this.apiProvider.getPreferences()
+  }
+
+  async saveConfig(){
+    await this.apiProvider.savePreferences(this.config);
   }
 
   setProvider(type: 'appwrite' | 'local'){
+    try{
+      window.localStorage.setItem('cardflash_provider',type);
+    }catch(e){
+      console.log('could not store provider settings in localStorage',e)
+    }
     if(type === 'appwrite'){
       this.apiProvider = new AppwriteProvider();
     }else{
       this.apiProvider = new LocalProvider();
     }
+  }
+
+  getProvider() : 'local' | 'appwrite'{
+    if(this.apiProvider instanceof AppwriteProvider){
+      return 'appwrite';
+    }else{
+      return 'local';
+    }
+  } 
+
+  isOfflineMode() : boolean{
+    return this.apiProvider instanceof LocalProvider;
+  }
+
+  setOfflineMode(toOffline: boolean){
+    this.setProvider(toOffline ? 'local' : 'appwrite')
   }
 
   async getDocument(id: string) {
@@ -163,7 +187,7 @@ export class DataApiService {
     return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
   }
   async listDocumentsForCard(cardID: string){
-    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)],undefined)).documents;
+    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[{type: 'search', attribute: 'cardIDs', values: [cardID]}],undefined)).documents;
   }
   async listCards(newestFirst: boolean) {
     return (await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents;

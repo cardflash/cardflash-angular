@@ -37,8 +37,6 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
   constructor(
-  //   public dataService: DataService,
-  //   public documentsService: DocumentService,
   public dataApi: DataApiService,
     public userNotifier: UserNotifierService
   ) {}

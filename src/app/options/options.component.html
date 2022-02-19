@@ -7,9 +7,9 @@
       <mat-slide-toggle
         i18n
         class="wrap"
-        [checked]="this.dataService.config.singlePageMode"
+        [checked]="this.dataApi.config.singlePageMode"
         (change)="
-          this.dataService.config.singlePageMode = !this.dataService.config.singlePageMode;
+          this.dataApi.config.singlePageMode = !this.dataApi.config.singlePageMode;
           saveConfig()
         "
         >Single Page Mode</mat-slide-toggle
@@ -18,10 +18,10 @@
       <mat-slide-toggle
         i18n
         class="wrap"
-        [checked]="this.dataService.config.showSelectionSizeOptions"
+        [checked]="this.dataApi.config.showSelectionSizeOptions"
         (change)="
-          this.dataService.config.showSelectionSizeOptions =
-            !this.dataService.config.showSelectionSizeOptions;
+          this.dataApi.config.showSelectionSizeOptions =
+            !this.dataApi.config.showSelectionSizeOptions;
           saveConfig()
         "
         >Show size options for selection</mat-slide-toggle
@@ -30,10 +30,10 @@
       <mat-slide-toggle
         i18n
         class="wrap"
-        [checked]="this.dataService.config.autoAddAnnotationsToCard"
+        [checked]="this.dataApi.config.autoAddAnnotationsToCard"
         (change)="
-          this.dataService.config.autoAddAnnotationsToCard =
-            !this.dataService.config.autoAddAnnotationsToCard;
+          this.dataApi.config.autoAddAnnotationsToCard =
+            !this.dataApi.config.autoAddAnnotationsToCard;
           saveConfig()
         "
         >Automatically add new annotations to card</mat-slide-toggle
@@ -42,10 +42,10 @@
       <mat-slide-toggle
         i18n
         class="wrap"
-        [checked]="this.dataService.config.enableAnnotationLinking"
+        [checked]="this.dataApi.config.enableAnnotationLinking"
         (change)="
-          this.dataService.config.enableAnnotationLinking =
-            !this.dataService.config.enableAnnotationLinking;
+          this.dataApi.config.enableAnnotationLinking =
+            !this.dataApi.config.enableAnnotationLinking;
           saveConfig()
         "
         >Link Annotation on Cards to Document</mat-slide-toggle
@@ -54,9 +54,9 @@
       <mat-slide-toggle
         i18n
         class="wrap"
-        [checked]="this.dataService.config.autoDrawLines"
+        [checked]="this.dataApi.config.autoDrawLines"
         (change)="
-          this.dataService.config.autoDrawLines = !this.dataService.config.autoDrawLines;
+          this.dataApi.config.autoDrawLines = !this.dataApi.config.autoDrawLines;
           saveConfig()
         "
         >Automatically draw line between annotation and pdf</mat-slide-toggle
@@ -65,9 +65,9 @@
       <mat-slide-toggle
       i18n
       class="wrap"
-      [checked]="this.dataService.config.addTextOption"
+      [checked]="this.dataApi.config.areaSelectOnlyText"
       (change)="
-        this.dataService.config.addTextOption = !this.dataService.config.addTextOption; saveConfig()
+        this.dataApi.config.areaSelectOnlyText = !this.dataApi.config.areaSelectOnlyText; saveConfig()
       "
       >Add Text for Area Selection (instead of Image)</mat-slide-toggle
     >
@@ -75,32 +75,30 @@
       <mat-slide-toggle
         i18n
         class="wrap"
-        [checked]="this.dataService.config.autoAddAnki"
+        [checked]="this.dataApi.config.autoAddAnki"
         (change)="
-          this.dataService.config.autoAddAnki = !this.dataService.config.autoAddAnki; saveConfig()
+          this.dataApi.config.autoAddAnki = !this.dataApi.config.autoAddAnki; saveConfig()
         "
         >Automatically add cards to Anki</mat-slide-toggle
       >
     <br />
-    <mat-slide-toggle
-    i18n
-    class="wrap"
-    [checked]="this.dataService.offlineMode"
-    (change)="
-      this.dataService.offlineMode = !this.dataService.offlineMode;
-      saveConfig()
-    "
-    >Offline Mode (requires reload)</mat-slide-toggle
-  >
-  <br />
+    <span>Storage provider (changes require reload)</span>
+      <mat-button-toggle-group [value]="this.dataApi.getProvider()" (valueChange)="this.dataApi.setProvider($event)">
+        <mat-button-toggle value="local">
+          Local (Offline)
+        </mat-button-toggle>
+        <mat-button-toggle  value="appwrite">
+          Appwrite (Server)
+        </mat-button-toggle>
+      </mat-button-toggle-group>
       <!-- <mat-button-toggle
       class="coloredToggle"
       title="Add Text for Area Selection (instead of Image)"
       i18n-title
-      [checked]="this.dataService.config.addTextOption"
+      [checked]="this.dataApi.config.addTextOption"
       (change)="
-        this.dataService.config.addTextOption =
-          !this.dataService.config.addTextOption;
+        this.dataApi.config.addTextOption =
+          !this.dataApi.config.addTextOption;
         this.saveConfig()
       "
       i18n>
@@ -113,8 +111,8 @@
     >
       <mat-label i18n>OCR Language</mat-label>
       <mat-select
-        [disabled]="!this.dataService.config.addOcrTextOption"
-        [(value)]="this.dataService.config.ocrLanguage"
+        [disabled]="!this.dataApi.config.addOcrTextOption"
+        [(value)]="this.dataApi.config.ocrLanguage"
       >
         <mat-option *ngFor="let lang of OCR_LANGUAGES" [value]="lang.short">
           {{ lang.short }} - {{ lang.long }}
@@ -126,10 +124,10 @@
       class="coloredToggle"
       title="Automatically add cards to Anki"
       i18n-title
-      [checked]="this.dataService.config.autoAddAnki"
+      [checked]="this.dataApi.config.autoAddAnki"
       (change)="
-        this.dataService.config.autoAddAnki =
-          !this.dataService.config.autoAddAnki;
+        this.dataApi.config.autoAddAnki =
+          !this.dataApi.config.autoAddAnki;
         this.saveConfig()
       "
       i18n>
@@ -139,10 +137,10 @@
       class="coloredToggle"
       title="Automatically save cards to Server"
       i18n-title
-      [checked]="this.dataService.config.autoAddServer"
+      [checked]="this.dataApi.config.autoAddServer"
       (change)="
-        this.dataService.config.autoAddServer =
-          !this.dataService.config.autoAddServer;
+        this.dataApi.config.autoAddServer =
+          !this.dataApi.config.autoAddServer;
         this.saveConfig()
       "
     >
@@ -155,17 +153,17 @@
           matInput
           placeholder="Deck Name"
           i18n-placeholder
-          [disabled]="!this.dataService.config.autoAddAnki"
-          [(ngModel)]="this.dataService.config.deckName"
+          [disabled]="!this.dataApi.config.autoAddAnki"
+          [(ngModel)]="this.dataApi.config.deckName"
         />
         <mat-icon matSuffix>inbox</mat-icon>
       </mat-form-field>
       <br />
       <mat-button-toggle
-    [checked]="dataService.offlineMode"
+    [checked]="dataApi.offlineMode"
     (change)="
-      dataService.offlineMode = !dataService.offlineMode;
-      dataService.saveOfflineModeSetting()
+      dataApi.offlineMode = !dataApi.offlineMode;
+      dataApi.saveOfflineModeSetting()
     "
     i18n >Offline Mode</mat-button-toggle
   > -->

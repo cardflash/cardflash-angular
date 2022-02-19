@@ -21,16 +21,17 @@
             </a>
             </li>
             <li>
-              <a routerLink="/create/from-pdf" routerLinkActive="active" style="--site-color: #45ad45;--site-color-background: #45ad4540" (click)="drawer.toggle()">
+              <a routerLink="/doc/" routerLinkActive="active" style="--site-color: #45ad45;--site-color-background: #45ad4540" (click)="drawer.toggle()">
               <mat-icon>picture_as_pdf</mat-icon>
               <span i18n>Create from PDF</span>
             </a>
             </li>
             <li *ngIf="!this.accountService.isLoggedIn()">
-              <a routerLink="/login" routerLinkActive="active" style="--site-color: #9e63d6;--site-color-background: #9e63d640" (click)="drawer.toggle()">
+              <button routerLink="/login" routerLinkActive="active" style="--site-color: #9e63d6;--site-color-background: #9e63d640" (click)="drawer.toggle()" [disabled]="dataApi.isOfflineMode()"
+              [title]="dataApi.isOfflineMode ? 'Only possible if Server provider is selected below' : 'Login or Register on Server'">
               <mat-icon>login</mat-icon>
               <span i18n>Login or Register</span>
-            </a>
+            </button>
             </li>
             <li *ngIf="this.accountService.isLoggedIn()">
               <br/>

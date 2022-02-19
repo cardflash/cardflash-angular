@@ -1,12 +1,13 @@
-import { DataApiProvider, Entry, EntryList, EntryWithCreationTime, FileEntry } from "../types/data-api-provider";
+import { Config, DataApiProvider, DEFAULT_CONFIG, Entry, EntryList, EntryWithCreationTime, FileEntry, QueryOption } from "../types/data-api-provider";
 import {v4 as uuidv4} from 'uuid'
 import localforage from "localforage";
 export class LocalProvider implements DataApiProvider{
 
     constructor(){
-        localforage.config({driver: localforage.INDEXEDDB, name: 'local_cardflash', storeName: 'local_cardflash'})
-        localforage.setDriver(localforage.INDEXEDDB).catch((e) => {console.log({e},'driver fail')})
+        localforage.config({driver: [localforage.INDEXEDDB,localforage.WEBSQL,localforage.LOCALSTORAGE], name: 'local_cardflash', storeName: 'local_cardflash'})
+        // localforage.setDriver(localforage.INDEXEDDB).catch((e) => {console.log({e},'driver fail')})
      }
+
     async createEntry<T extends Entry>(type: string, data: object, read?: string[], write?: string[]): Promise<T> {
         const id = uuidv4();
         console.log({id})
@@ -66,7 +67,7 @@ export class LocalProvider implements DataApiProvider{
         })
     }
 
-    async listEntries<T extends EntryWithCreationTime>(type: string, queries: string[] | undefined, newestFirst: boolean | undefined): Promise<EntryList<T>> {
+    async listEntries<T extends EntryWithCreationTime>(type: string, queries: QueryOption[] | undefined, newestFirst: boolean | undefined): Promise<EntryList<T>> {
         console.log('listEntries',{type})
        const ids = await this.getCollectionArray(type)
        const itemPromises : Promise<T>[] = []
@@ -76,6 +77,35 @@ export class LocalProvider implements DataApiProvider{
        }
        const all = await Promise.all(itemPromises);
        let timeSorted = all.sort((a,b) => b.creationTime - a.creationTime)
+       if(queries !== undefined){
+        for (let i = 0; i < queries.length; i++) {
+            const q = queries[i];
+            switch (q.type) {
+                case 'search':
+                    timeSorted = timeSorted.filter((a : any) => {
+                        for(const value of q.values){
+                            if(a[q.attribute] && (a[q.attribute] as string).indexOf(value) > -1){
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    break;
+                case '=':
+                    timeSorted = timeSorted.filter((a : any) => {
+                    for(const value of q.values){
+                        if(a[q.attribute] === value){
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                break;
+                default:
+                    break;
+            }
+        }
+       }
        if (newestFirst !== undefined && newestFirst === false){
         timeSorted = timeSorted.reverse();
        }
@@ -121,4 +151,20 @@ export class LocalProvider implements DataApiProvider{
         await this.deleteEntry('file',id)
         return {};
     }
+
+    async getPreferences(): Promise<Config> {
+    const prefs = await localforage.getItem<string>("cardflash_prefs");
+    if(prefs !== null){
+        const parsedConfig = JSON.parse(prefs);
+        if(!parsedConfig|| parsedConfig['config']){
+         return parsedConfig
+        }
+    }
+    return DEFAULT_CONFIG;
+    }
+
+
+    async savePreferences(config: Config): Promise<void> {
+        const prefs = await localforage.setItem<string>("cardflash_prefs",JSON.stringify(config));
+      }
 }

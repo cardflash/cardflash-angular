@@ -74,7 +74,7 @@
     [active]="true"
     [card]="currentCard"
     [frontActive]="this.frontSelected"
-    [deckName]="this.dataService.config.deckName"
+    [deckName]="this.dataApi.config.deckName"
   ></app-card>
   <div class="otherCardsDiv">
     <app-editor-flip-card [id]="'CARD_'+card.$id" #flipCard class="staticCards" *ngFor="let card of cards;trackBy:getCardId"[card]="card" (edit)="this.updateCard($event);cardsDiv.scrollTo({top:0, behavior: 'smooth'})" (delete)="this.deleteCard(card)"></app-editor-flip-card>
