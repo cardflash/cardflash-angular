@@ -1,5 +1,28 @@
+<div class="topOptions">
+<mat-button-toggle-group class="currentCardSideToggle">
+  <mat-button-toggle
+  [checked]="this.viewMode === 'both'"
+  (change)="this.viewMode = 'both'"
+  i18n>
+    Both
+  </mat-button-toggle>
+  <mat-button-toggle
+  [checked]="this.viewMode === 'pdf'"
+  (change)="this.viewMode = 'pdf'"
+  i18n>
+    PDF
+  </mat-button-toggle>
+  <mat-button-toggle
+  [checked]="this.viewMode === 'cards'"
+  (change)="this.viewMode = 'cards'"
+  i18n>
+    Cards
+  </mat-button-toggle>
+</mat-button-toggle-group>
+</div>
+<canvas style="display: none" #previewCanvas></canvas>
 <div class="mainArea">
-  <div class="pdfViewer" 
+  <div class="pdfViewer" [style.display]="(this.viewMode === 'both' || this.viewMode === 'pdf') ? '' : 'none'"
   [ngStyle]="{'cursor': (this.isCurrentlySelectingArea ? 'crosshair !important' : '')}">
     <div class="loadingIndicator" *ngIf="busy">
     <button mat-icon-button class="closeLoadingButton" (click)="busy = false"><mat-icon>close</mat-icon></button>
@@ -32,9 +55,8 @@
     ></ngx-extended-pdf-viewer>
   </div>
 
-  <div class="annotationsColumn">
+  <div class="annotationsColumn" [style.display]="(this.viewMode === 'both') ? '' : 'none'">
     <h2>Annotations</h2>
-    <canvas style="display: none" #previewCanvas></canvas>
     <div *ngFor="let annotations of annotationForPage | keyvalue" class="pageDiv" [ngClass]="{'currentPage': annotations.key === this.currPageNumber}">
       <h3 class="pageTitle">Page {{ annotations.key }}</h3>
       <app-annotation
@@ -49,7 +71,7 @@
     </div>
   </div>
 
-  <div class="card cardColumn" #cardsDiv>
+  <div class="card cardColumn" #cardsDiv  [style.display]="(this.viewMode === 'both' || this.viewMode === 'cards') ? '' : 'none'">
     <h2>Cards</h2>
     <div class="currentCardActions">
       <button class="finishButton" mat-raised-button color="primary" (click)="finishCard()" i18n>

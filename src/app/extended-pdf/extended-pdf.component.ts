@@ -1,4 +1,3 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import {
   AfterViewInit,
   Component,
@@ -69,6 +68,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public document: DocumentEntry | undefined;
   public documentid: string | undefined;
 
+  public viewMode: 'pdf' | 'cards' | 'both' = 'both';
   constructor(
     public utils: UtilsService,
     public dataApi: DataApiService,
@@ -106,15 +106,28 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public busy: boolean = false;
 
+  public isTouchDevice: boolean = false;
   ngOnInit(): void {
     if (this.documentid) {
       this.busy = true;
-      this.dataApi.getDocument(this.documentid).then((res) => {
-        this.document = res;
-        this.loadFromDoc(res);
-      }).catch(async (reason) => {
-        await this.userNotifier.notify('Loading Document failed', 'Please make sure you have selected the correct provider in the options inside the left side panel. ' + (reason || ''),'danger')
-      });
+      this.dataApi
+        .getDocument(this.documentid)
+        .then((res) => {
+          this.document = res;
+          this.loadFromDoc(res);
+        })
+        .catch(async (reason) => {
+          await this.userNotifier.notify(
+            'Loading Document failed',
+            'Please make sure you have selected the correct provider in the options inside the left side panel. ' +
+              (reason || ''),
+            'danger'
+          );
+        });
+    }
+    this.isTouchDevice = window.matchMedia('(any-hover: none)').matches;
+    if (this.isTouchDevice) {
+      this.viewMode = 'pdf';
     }
   }
 
@@ -146,7 +159,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
       this.document = doc;
       this.currPageNumber = doc.currentPage;
       const src = (await this.dataApi.getFileView(this.document?.fileid)).href;
-      console.log({src})
+      console.log({ src });
       this.pdfSrc = src;
       if (this.document && this.document.annotationsJSON) {
         for (let i = 0; i < this.document.annotationsJSON.length; i++) {
@@ -203,7 +216,13 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
               console.log({ bounds });
               if (bounds) {
                 this.selectionTools.nativeElement.style.display = 'block';
-                this.selectionTools.nativeElement.style.top = bounds.top - 50 + 'px';
+                // touch-selections often trigger popup to copy text etc ABOVE
+                // so if the device is touch, show the selectionTools below instead of above!
+                if (this.isTouchDevice) {
+                  this.selectionTools.nativeElement.style.top = bounds.bottom + 50 + 'px';
+                } else {
+                  this.selectionTools.nativeElement.style.top = bounds.top - 50 + 'px';
+                }
                 // 100px is around half of the width of the complete
                 // try to position the toolbar in the middle on top of the selected text
                 this.selectionTools.nativeElement.style.left =
@@ -247,8 +266,13 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   pageRendered(e: PageRenderedEvent) {
     let pdfCanv: HTMLCanvasElement = e.source.canvas;
-    e.source.div.oncontextmenu = (event: any) => this.contextMenuOnPage(event, e.source.div);
+    if (!this.isTouchDevice) {
+      e.source.div.oncontextmenu = (event: any) => this.contextMenuOnPage(event, e.source.div);
+    }
     e.source.div.onmousedown = (event: any) => this.mouseDownOnPage(event, e.source.div);
+    if ('ontouchstart' in e.source.div) {
+      e.source.div.ontouchstart = (event: any) => this.mouseDownOnPage(event, e.source.div);
+    }
     const pageCanvContext = pdfCanv.getContext('2d');
     if (pageCanvContext) {
       const dpr = window.devicePixelRatio || 1;
@@ -262,13 +286,14 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   calcScaling() {}
 
-  mouseDownOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
+  mouseDownOnPage(e: MouseEvent | TouchEvent, pageEl: HTMLDivElement) {
     if (this.areaSelectWithNormalMouse) {
-      console.log('contextMenuOnPage', { e }, { pageEl });
-      this.startAreaSelection(e, pageEl);
+      console.log('areaSelectWithNormalMouse', { e }, { pageEl });
       this.areaSelectWithNormalMouse = false;
+      this.startAreaSelection(e, pageEl);
     }
   }
+  
   contextMenuOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
     if (!this.getSelection()) {
       console.log('contextMenuOnPage', { e }, { pageEl });
@@ -276,19 +301,32 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  startAreaSelection(e: MouseEvent, pageEl: HTMLDivElement) {
+  startAreaSelection(e: MouseEvent | TouchEvent, pageEl: HTMLDivElement) {
     pageEl
       .querySelectorAll('*')
       .forEach((e) => e instanceof HTMLElement && (e.style.cursor = 'crosshair'));
     e.preventDefault();
-    this.rect.x1 = e.x;
-    this.rect.y1 = e.y;
-    this.rect.x2 = e.x;
-    this.rect.y2 = e.y;
+    if (e instanceof MouseEvent) {
+      this.rect.x1 = e.x;
+      this.rect.y1 = e.y;
+      this.rect.x2 = e.x;
+      this.rect.y2 = e.y;
+    } else {
+      if (e.touches.length >= 0) {
+        this.rect.x1 = e.touches[0].clientX;
+        this.rect.y1 = e.touches[0].clientY;
+        this.rect.x2 = e.touches[0].clientX;
+        this.rect.y2 = e.touches[0].clientY;
+      }
+    }
     this.isCurrentlySelectingArea = true;
 
     pageEl.onmouseup = (event: any) => this.mouseUpOnPage(event, pageEl);
     pageEl.onmousemove = (event: any) => this.mouseMoveOnPage(event, pageEl);
+    if ('ontouchmove' in pageEl && 'ontouchend' in pageEl) {
+      pageEl.ontouchmove = (event: any) => this.touchMoveOnPage(event, pageEl);
+      pageEl.ontouchend = (event: any) => this.mouseUpOnPage(event, pageEl);
+    }
   }
 
   mouseMoveOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
@@ -296,16 +334,32 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rect.y2 = e.y;
   }
 
-  mouseUpOnPage(e: MouseEvent, pageEl: HTMLDivElement | null) {
-    console.log('mouseUpOnPage', { e }, { pageEl });
-    if (pageEl && pageEl.removeAllListeners) {
-      console.log('REMOVING ALL LISTENERS');
-      pageEl.removeAllListeners('mousemove');
-      pageEl.removeAllListeners('mouseup');
+  touchMoveOnPage(e: TouchEvent, pageEl: HTMLDivElement) {
+    if (e.touches.length >= 1 && this.isCurrentlySelectingArea) {
+      this.rect.x2 = e.touches[0].clientX;
+      this.rect.y2 = e.touches[0].clientY;
+    }
+  }
+
+  mouseUpOnPage(e: MouseEvent | TouchEvent, pageEl: HTMLDivElement | null) {
+    this.isCurrentlySelectingArea = false;
+    if (pageEl) {
+      if (pageEl.removeAllListeners) {
+        console.log('REMOVING ALL LISTENERS');
+        pageEl.removeAllListeners('mousemove');
+        pageEl.removeAllListeners('mouseup');
+        pageEl.removeAllListeners('ontouchmove');
+        pageEl.removeAllListeners('ontouchend');
+      }
+      pageEl.onmouseup = null;
+      pageEl.onmousemove = null;
+      if ('ontouchmove' in pageEl && 'ontouchend' in pageEl) {
+        pageEl.ontouchend = null;
+        pageEl.ontouchmove = null;
+      }
     }
 
     pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''));
-    this.isCurrentlySelectingArea = false;
     this.addAreaSelection(this.rect);
     console.log('Area selection ended: ', this.rect);
     this.rect.x1 = 0;
@@ -315,6 +369,7 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async addAreaSelection(rect: { x1: number; x2: number; y1: number; y2: number }) {
+    this.isCurrentlySelectingArea = false;
     const x_min = this.getMin(rect.x1, rect.x2);
     const y_min = this.getMin(rect.y1, rect.y2);
     const x_max = this.getMax(rect.x1, rect.x2);
@@ -518,7 +573,10 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async addAnnotationToCard(annotation: Annotation, side: 'front' | 'back') {
     if (this.documentid) {
-      const reference = await this.utils.generateReferenceFromAnnotation(annotation, this.documentid);
+      const reference = await this.utils.generateReferenceFromAnnotation(
+        annotation,
+        this.documentid
+      );
       if (this.currentCard.front === '' && this.currentCard.front === '') {
         this.currentCard.title = this.document?.name || '';
         this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber);
@@ -650,6 +708,21 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
     where: 'pdf' | 'annotations' | 'card' | 'auto' | 'all';
     drawLeaderLines?: boolean;
   }) {
+    if (this.viewMode === 'pdf') {
+      this.viewMode = 'cards';
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          resolve();
+        }, 400);
+      });
+    } else if (this.viewMode === 'cards') {
+      this.viewMode = 'pdf';
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          resolve();
+        }, 400);
+      });
+    }
     const annotation: Annotation | undefined = this.getAnnotationByID(event.annotationID);
     if (
       annotation &&
@@ -971,8 +1044,8 @@ export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async saveCard(card: CardEntry | CardEntryContent) {
-    const res = await this.utils.saveCard(card)
-    if(res){
+    const res = await this.utils.saveCard(card);
+    if (res) {
       if (res.isNew) {
         this.cards.push(res.card);
         const cardIDs = this.document?.cardIDs || [];

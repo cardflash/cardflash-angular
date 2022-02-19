@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-static-card-side',
@@ -12,10 +12,14 @@ export class StaticCardSideComponent implements OnInit {
   
   @Input('name') public name: string = "";
   
-  @Input('content') public content: string = "";
+  public safeContent : SafeHtml = '';
+  @Input('content') set content(value: string){
+    this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(value)
+  }
+
   
 
-  constructor() {
+  constructor(private domSanitizer: DomSanitizer) {
   }
 
   ngOnInit(): void {
