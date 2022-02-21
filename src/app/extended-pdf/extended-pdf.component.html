@@ -85,9 +85,6 @@
     #cardsDiv
     [ngClass]="{'bigCards': this.viewMode === 'cards'}"
     [style.display]="this.viewMode === 'both' || this.viewMode === 'cards' ? '' : 'none'"
-    [style.width]="this.viewMode === 'cards' ? 'min(80vw,60rem)' : ''"
-    [style.--editor-min-height]="this.viewMode === 'cards' ? '450px' : ''"
-    [style.overflow-y]="this.viewMode === 'cards' ? 'unset' : 'auto'"
   >
     <!-- <h2>Cards</h2> -->
     <div class="currentCardActions">

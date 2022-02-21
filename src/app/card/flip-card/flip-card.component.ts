@@ -1,6 +1,7 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CardEntry, CardEntryContent } from 'src/app/data-api.service';
 import { StaticCardSideComponent } from '../static-card-side/static-card-side.component';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-flip-card',
@@ -23,7 +24,9 @@ export class FlipCardComponent implements OnInit {
   public backSide? : ElementRef<HTMLElement>;
   
   public flipped: boolean = false;
-  constructor() { }
+  constructor() {
+
+   }
 
   ngOnInit(): void {
   }

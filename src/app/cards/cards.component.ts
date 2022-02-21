@@ -1,6 +1,10 @@
 import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { CardDialogWrapperComponent } from '../card-dialog-wrapper/card-dialog-wrapper.component';
+import { FlipCardComponent } from '../card/flip-card/flip-card.component';
+import { StaticCardComponent } from '../card/static-card/static-card.component';
 import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 
@@ -13,7 +17,7 @@ export class CardsComponent implements OnInit, OnDestroy {
   public cards : CardEntry[]  = [];
   public filteredCards : CardEntry[]  = [];
   public newestFirst: boolean = true;
-  constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService) { }
+  constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService,public dialog: MatDialog) { }
 
   async ngOnInit() {
     this.refresh()
@@ -71,6 +75,11 @@ export class CardsComponent implements OnInit, OnDestroy {
         return card.front.toLowerCase().indexOf(lower) >= 0 || card.back.toLowerCase().indexOf(lower) >= 0 || card.hiddenText.toLowerCase().indexOf(lower) >= 0;
       })
           }
+  }
+
+  startStudy(){
+    const index = Math.floor(Math.random() * this.filteredCards.length);
+    this.dialog.open(CardDialogWrapperComponent,{data: {card: this.filteredCards[index]}})
   }
 
 }

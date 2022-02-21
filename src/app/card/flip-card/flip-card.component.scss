@@ -8,8 +8,8 @@
 .cardActions{
   display: flex;
   justify-content: space-around;
-  position: absolute;
-  bottom: 0;
+  // position: absolute;
+  // bottom: 0;
   width: 100%
 }
 
@@ -64,7 +64,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  max-height: calc(var(--flip-card-height,500px) - 200px);
+  max-height: calc(var(--flip-card-height,500px) - 110px);
 }
 
 .front, .back{

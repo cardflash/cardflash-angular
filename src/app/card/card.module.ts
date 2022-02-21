@@ -21,6 +21,7 @@ import { EditorFlipCardComponent } from './editor-flip-card/editor-flip-card.com
 import { MatChipsModule } from '@angular/material/chips';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatMenuModule} from '@angular/material/menu'; 
+
 @NgModule({
   declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent, FlipCardComponent, EditorFlipCardComponent],
   imports: [

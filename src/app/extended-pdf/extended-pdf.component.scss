@@ -37,12 +37,14 @@
     overflow-y: auto;
     height: calc(100vh - 50px - 1rem - 2rem - 4px);
     // border: rgb(193, 215, 255) 3px solid;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    box-sizing: border-box;
 }
 
 .cardColumn {
     // max-width: 430px;
-    --editor-min-height: min(30vh,max(30vw,400px));
-    min-width: max(30vw,500px);
+    --editor-min-height: min(30vh,max(30vw,min(100vw,500px)));
+    min-width: max(30vw,min(100vw,500px));
     overflow-y: auto;
     --flip-card-width: 500px;
     --flip-card-height: 500px;
@@ -70,6 +72,7 @@
 
 .pageTitle {
     margin-bottom: 0;
+    padding-top: 0.5rem;
 }
 
 .pageDiv {
@@ -78,7 +81,8 @@
     padding-top: 0;
 }
 .currentPage {
-    background-color: #dfdfdf55;
+    // background-color: #dfdfdf55;
+    box-shadow: rgba(77, 70, 13, 0.46) 0px 2px 8px 0px;
 }
 
 .loadingIndicator{
@@ -136,7 +140,9 @@ margin-bottom: 0.5rem;
 }
 
 .bigCards{
-    --flip-card-width: 700px;
-    --flip-card-height: 700px;
+    width: min(95vw,60rem);
+    --flip-card-width:  min(min(90vw,60rem),600px);
+    --flip-card-height: min(min(min(100vw,60rem),90vh),600px);
     height: 100%;
+    overflow-y: unset
 }

@@ -126,11 +126,3 @@
 </div>
 </div>
 </div> -->
-<div *ngIf="this.showimageEditOverlay" class="overlayBackdrop"></div>
-<div #imageEditOverlay tabindex="0" class="imageEditOverlay" [ngClass]="{'hiddenOverlay': !this.showimageEditOverlay}" (keydown.esc)="finishImageEditing(false)">
-  <button mat-icon-button class="cancelImgEditButton" (click)="finishImageEditing(false)"><mat-icon>close</mat-icon></button>
-  <div id="tui-image-editor-container">
-    <canvas></canvas>
-  </div>
-  <button class="finishImgEditButton" mat-raised-button color="primary" (click)="finishImageEditing(true)" i18n>Finish Image Editing</button>
-</div>

@@ -34,6 +34,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
 import { AnnotationComponent } from './extended-pdf/annotation/annotation.component'; 
 import {MatMenuModule} from '@angular/material/menu'; 
+import {MatDialogModule} from '@angular/material/dialog';
+import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component'; 
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,6 +47,7 @@ import {MatMenuModule} from '@angular/material/menu';
     OptionsComponent,
     ExtendedPdfComponent,
     AnnotationComponent,
+    CardDialogWrapperComponent,
   ],
   imports: [
     BrowserModule,
@@ -71,6 +74,7 @@ import {MatMenuModule} from '@angular/material/menu';
     MatSlideToggleModule,
     MatProgressBarModule,
     MatMenuModule,
+    MatDialogModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'
