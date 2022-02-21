@@ -16,7 +16,7 @@ textarea {
     --highlightColor: rgb(246, 195, 26);
 }
 
-.annotationOuterWrapper.highlight .annotationWrapper {
+.annotationOuterWrapper .annotationWrapper.highlight {
     // animation: blink 5s ease-in-out;
     filter: saturate(200%);
     box-shadow: 0px 0px 10px 10px  var(--highlightColor); 

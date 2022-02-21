@@ -136,7 +136,7 @@ export class UtilsService {
     } else if (annotation.text || this.dataApi.config.enableAnnotationLinking) {
       innerEl = `<span data-annotationid="_${annotation.id}">${
         this.dataApi.config.enableAnnotationLinking ? '[' : ''
-      }${annotation?.text || '📌'}${this.dataApi.config.enableAnnotationLinking ? ']' : ''}</span>`;
+      }${annotation?.text || '📌'}${this.dataApi.config.enableAnnotationLinking ? ']' : ''}</span><span>&zwnj;</span>`;
     }
     if (this.dataApi.config.enableAnnotationLinking) {
       reference += `<a href="${environment.PDF_ANNOT_URL}/${documentID}#${annotation?.id}">${innerEl}</a><br/>`;

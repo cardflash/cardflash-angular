@@ -7,16 +7,18 @@
   // width: 100%;
   // margin-left: auto;
   // margin-right: auto;
-  min-height: var(--static-card-width);
-  max-height: var(--static-card-width);
+  min-height: var(--static-card-height);
+  max-height: var(--static-card-height);
   overflow: auto;
   // font-size: 14px;
   padding-top: 10px;
 }
 
-.card{
+.outerCard{
   margin-left: auto;
   margin-right: auto;
   margin: 10px;
+  height: var(--static-card-height);
+  overflow: var(--flip-card-overflow, auto);
 }
 

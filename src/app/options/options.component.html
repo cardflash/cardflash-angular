@@ -82,6 +82,18 @@
         >Automatically add cards to Anki</mat-slide-toggle
       >
     <br />
+    <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
+      <mat-label i18n>Anki Deck</mat-label>
+      <input
+        matInput
+        placeholder="Deck Name"
+        i18n-placeholder
+        [disabled]="!this.dataApi.config.autoAddAnki"
+        [(ngModel)]="this.dataApi.config.deckName"
+      />
+      <mat-icon matSuffix>inbox</mat-icon>
+    </mat-form-field>
+    <br/>
     <span>Storage provider (changes require reload)</span>
       <mat-button-toggle-group [value]="this.dataApi.getProvider()" (valueChange)="this.dataApi.setProvider($event)">
         <mat-button-toggle value="local">
@@ -91,6 +103,19 @@
           Appwrite (Server)
         </mat-button-toggle>
       </mat-button-toggle-group>
+      
+      <br />
+      <br />
+      <mat-slide-toggle
+      i18n
+      class="wrap"
+      [checked]="this.dataApi.config.showDebugInfo"
+      (change)="
+        this.dataApi.config.showDebugInfo = !this.dataApi.config.showDebugInfo;
+        saveConfig()
+      "
+      >Show Debug Information</mat-slide-toggle
+    >
       <!-- <mat-button-toggle
       class="coloredToggle"
       title="Add Text for Area Selection (instead of Image)"

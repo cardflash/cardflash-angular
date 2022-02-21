@@ -70,8 +70,12 @@ svg.leader-line {
   white-space: normal;
 }
 
-@import url('assets/card-styles.css');
+// @import url('assets/card-styles.css');
 
+
+.focusBackdrop {
+  background-color: rgba(207, 247, 250, 0.911);
+}
 
 :root{
   --marker-yellow: #f3ea504f;
@@ -85,6 +89,35 @@ svg.leader-line {
   --ck-highlight-marker-yellow: hsl(60, 97%, 73%);
   --ck-highlight-pen-green: hsl(112, 100%, 27%);
   --ck-highlight-pen-red: hsl(0, 85%, 49%);
+}
+
+
+.card {
+  width: fit-content
+}
+.card, .ck-editor, .ck.ck-editor__editable_inline {
+  width:auto;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center !important;
+  font-size: 20px;
+  ul, ol {
+    max-width: fit-content;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+
+  ul, ol {
+    max-width: unset;
+    text-align: left;
+    margin: unset;
+  }
+
+  }
+
+  [data-annotationid] {
+    border: var(--data-annotation-border,none)
+  }
 }
 
 .marker-light-yellow{
@@ -128,3 +161,4 @@ svg.leader-line {
   color: var(--ck-highlight-pen-green);
   background-color: transparent;
 }
+

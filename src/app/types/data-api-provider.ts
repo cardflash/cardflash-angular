@@ -12,7 +12,8 @@ export interface Config {
   showSelectionSizeOptions: boolean,
   autoDrawLines: boolean,
   autoAddAnnotationsToCard: boolean,
-  enableAnnotationLinking: boolean
+  enableAnnotationLinking: boolean,
+  showDebugInfo: boolean
 }
 
 export const DEFAULT_CONFIG : Config= {
@@ -27,7 +28,8 @@ export const DEFAULT_CONFIG : Config= {
   showSelectionSizeOptions: false,
   autoDrawLines: false,
   autoAddAnnotationsToCard: true,
-  enableAnnotationLinking: true
+  enableAnnotationLinking: true,
+  showDebugInfo: false
 }
 
 export interface Entry {

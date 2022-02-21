@@ -61,7 +61,7 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
 
   async startStudy(){
     const index = Math.floor(Math.random() * this.cards.length);
-    this.dialog.open(CardDialogWrapperComponent,{data: {card: await this.cards[index]}})
+    this.dialog.open(CardDialogWrapperComponent,{data: {card: await this.cards[index]}, backdropClass: 'focusBackdrop'})
   }
 
 

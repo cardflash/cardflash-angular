@@ -35,7 +35,7 @@
   height: var(--flip-card-height,500px);
   width: 100%;
   min-width: var(--flip-card-width,500px);
-  overflow: var(--flip-card-overflow,inherit);
+  overflow: hidden;
 }
 
 // .flipCard:hover .inner{
@@ -55,7 +55,7 @@
   margin-right: auto;
   max-width: var(--flip-card-width,500px);
   min-width: var(--flip-card-width,500px);
-  --static-card-width: calc(var(--flip-card-height,500px) - 200px);
+  --static-card-height: calc(var(--flip-card-height,500px) - 200px);
 
 }
 

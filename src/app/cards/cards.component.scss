@@ -3,6 +3,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 1rem;
 }
 
 .card{
@@ -16,13 +17,9 @@
 
 
 .flexChild{
-  // flex: 1 1 0px;
-  // min-width: 500px;
-  // background-color: rgba(226, 244, 255, 0.287);
-  // border: rgb(226, 244, 255) 2px solid;
-  // border-radius: 50px;
-  // margin: 30px;
-  min-width: min(75%,500px);
+
+--static-card-height: min(40vh, 500px);
+width: min(100vw, 600px);
 }
 
 .main{
