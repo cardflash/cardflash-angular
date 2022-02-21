@@ -35,6 +35,7 @@
   height: var(--flip-card-height,500px);
   width: 100%;
   min-width: var(--flip-card-width,500px);
+  overflow: var(--flip-card-overflow,inherit);
 }
 
 // .flipCard:hover .inner{
