@@ -6,6 +6,8 @@ import { CardsComponent } from './cards/cards.component';
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { DocumentsComponent } from './my/documents/documents.component';
 import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
+import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
+import { StudyComponent } from './study/study.component';
 const routes: Routes = [
   { path: '', redirectTo: '/documents', pathMatch: 'full' },
   {
@@ -55,6 +57,10 @@ const routes: Routes = [
   {
     path: 'doc',
     component: ExtendedPdfComponent
+  },
+  {
+    path: 'study',
+    component: StudyComponent
   }
 ];
 

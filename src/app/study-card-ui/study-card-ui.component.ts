@@ -147,7 +147,6 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
 
 
   getProgressValue(){
-    return 0;
     if((this.cards.length + this.lastCards.length) > 0){
       return 100*(this.lastCards.length/(this.lastCards.length + this.cards.length));
     }else{

@@ -36,7 +36,8 @@ import { AnnotationComponent } from './extended-pdf/annotation/annotation.compon
 import {MatMenuModule} from '@angular/material/menu'; 
 import {MatDialogModule} from '@angular/material/dialog';
 import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component';
-import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component'; 
+import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
+import { StudyComponent } from './study/study.component'; 
 @NgModule({
   declarations: [
     AppComponent,
@@ -50,6 +51,7 @@ import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
     AnnotationComponent,
     CardDialogWrapperComponent,
     StudyCardUiComponent,
+    StudyComponent,
   ],
   imports: [
     BrowserModule,

@@ -26,6 +26,12 @@
               <span i18n>Create from PDF</span>
             </a>
             </li>
+            <li>
+              <a routerLink="/study" routerLinkActive="active" style="--site-color: #21c3ae;--site-color-background: #a1fadcbe" (click)="drawer.toggle()">
+              <mat-icon>mark_chat_read</mat-icon>
+              <span i18n>Study</span>
+            </a>
+            </li>
             <li *ngIf="!this.accountService.isLoggedIn()">
               <button routerLink="/login" routerLinkActive="active" style="--site-color: #9e63d6;--site-color-background: #9e63d640" (click)="drawer.toggle()" [disabled]="dataApi.isOfflineMode()"
               [title]="dataApi.isOfflineMode ? 'Only possible if Server provider is selected below' : 'Login or Register on Server'">
