@@ -35,7 +35,8 @@ import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
 import { AnnotationComponent } from './extended-pdf/annotation/annotation.component'; 
 import {MatMenuModule} from '@angular/material/menu'; 
 import {MatDialogModule} from '@angular/material/dialog';
-import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component'; 
+import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component';
+import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component'; 
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,6 +49,7 @@ import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wr
     ExtendedPdfComponent,
     AnnotationComponent,
     CardDialogWrapperComponent,
+    StudyCardUiComponent,
   ],
   imports: [
     BrowserModule,

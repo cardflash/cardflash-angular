@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CardEntry } from '../data-api.service';
@@ -8,23 +8,22 @@ import { CardEntry } from '../data-api.service';
   templateUrl: './card-dialog-wrapper.component.html',
   styleUrls: ['./card-dialog-wrapper.component.scss']
 })
-export class CardDialogWrapperComponent implements OnInit {
+export class CardDialogWrapperComponent implements OnInit, AfterViewInit {
 
-  public card: CardEntry | undefined;
+  public cards: CardEntry[] = []
+
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, public dialog: MatDialogRef<CardDialogWrapperComponent>,public router: Router) {
-    if(data && data['card']){
-      this.card = data.card;
+    if(data && data['cards']){
+      this.cards = data.cards;
     }
    }
 
   ngOnInit(): void {
   }
 
-  editCard(){
-    if(this.card){
-      this.router.navigate(['cards',this.card?.$id])
-      this.dialog.close();
-    }
+  ngAfterViewInit(): void {
+      // this.answerButton?.focus();
   }
+
 
 }

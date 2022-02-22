@@ -13,17 +13,20 @@ export class FlipCardComponent implements OnInit {
   @Input('card') public card : CardEntry | CardEntryContent = {front: '', back: '',page: 0, hiddenText: '', chapter: '', title: '', creationTime: Date.now()} 
 
     
-  @Output('edit') public editEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
+  // @Output('edit') public editEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
 
-  @Output('delete') public deleteEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
+  // @Output('delete') public deleteEmitter: EventEmitter<CardEntry | CardEntryContent> = new EventEmitter<CardEntry | CardEntryContent>();
   
   @ViewChild('frontSide',{read: ElementRef})
   public frontSide? : ElementRef<HTMLElement>;
 
   @ViewChild('backSide',{read: ElementRef})
   public backSide? : ElementRef<HTMLElement>;
-  
+
   public flipped: boolean = false;
+
+
+  public animate: boolean = true;
   constructor() {
 
    }

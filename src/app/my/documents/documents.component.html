@@ -62,7 +62,7 @@
           </mat-chip>
           </mat-chip-list>
           <br />
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="fullWidthField">
             <mat-label i18n>Add a tag</mat-label>
             <input matInput type="text" (keydown.enter)="addTagToDoc(doc,newTag.value)" #newTag>
             <button [disabled]="!newTag.value" matSuffix mat-icon-button aria-label="Add" (click)="addTagToDoc(doc,newTag.value)" i18n-aria-label>

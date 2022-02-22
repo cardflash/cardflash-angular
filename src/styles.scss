@@ -77,6 +77,16 @@ svg.leader-line {
   background-color: rgba(207, 247, 250, 0.911);
 }
 
+.fullscreenPanel { 
+  // height: 100vh;
+  // width: 100vw !important;
+  max-width: 100vw !important;
+  width: min(95vw, 1200px);
+  .mat-dialog-container{
+    padding: 0.5rem;
+  }
+}
+
 :root{
   --marker-yellow: #f3ea504f;
   --marker-blue: #5eacf94f;

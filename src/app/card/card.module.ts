@@ -20,10 +20,11 @@ import { FlipCardComponent } from './flip-card/flip-card.component';
 import { EditorFlipCardComponent } from './editor-flip-card/editor-flip-card.component';
 import { MatChipsModule } from '@angular/material/chips';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatMenuModule} from '@angular/material/menu'; 
+import {MatMenuModule} from '@angular/material/menu';
+import { FlipCardWithControlsComponent } from './flip-card-with-controls/flip-card-with-controls.component'; 
 
 @NgModule({
-  declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent, FlipCardComponent, EditorFlipCardComponent],
+  declarations: [CardComponent, StaticCardSideComponent, StaticCardComponent, EditCardComponent, FlipCardComponent, EditorFlipCardComponent, FlipCardWithControlsComponent],
   imports: [
     CommonModule,
     CKEditorModule,
@@ -40,6 +41,6 @@ import {MatMenuModule} from '@angular/material/menu';
     MatProgressSpinnerModule,
     MatMenuModule
   ],
-  exports: [CardComponent,StaticCardSideComponent, StaticCardComponent, FlipCardComponent,EditorFlipCardComponent]
+  exports: [CardComponent,StaticCardSideComponent, StaticCardComponent, FlipCardComponent,EditorFlipCardComponent, FlipCardWithControlsComponent]
 })
 export class CardModule { }

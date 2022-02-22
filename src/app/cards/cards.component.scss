@@ -3,23 +3,23 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .card{
 
-  margin-bottom: 10px;
-  width: 85%;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 400px;
+  // margin-bottom: 10px;
+  // width: 85%;
+  // margin-left: auto;
+  // margin-right: auto;
+  // max-width: 400px;
 }
 
 
 .flexChild{
-
---static-card-height: min(40vh, 500px);
-width: min(100vw, 600px);
+--static-card-height: min(50vh, 500px);
+--static-card-width: min(95vw, 600px);
+width: min(95vw, 600px);
 }
 
 .main{
@@ -32,7 +32,7 @@ width: min(100vw, 600px);
 }
 
 .searchField{
-  width: 300px;
+  // width: 300px;
 }
 @media screen and (max-width: 1500px) {
   .cards{

@@ -117,12 +117,12 @@
       [deckName]="this.dataApi.config.deckName"
     ></app-card>
     <div class="otherCardsDiv">
-      <app-flip-card *ngFor="let card of cards; trackBy: getCardId" [card]="card" 
+      <app-flip-card-with-controls *ngFor="let card of cards; trackBy: getCardId" [card]="card" 
       #flipCard
       [id]="'CARD_' + card.$id" 
       (edit)="this.updateCard($event); cardsDiv.scrollTo({ top: 0, behavior: 'smooth' })"
       (delete)="this.deleteCard(card)">
-      </app-flip-card>
+      </app-flip-card-with-controls>
       <!-- <app-editor-flip-card
         [id]="'CARD_' + card.$id"
         #flipCard

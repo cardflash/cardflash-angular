@@ -13,19 +13,20 @@ import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from 'src/
 export class CardsForDocumentComponent implements OnInit, OnDestroy {
 
   public document?: DocumentEntry;
-  public cards: Promise<CardEntry>[] = []
+  public cards: CardEntry[] = []
   public id: string;
   constructor(public dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router,public dialog: MatDialog){
     this.id = actRoute.snapshot.params.id
    }
 
   async ngOnInit() {
-    this.dataApi.getDocument(this.id).then((doc) => {
+    this.dataApi.getDocument(this.id).then(async (doc) => {
       this.document = doc;
-      this.cards = [];
+      const cardsPromises : Promise<CardEntry>[] = [];
       doc.cardIDs?.forEach((cID) => {
-        this.cards.push(this.dataApi.getCard(cID))
+        cardsPromises.push(this.dataApi.getCard(cID))
       })
+      this.cards = await Promise.all(cardsPromises);
     })
   }
 
@@ -60,8 +61,7 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
   }
 
   async startStudy(){
-    const index = Math.floor(Math.random() * this.cards.length);
-    this.dialog.open(CardDialogWrapperComponent,{data: {card: await this.cards[index]}, backdropClass: 'focusBackdrop'})
+    this.dialog.open(CardDialogWrapperComponent,{data: {cards: this.cards}, backdropClass: 'focusBackdrop', panelClass: 'fullscreenPanel'})
   }
 
 

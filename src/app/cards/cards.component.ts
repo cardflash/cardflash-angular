@@ -78,8 +78,7 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   startStudy(){
-    const index = Math.floor(Math.random() * this.filteredCards.length);
-  this.dialog.open(CardDialogWrapperComponent,{data: {card: this.filteredCards[index]}, backdropClass: 'focusBackdrop'})
+  this.dialog.open(CardDialogWrapperComponent,{data: {cards: this.filteredCards}, backdropClass: 'focusBackdrop', panelClass: 'fullscreenPanel'})
   }
 
 }
