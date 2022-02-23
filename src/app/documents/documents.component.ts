@@ -1,21 +1,15 @@
 import { KeyValue } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import { DataApiService, DocumentEntry, DocumentEntryContent } from 'src/app/data-api.service';
-import { UserNotifierService } from 'src/app/services/notifier/user-notifier.service';
-import { PDFDocument } from 'src/app/types/pdf-document';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { DocumentEntry, DataApiService, DocumentEntryContent } from '../data-api.service';
+import { UserNotifierService } from '../services/notifier/user-notifier.service';
+import { PDFDocument } from '../types/pdf-document';
 
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.component.html',
-  styleUrls: ['./documents.component.scss'],
+  styleUrls: ['./documents.component.scss']
 })
-export class DocumentsComponent implements OnInit, OnDestroy {
+export class DocumentsComponent implements OnInit {
 
   public documentPromise: Promise<DocumentEntry[]> | undefined;
   public doc: Map<string, PDFDocument> = new Map<

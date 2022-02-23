@@ -64,6 +64,11 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
     this.dialog.open(CardDialogWrapperComponent,{data: {cards: this.cards}, backdropClass: 'focusBackdrop', panelClass: 'fullscreenPanel'})
   }
 
+  trackyByCardId(index: number, card: CardEntry | CardEntryContent){
+    return card.$id || index;
+  }
+
+
 
 
 

@@ -10,7 +10,7 @@
 <button mat-raised-button color="primary" (click)="startStudy()">Study</button>
     <br />
     <br />
-    <button class="backButton" mat-flat-button routerLink="/create/from-document/{{document?.$id}}" color="primary" i18n>
+    <button class="backButton" mat-flat-button routerLink="/doc/{{document?.$id}}" color="primary" i18n>
       Create new
       <mat-icon>add_circle</mat-icon>
       </button>
@@ -19,9 +19,7 @@
   </div>
   
   <div class="cards">
-    <div *ngFor="let card of cards">
-      <app-static-card class="flexChild"
+      <app-static-card class="flexChild"  *ngFor="let card of cards; trackBy:trackyByCardId"
       [card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
-    </div>
   </div>
   </div>

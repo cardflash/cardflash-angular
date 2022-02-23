@@ -11,7 +11,7 @@
     > div {
       width: 33.333%;
       display: flex;
-      justify-content: end;
+      justify-content: flex-end;
     }
     > div:nth-child(1) {
       justify-content: start;
@@ -20,10 +20,10 @@
       align-content: center;
       flex-direction: column;
       height: 72px;
-      // justify-content: end;
+      // justify-content: flex-end;
     }
     > div:nth-child(3) {
-      justify-content: end;
+      justify-content: flex-end;
     }
   }
   
@@ -58,7 +58,7 @@
         flex-direction: column;
         height: 72px;
         order: 1;
-        justify-content: end;
+        justify-content: flex-end;
         // margin-bottom: 2rem;
       }
       > div:nth-child(3) {

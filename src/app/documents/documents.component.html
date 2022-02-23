@@ -1,0 +1,143 @@
+<div class="main">
+  <h1 i18n>Your documents</h1>
+  <div *ngIf="!this.documentPromise">
+    <h2 i18n>You currently have no documents stored online.</h2>
+  </div>
+
+  <div class="documents">
+    <div class="document">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title i18n> Upload new </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <input type="file" accept=".pdf" #fileInput />
+          <br />
+          <button mat-raised-button (click)="uploadDocument()">Upload</button>
+          <br />
+          <mat-progress-spinner
+            class="centerSpinner"
+            mode="indeterminate"
+            *ngIf="this.isBusy"
+          ></mat-progress-spinner>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="document">
+      <span style="padding-bottom: 0.5rem; display: block">{{
+        newestFirst ? "Newest first" : "Oldest first"
+      }}</span>
+      <mat-button-toggle-group
+        #group="matButtonToggleGroup"
+        [value]="newestFirst"
+        (change)="newestFirst = !newestFirst; this.refresh()"
+      >
+        <mat-button-toggle [value]="true" aria-label="Newest first" title="Newest first">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="false" aria-label="Oldest first" title="Oldest first">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-chip-list aria-label="Filter by tags" i18n-aria-label>
+        <h5 i18n>Filter by tag:</h5>
+        <mat-chip
+          selectable="true"
+          [selected]="tag === this.selectedTag"
+          (click)="tagClicked(tag)"
+          [value]="tag"
+          color="primary"
+          *ngFor="let tag of this.allTags"
+          removable="false"
+          >{{ tag }}
+        </mat-chip>
+      </mat-chip-list>
+    </div>
+    <div *ngIf="documentPromise | async as docs">
+      <div class="document" *ngFor="let doc of docs">
+        <mat-card
+          *ngIf="selectedTag === undefined || (doc.tags && doc.tags.indexOf(selectedTag) > -1)"
+        >
+          <mat-card-header>
+            <mat-form-field appearance="outline" class="fullWidthField">
+              <mat-label>Name</mat-label>
+              <input
+                matInput
+                type="text"
+                [ngModel]="doc.name"
+                (keydown.enter)="this.updateNameForDoc(doc, name.value)"
+                #name
+              />
+              <button
+                [disabled]="!name.value"
+                matSuffix
+                mat-icon-button
+                aria-label="Save"
+                (click)="this.updateNameForDoc(doc, name.value)"
+                i18n-aria-label
+              >
+                <mat-icon>save</mat-icon>
+              </button>
+            </mat-form-field>
+            <img mat-card-sm-image mat-card-avatar src="/assets/pdf.png" />
+          </mat-card-header>
+          <mat-card-content>
+            <span i18n>Created on {{ doc.creationTime | date }}</span>
+            <div class="tagsDiv">
+              <h5 i18n>Tags</h5>
+              <mat-chip-list aria-label="Document tags" i18n-aria-label>
+                <mat-chip
+                  color="primary"
+                  selected
+                  *ngFor="let tag of doc.tags"
+                  removable="true"
+                  (removed)="this.removeTagFromDoc(doc, tag)"
+                  >{{ tag }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+              </mat-chip-list>
+              <br />
+              <mat-form-field appearance="fill" class="fullWidthField">
+                <mat-label i18n>Add a tag</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  (keydown.enter)="addTagToDoc(doc, newTag.value)"
+                  #newTag
+                />
+                <button
+                  [disabled]="!newTag.value"
+                  matSuffix
+                  mat-icon-button
+                  aria-label="Add"
+                  (click)="addTagToDoc(doc, newTag.value)"
+                  i18n-aria-label
+                >
+                  <mat-icon>add</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+            <div *ngIf="doc.cardIDs">
+              <span i18n>{{ doc.cardIDs.length }} Cards</span>
+            </div>
+          </mat-card-content>
+          <mat-card-actions class="cardActions">
+            <!-- <a mat-flat-button target="_blank" [href]="(this.dataApi.getFileView(doc.fileid) | async)?.href" i18n>View document</a> -->
+            <button
+              mat-flat-button
+              color="primary"
+              routerLink="/doc/{{ doc.$id }}/cards/"
+              i18n
+            >
+              View cards
+            </button>
+            <button mat-flat-button color="accent" routerLink="/doc/{{ doc.$id }}" i18n>
+              Create cards from PDF
+            </button>
+            <button mat-flat-button color="warn" (click)="deleteDocument(doc)" i18n>Delete</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

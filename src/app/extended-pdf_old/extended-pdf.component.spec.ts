@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditorFlipCardComponent } from './editor-flip-card.component';
+import { ExtendedPdfComponent } from './extended-pdf.component';
 
-describe('EditorFlipCardComponent', () => {
-  let component: EditorFlipCardComponent;
-  let fixture: ComponentFixture<EditorFlipCardComponent>;
+describe('ExtendedPdfComponent', () => {
+  let component: ExtendedPdfComponent;
+  let fixture: ComponentFixture<ExtendedPdfComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EditorFlipCardComponent ]
+      declarations: [ ExtendedPdfComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EditorFlipCardComponent);
+    fixture = TestBed.createComponent(ExtendedPdfComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

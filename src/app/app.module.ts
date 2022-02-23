@@ -5,7 +5,6 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { CardModule } from './card/card.module';
-import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { NotificationComponent } from './services/notifier/notification/notification.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar'; 
 import {MatButtonModule} from '@angular/material/button'; 
@@ -24,31 +23,26 @@ import { LoginComponent } from './account/login/login.component';
 import { CardsComponent } from './cards/cards.component'; 
 import {MatSidenavModule} from '@angular/material/sidenav'; 
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import { DocumentsComponent } from './my/documents/documents.component';
 import { MatCardModule } from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips'; 
 import {MatExpansionModule} from '@angular/material/expansion'; 
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { OptionsComponent } from './options/options.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
-import { AnnotationComponent } from './extended-pdf/annotation/annotation.component'; 
 import {MatMenuModule} from '@angular/material/menu'; 
 import {MatDialogModule} from '@angular/material/dialog';
 import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component';
 import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
-import { StudyComponent } from './study/study.component'; 
+import { StudyComponent } from './study/study.component';
+import { StaticCardsModule } from './static-cards/static-cards.module'; 
 @NgModule({
   declarations: [
     AppComponent,
     NotificationComponent,
     LoginComponent,
     CardsComponent,
-    DocumentsComponent,
     CardsForDocumentComponent,
     OptionsComponent,
-    ExtendedPdfComponent,
-    AnnotationComponent,
     CardDialogWrapperComponent,
     StudyCardUiComponent,
     StudyComponent,
@@ -58,8 +52,6 @@ import { StudyComponent } from './study/study.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    CardModule,
-    NgxExtendedPdfViewerModule,
     MatSnackBarModule,
     MatButtonModule,
     MatToolbarModule,
@@ -82,7 +74,8 @@ import { StudyComponent } from './study/study.component';
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerImmediately'
-    })
+    }),
+    StaticCardsModule
   ],
   providers: [],
   bootstrap: [AppComponent],

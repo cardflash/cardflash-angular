@@ -1,12 +1,23 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { imgSrcToBlob } from 'blob-util';
 import { customAlphabet } from 'nanoid';
-import { PageRenderedEvent, IPDFViewerApplication } from 'ngx-extended-pdf-viewer';
+import { IPDFViewerApplication, PageRenderedEvent } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
 import { CardComponent } from '../card/card.component';
 import { FlipCardComponent } from '../card/flip-card/flip-card.component';
-import { DocumentEntry, DataApiService, CardEntryContent, CardEntry } from '../data-api.service';
+import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from '../data-api.service';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Annotation } from '../types/annotation';
 import { UtilsService } from '../utils.service';
@@ -14,9 +25,9 @@ import { UtilsService } from '../utils.service';
 @Component({
   selector: 'app-extended-pdf',
   templateUrl: './extended-pdf.component.html',
-  styleUrls: ['./extended-pdf.component.scss']
+  styleUrls: ['./extended-pdf.component.scss'],
 })
-export class ExtendedPdfComponent implements OnInit {
+export class ExtendedPdfComponent implements OnInit, AfterViewInit, OnDestroy {
   public currPageNumber: number = 1;
   public pdfSrc: string = '/assets/pdfs/flashcards_siter_eu.pdf';
   public frontSelected: boolean = true;

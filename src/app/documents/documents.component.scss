@@ -1,29 +1,26 @@
-.mainContent {
+.main {
   text-align: center;
-  width: 85%;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
-.backButton{
-  margin-bottom: 10px;
-}
-
-.document{
-  max-width: 700px;
+.document {
+  max-width: min(80vw, 700px);
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 20px;
 }
 
-.cardActions{
+.cardActions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
 }
 
+.fullWidthField {
+  width: 100%;
+  max-width: 40vw;
+}
 
-.tagsDiv{
+.tagsDiv {
   width: 50%;
   margin-left: auto;
   margin-right: auto;
