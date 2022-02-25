@@ -1,40 +1,35 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import { CardModule } from './card/card.module';
-import { NotificationComponent } from './services/notifier/notification/notification.component';
-import {MatSnackBarModule} from '@angular/material/snack-bar'; 
-import {MatButtonModule} from '@angular/material/button'; 
-import {MatToolbarModule} from '@angular/material/toolbar';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatSelectModule} from '@angular/material/select'; 
-import {MatFormFieldModule} from '@angular/material/form-field'; 
-import { FormsModule } from '@angular/forms';
-import {ReactiveFormsModule} from '@angular/forms'
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { LoginComponent } from './account/login/login.component';
-import { CardsComponent } from './cards/cards.component'; 
-import {MatSidenavModule} from '@angular/material/sidenav'; 
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import { MatCardModule } from '@angular/material/card';
-import {MatChipsModule} from '@angular/material/chips'; 
-import {MatExpansionModule} from '@angular/material/expansion'; 
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component';
+import { CardsComponent } from './cards/cards.component';
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { OptionsComponent } from './options/options.component';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatMenuModule} from '@angular/material/menu'; 
-import {MatDialogModule} from '@angular/material/dialog';
-import { CardDialogWrapperComponent } from './card-dialog-wrapper/card-dialog-wrapper.component';
+import { NotificationComponent } from './services/notifier/notification/notification.component';
+import { StaticCardsModule } from './static-cards/static-cards.module';
 import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
 import { StudyComponent } from './study/study.component';
-import { StaticCardsModule } from './static-cards/static-cards.module'; 
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -59,17 +54,17 @@ import { StaticCardsModule } from './static-cards/static-cards.module';
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     MatFormFieldModule,
-    MatSelectModule,
+    // MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
     MatInputModule,
     MatSidenavModule,
-    MatCardModule,
-    MatChipsModule,
+    // MatCardModule,
+    // MatChipsModule,
     MatExpansionModule,
     MatSlideToggleModule,
     MatProgressBarModule,
-    MatMenuModule,
+    // MatMenuModule,
     MatDialogModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
@@ -79,5 +74,6 @@ import { StaticCardsModule } from './static-cards/static-cards.module';
   ],
   providers: [],
   bootstrap: [AppComponent],
+  exports: []
 })
 export class AppModule { }

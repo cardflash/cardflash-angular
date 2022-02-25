@@ -1,0 +1,13 @@
+<div class="fabContainer" tabindex="0" (focusout)="this.divBlur($event)" #fabContainer>
+  <button mat-fab color="" aria-label="Toggle sidenav" #mainButton (click)="mainButtonClick()" >
+    <mat-icon [style.color]="selectedOption.color">{{selectedOption.icon}}</mat-icon>
+  </button>
+  <div class="expandContent" [ngClass]="{'showContent': this.getShowContent(), 'expandToTop': expandToTop}">
+    <button mat-mini-fab [color]="el.id === selectedOption.id ? 'primary' : ''" *ngFor="let el of this.options; let i = index" (click)="contentButtonClick(i)" class="fabExpandContentButton">
+      <mat-icon [style.color]="el.color">{{el.icon}}</mat-icon>
+    </button>
+    <button mat-mini-fab  color="" class="fabExpandContentButton fabExpandCloseButton" *ngIf="defaultOption" (click)="closeButtonClick()">
+      <mat-icon [style.color]="'red'">close</mat-icon>
+    </button>
+  </div>
+</div>

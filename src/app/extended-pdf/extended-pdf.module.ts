@@ -13,12 +13,13 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { FabExpandButtonModule } from '../fab-expand-button/fab-expand-button.module';
 
 
 @NgModule({
   declarations: [
     ExtendedPdfComponent,
-    AnnotationComponent
+    AnnotationComponent,
   ],
   imports: [
     CommonModule,
@@ -31,7 +32,7 @@ import { MatInputModule } from '@angular/material/input';
     StaticCardsModule,
     CardModule,
     FormsModule,
-    MatInputModule
-  ]
+    MatInputModule,
+  FabExpandButtonModule  ]
 })
 export class ExtendedPdfModule { }

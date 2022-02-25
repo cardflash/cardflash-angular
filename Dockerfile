@@ -6,9 +6,7 @@ COPY package*.json /app/
 
 COPY . /app/
 
-RUN npm install
-RUN npm install -g @angular/cli@12.1.3
-RUN ng build --configuration production --source-map
+RUN npm install && npm install -g @angular/cli@13 && ng build --configuration production --source-map && rm -r /app/node_modules
 
 FROM nginx:latest
 

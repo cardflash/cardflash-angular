@@ -46,10 +46,11 @@
     // --editor-min-height: min(30vh,max(30vw,min(100vw,500px)));
     // min-width: max(30vw,min(100vw,500px));
     overflow-y: auto;
-    --flip-card-width: 250px;
-    --flip-card-height: 400px;
-    --editor-min-height: max(30vh, min(100vw, var(--flip-card-width)));
-     min-width: max(30vw, min(100vw, var(--flip-card-height)));
+    --card-column-width: min(30vw,50rem);
+    min-width: var(--card-column-width);
+    --flip-card-width: calc(var(--card-column-width) - 30px);
+    --flip-card-height: calc(var(--flip-card-width) * 0.9);
+    --editor-min-height: calc(var(--card-column-width) * 0.8);
 }
 
 .annotationsColumn {
@@ -70,6 +71,95 @@
 	position: absolute;
 	border: 2px dashed;
     pointer-events: none;
+
+    .cornerPoint {
+        width: 10px;
+        height: 10px;
+        background-color: rgb(65, 174, 218);
+        position: absolute;
+    }
+    
+    .cornerOne {
+        top: 0;
+        left: 0;
+        cursor: nw-resize;
+    }
+
+    .cornerTwo {
+        top: 0;
+        right: 0;
+        cursor: ne-resize;
+    }
+    .cornerThree {
+        bottom: 0;
+        left: 0;
+        cursor: ne-resize;
+        
+    }
+    .cornerFour {
+        bottom: 0;
+        right: 0;
+        cursor: nw-resize;
+    }
+
+    .top {
+        top: 0;
+        left: 50%;
+        height: 5px;
+        width: 20%;
+        transform: translateX(-50%);
+        cursor: n-resize;
+    }
+
+    .left {
+        left: 0;
+        top: 50%;
+        height: 20%;
+        width: 5px;
+        transform: translateY(-50%);
+        cursor: w-resize;
+    }
+
+    .right {
+        right: 0;
+        top: 50%;
+        height: 20%;
+        width: 5px;
+        transform: translateY(-50%);
+        cursor: e-resize;
+    }
+    .bottom {
+        left: 50%;
+        bottom: 0;
+        height: 5px;
+        width: 20%;
+        transform: translateX(-50%);
+        cursor: s-resize;
+    }
+}
+
+.hideAreaselection {
+    display: none;
+}
+
+.areaSelectionOptions {
+    position: absolute;
+    right: -100px;
+    bottom: 0px;
+}
+
+.areaSelectionCancelButton{
+
+}
+
+.areaSelectionFinalAction {
+    display: flex;
+    // flex-direction: column;
+    align-items: center;
+}
+.firstAreaSelectionActionRow {
+    display: flex;
+    flex-direction: column;
 }
 
 .pageTitle {
@@ -114,11 +204,13 @@
 
 .area-fab{
     position: absolute;
+    display: inline-flex;
+    flex-direction: column;
     z-index: 3;
     left: 15px;
     bottom: 100px;
   }
-
+  
 .otherCardsDiv {
     display: flex;
     flex-direction: column-reverse;
@@ -131,7 +223,7 @@ margin-bottom: 0.5rem;
 
 .topOptions {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     z-index: 4;
     // margin-left: auto;
     margin: 0.5rem auto;
@@ -147,4 +239,11 @@ margin-bottom: 0.5rem;
     --flip-card-height: min(min(min(100vw,60rem),90vh),600px);
     height: 100%;
     overflow-y: unset
+}
+
+
+@media screen and (max-width: 650px){
+    .additionalTopButtons {
+        display: none;
+    }
 }

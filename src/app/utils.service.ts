@@ -5,6 +5,7 @@ import { CardEntry, CardEntryContent, DataApiService } from './data-api.service'
 import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { Annotation } from './types/annotation';
 import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
+import { FabOption } from './fab-expand-button/fab-expand-button.component';
 
 declare var LeaderLine: any;
 
@@ -22,6 +23,16 @@ export class UtilsService {
     { hex: '#5ef98c4f', marker: 'marker-light-green' },
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
+
+  public addToCardOptions: FabOption[] = [{id: 'p', icon: 'short_text'},{id: 'h1', icon: 'title'},{id: 'ul', icon: 'format_list_bulleted'},{id: 'ol', icon: 'format_list_numbered'}];
+  public annotationColorOptions: FabOption[] = [{id: '#45454500', icon: 'text_fields'}];
+  public selectedColorOption: FabOption = {id: '#45454500', icon: 'text_fields'};
+  public selectedOption: FabOption = {id: 'p', icon: 'short_text'};
+
+
+  public addAreaOptions: FabOption[] = [{id: 'image', icon: 'image'},{id: 'text', icon: 'text_snippet'}];
+  public selectedAddAreaOption: FabOption = {id: 'image', icon: 'image'};
+
 
   constructor(
     private dataApi: DataApiService,
@@ -108,7 +119,7 @@ export class UtilsService {
 
   async generateReferenceFromAnnotation(
     annotation: Annotation,
-    documentID: string,
+    documentID: string  = '',
     annotationImgURL?: string
   ) {
     let imgURL: string | undefined;
@@ -122,7 +133,7 @@ export class UtilsService {
     }
     let reference = '';
     if (annotation.imgID) {
-      reference = `<figure class="image"><img src="${imgURL}" alt="${annotation.hiddenText}" data-imageid="${annotation.imgID}"></figure>`;
+      reference = `<figure class="image"><img src="${imgURL}" alt="${annotation.hiddenText?.replace(/"/g, "'")}" data-imageid="${annotation.imgID}"></figure>`;
     }
     const color = this.availableAnnotationColors.find((val) => val.hex === annotation?.color);
     let innerEl = '';
@@ -139,12 +150,29 @@ export class UtilsService {
       }${annotation?.text || '📌'}${this.dataApi.config.enableAnnotationLinking ? ']' : ''}</span><span>&zwnj;</span>`;
     }
     if (this.dataApi.config.enableAnnotationLinking) {
-      reference += `<a href="${environment.PDF_ANNOT_URL}/${documentID}#${annotation?.id}">${innerEl}</a><br/>`;
+      reference += `<a href="${environment.PDF_ANNOT_URL}${documentID? '/' : '' }${documentID}#${annotation?.id}">${innerEl}</a>`;
     } else {
-      reference += `${innerEl}<br/>`;
+      reference += `${innerEl}`;
     }
     console.log({ innerEl }, { reference }, { annotation });
-    return reference;
+    let content : string = '';
+
+    switch (this.selectedOption.id) {
+      case 'h1':
+        content = `<h1>${reference}</h1>`
+        break;
+      case 'ul':
+        content = `<ul><li>${reference}</li></ul>`
+        break;
+    case 'ol':
+      content = `<ol><li>${reference}</li></ol>`
+      break;
+      default:
+      content = `${reference}<br>`
+      break;
+    }
+    console.log({content})
+    return content;
   }
 
   // async regenerateImageObjectURLs(

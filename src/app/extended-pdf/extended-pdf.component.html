@@ -1,177 +1,307 @@
 <div class="topOptions">
-    <mat-button-toggle-group class="currentCardSideToggle">
-      <mat-button-toggle [checked]="this.viewMode === 'pdf'" (change)="this.viewMode = 'pdf'" i18n>
-        PDF
-        <!-- <mat-icon>insert_drive_file</mat-icon> -->
-      </mat-button-toggle>
-      <mat-button-toggle [checked]="this.viewMode === 'both'" (change)="this.viewMode = 'both'" i18n>
-        <!-- Both -->
-        <mat-icon>view_sidebar</mat-icon>
-      </mat-button-toggle>
-      <mat-button-toggle
-        [checked]="this.viewMode === 'cards'"
-        (change)="this.viewMode = 'cards'"
-        i18n
-      >
-        Cards
-        <!-- <mat-icon>batch_prediction</mat-icon> -->
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-  <canvas style="display: none" #previewCanvas></canvas>
-  <div class="mainArea">
-    <div
-      class="pdfViewer"
-      [style.display]="this.viewMode === 'both' || this.viewMode === 'pdf' ? '' : 'none'"
-      [ngStyle]="{ cursor: this.isCurrentlySelectingArea ? 'crosshair !important' : '' }"
+  <mat-button-toggle-group class="currentCardSideToggle">
+    <mat-button-toggle [checked]="this.viewMode === 'pdf'" (change)="this.viewMode = 'pdf'" i18n>
+      PDF
+      <!-- <mat-icon>insert_drive_file</mat-icon> -->
+    </mat-button-toggle>
+    <mat-button-toggle [checked]="this.viewMode === 'both'" (change)="this.viewMode = 'both'" i18n>
+      <!-- Both -->
+      <mat-icon>view_sidebar</mat-icon>
+    </mat-button-toggle>
+    <mat-button-toggle
+      [checked]="this.viewMode === 'cards'"
+      (change)="this.viewMode = 'cards'"
+      i18n
     >
-      <div class="loadingIndicator" *ngIf="busy">
-        <button mat-icon-button class="closeLoadingButton" (click)="busy = false">
-          <mat-icon>close</mat-icon>
-        </button>
-        <h2 i18n>Loading document...</h2>
-        <p i18n>Please wait a moment while we load your document and cards.</p>
-        <mat-spinner class="loadingSpinner"></mat-spinner>
-      </div>
-      <ngx-extended-pdf-viewer
-        #ngxPdfViewer
-        [listenToURL]="false"
-        [src]="pdfSrc"
-        [useBrowserLocale]="true"
-        [(page)]="currPageNumber"
-        (pageChange)="onPageChange($event)"
-        [textLayer]="true"
-        (textLayerRendered)="textLayerRendered($event)"
-        [zoom]="'page-fit'"
-        (sidebarVisibleChange)="calcScaling()"
-        (pagesLoaded)="pagesLoadComplete($event)"
-        (pdfLoaded)="pdfLoaded($event)"
-        (pdfLoadingFailed)="pdfLoadFailed($event)"
-        (pageRendered)="pageRendered($event)"
-        [ignoreKeys]="['1', '2', 'w', 's', 'space']"
-        [enablePinchOnMobile]="true"
-        [showBorders]="false"
-        [pageViewMode]="'multiple'"
-        [height]="'100%'"
-        [handTool]="false"
-        [authorization]="true"
-      ></ngx-extended-pdf-viewer>
-    </div>
-  
-    <div class="annotationsColumn" [style.display]="this.viewMode === 'both' ? '' : 'none'">
-      <!-- <h2>Annotations</h2> -->
-      <div
-        *ngFor="let annotations of annotationForPage | keyvalue"
-        class="pageDiv"
-        [ngClass]="{ currentPage: annotations.key === this.currPageNumber }"
-      >
-        <h3 class="pageTitle">Page {{ annotations.key }}</h3>
-        <app-annotation
-          *ngFor="let annotation of annotations.value"
-          [annotation]="annotation"
-          [documentID]="documentid"
-          (showInDocument)="
-            scrollToAnnotation({ annotationID: $event, where: 'all', drawLeaderLines: true })
-          "
-          (deleteAnnotation)="deleteAnnotation($event.id)"
-          (updateAnnotation)="updateAnnotation($event)"
-        >
-        </app-annotation>
-      </div>
-    </div>
-  
-    <div
-      class="card cardColumn"
-      #cardsDiv
-      [ngClass]="{'bigCards': this.viewMode === 'cards'}"
-      [style.display]="this.viewMode === 'both' || this.viewMode === 'cards' ? '' : 'none'"
-    >
-      <!-- <h2>Cards</h2> -->
-      <div class="currentCardActions">
-        <button mat-stroked-button color="primary" (click)="finishCard()" class="nextCardButton"  i18n>
-          New Card
-        </button>
-        <br />
-        <mat-button-toggle-group class="currentCardSideToggle">
-          <mat-button-toggle
-            [checked]="this.frontSelected"
-            (change)="this.frontSelected = !this.frontSelected"
-            i18n
-          >
-            Front
-          </mat-button-toggle>
-          <mat-button-toggle
-            [checked]="!this.frontSelected"
-            (change)="this.frontSelected = !this.frontSelected"
-            i18n
-          >
-            Back
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-      <app-card
-        class="currentCard"
-        [active]="true"
-        [card]="currentCard"
-        [frontActive]="this.frontSelected"
-        [deckName]="this.dataApi.config.deckName"
-      ></app-card>
-      <div class="otherCardsDiv">
-        <app-flip-card-with-controls *ngFor="let card of cards; trackBy: getCardId" [card]="card" 
-        #flipCard
-        [id]="'CARD_' + card.$id" 
-        (edit)="this.updateCard($event); cardsDiv.scrollTo({ top: 0, behavior: 'smooth' })"
-        (delete)="this.deleteCard(card)">
-        </app-flip-card-with-controls>
-        <!-- <app-editor-flip-card
-          [id]="'CARD_' + card.$id"
-          #flipCard
-          class="staticCards"
-          *ngFor="let card of cards; trackBy: getCardId"
-          [card]="card"
-          (edit)="this.updateCard($event); cardsDiv.scrollTo({ top: 0, behavior: 'smooth' })"
-          (delete)="this.deleteCard(card)"
-        ></app-editor-flip-card> -->
-      </div>
-    </div>
+      Cards
+      <!-- <mat-icon>batch_prediction</mat-icon> -->
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+  <div class="additionalTopButtons">
+    <app-fab-expand-button
+      class="areaSelectionAddButton"
+      [options]="this.utils.addAreaOptions"
+      [(selected)]="this.utils.selectedAddAreaOption"
+    ></app-fab-expand-button>
+    <app-fab-expand-button
+      [options]="this.utils.annotationColorOptions"
+      [(selected)]="this.utils.selectedColorOption"
+    ></app-fab-expand-button>
+    <app-fab-expand-button
+      [options]="this.utils.addToCardOptions"
+      [(selected)]="this.utils.selectedOption"
+    ></app-fab-expand-button>
+    <app-fab-expand-button
+      [options]="[
+        { id: 'front', icon: 'flip_to_front' },
+        { id: 'back', icon: 'flip_to_back' }
+      ]"
+      [selected]="
+        this.frontSelected
+          ? { id: 'front', icon: 'flip_to_front' }
+          : { id: 'back', icon: 'flip_to_back' }
+      "
+      (selectedChange)="this.frontSelected = $event.id === 'front'"
+    ></app-fab-expand-button>
   </div>
+</div>
+<canvas style="display: none" #previewCanvas></canvas>
+<div class="mainArea">
   <div
-    id="selectionTools"
-    #selectionTools
-    class="toolsInvisble"
-    [ngClass]="{ toolsVisible: !getSelection() }"
+    class="pdfViewer"
+    [style.display]="this.viewMode === 'both' || this.viewMode === 'pdf' ? '' : 'none'"
+    [ngStyle]="{ cursor: this.isCurrentlySelectingArea ? 'crosshair !important' : '' }"
   >
-    <button mat-icon-button (click)="addHighlightForSelection()">
+    <div class="loadingIndicator" *ngIf="busy">
+      <button mat-icon-button class="closeLoadingButton" (click)="busy = false">
+        <mat-icon>close</mat-icon>
+      </button>
+      <h2 i18n>Loading document...</h2>
+      <p i18n>Please wait a moment while we load your document and cards.</p>
+      <mat-spinner class="loadingSpinner"></mat-spinner>
+    </div>
+    <ngx-extended-pdf-viewer
+      #ngxPdfViewer
+      [listenToURL]="false"
+      [src]="pdfSrc"
+      [useBrowserLocale]="true"
+      [(page)]="currPageNumber"
+      (pageChange)="onPageChange($event)"
+      [textLayer]="true"
+      (textLayerRendered)="textLayerRendered($event)"
+      [zoom]="'page-fit'"
+      (sidebarVisibleChange)="calcScaling()"
+      (pagesLoaded)="pagesLoadComplete($event)"
+      (pdfLoaded)="pdfLoaded($event)"
+      (pdfLoadingFailed)="pdfLoadFailed($event)"
+      (pageRendered)="pageRendered($event)"
+      [ignoreKeys]="['1', '2', 'w', 's', 'space']"
+      [enablePinchOnMobile]="true"
+      [showBorders]="false"
+      [pageViewMode]="'multiple'"
+      [height]="'100%'"
+      [handTool]="false"
+      [authorization]="true"
+    ></ngx-extended-pdf-viewer>
+  </div>
+
+  <div class="annotationsColumn" [style.display]="this.viewMode === 'both' ? '' : 'none'">
+    <!-- <h2>Annotations</h2> -->
+    <div
+      *ngFor="let annotations of annotationForPage | keyvalue; trackBy: trackByAnnotationForPage"
+      class="pageDiv"
+      [ngClass]="{ currentPage: annotations.key === this.currPageNumber }"
+    >
+      <h3 class="pageTitle">Page {{ annotations.key }}</h3>
+      <app-annotation
+        *ngFor="let annotation of annotations.value; trackBy: trackByAnnotation"
+        [annotation]="annotation"
+        [documentID]="documentid"
+        (showInDocument)="
+          scrollToAnnotation({ annotationID: $event, where: 'all', drawLeaderLines: true })
+        "
+        (deleteAnnotation)="deleteAnnotation($event.id)"
+        (updateAnnotation)="updateAnnotation($event)"
+      >
+      </app-annotation>
+    </div>
+  </div>
+
+  <div
+    class="card cardColumn"
+    #cardsDiv
+    [ngClass]="{ bigCards: this.viewMode === 'cards' }"
+    [style.display]="this.viewMode === 'both' || this.viewMode === 'cards' ? '' : 'none'"
+  >
+    <div class="currentCardActions">
+      <button mat-stroked-button color="primary" (click)="finishCard()" class="nextCardButton" i18n>
+        New Card
+      </button>
+      <br />
+      <mat-button-toggle-group class="currentCardSideToggle">
+        <mat-button-toggle
+          [checked]="this.frontSelected"
+          (change)="this.frontSelected = !this.frontSelected"
+          i18n
+        >
+          Front
+        </mat-button-toggle>
+        <mat-button-toggle
+          [checked]="!this.frontSelected"
+          (change)="this.frontSelected = !this.frontSelected"
+          i18n
+        >
+          Back
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <app-card
+      class="currentCard"
+      [active]="true"
+      [card]="currentCard"
+      [frontActive]="this.frontSelected"
+      [deckName]="this.dataApi.config.deckName"
+      [placeholderFront]="frontPlaceholder"
+      [placeholderBack]="backPlaceholder"
+    ></app-card>
+    <div class="otherCardsDiv">
+      <app-flip-card-with-controls
+        *ngFor="let card of cards; trackBy: getCardId"
+        [card]="card"
+        #flipCard
+        [id]="'CARD_' + card.$id"
+        (edit)="this.updateCard($event); cardsDiv.scrollTo({ top: 0, behavior: 'smooth' })"
+        (delete)="this.deleteCard(card)"
+      >
+      </app-flip-card-with-controls>
+    </div>
+  </div>
+</div>
+<div
+  id="selectionTools"
+  #selectionTools
+  class="toolsInvisble"
+  [ngClass]="{ toolsVisible: !getSelection() }"
+>
+  <!-- <button mat-icon-button (click)="addHighlightForSelection()">
       <mat-icon>text_fields</mat-icon>
     </button>
     <button
       mat-icon-button
       *ngFor="let color of utils.availableAnnotationColors"
-      (click)="addHighlightForSelection(color)"
+      (click)="addHighlightForSelection(color.hex)"
     >
       <mat-icon [style]="'color: ' + color.hex.substr(0, 7) + '90'">circle</mat-icon>
-    </button>
-  </div>
-  
+    </button> -->
+  <app-fab-expand-button
+    [options]="this.utils.annotationColorOptions"
+    [(selected)]="this.utils.selectedColorOption"
+  ></app-fab-expand-button>
+  <app-fab-expand-button
+    [options]="this.utils.addToCardOptions"
+    [(selected)]="this.utils.selectedOption"
+  ></app-fab-expand-button>
+  <app-fab-expand-button
+    [options]="[
+      { id: 'front', icon: 'flip_to_front' },
+      { id: 'back', icon: 'flip_to_back' }
+    ]"
+    [selected]="
+      this.frontSelected
+        ? { id: 'front', icon: 'flip_to_front' }
+        : { id: 'back', icon: 'flip_to_back' }
+    "
+    (selectedChange)="this.frontSelected = $event.id === 'front'"
+  ></app-fab-expand-button>
+  <button mat-flat-button (click)="addHighlightForSelection(this.utils.selectedColorOption.id)">
+    Add
+  </button>
+</div>
+
+<div
+  class="areaSelection"
+  #areaSelection
+  [ngClass]="{
+    hideAreaselection: rect.x1 === 0 && rect.x1 === rect.x2 && this.rect.y1 === this.rect.y2
+  }"
+  [ngStyle]="{
+    'left.px': getMin(rect.x1, rect.x2),
+    'top.px': getMin(rect.y1, rect.y2),
+    'width.px': getAbs(rect.x1 - rect.x2),
+    'height.px': getAbs(rect.y1 - rect.y2)
+  }"
+>
   <div
-    class="areaSelection"
-    #areaSelection
-    [ngStyle]="{
-      'left.px': getMin(rect.x1, rect.x2),
-      'top.px': getMin(rect.y1, rect.y2),
-      'width.px': getAbs(rect.x1 - rect.x2),
-      'height.px': getAbs(rect.y1 - rect.y2)
-    }"
+    class="cornerPoint cornerOne"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(1, $event)"
+    (mousedown)="areaCornerMouseDown(1, $event)"
   ></div>
-  
-  <div class="area-fab">
-    <button
-      mat-fab
-      color="{{ this.areaSelectWithNormalMouse ? 'accent' : '' }}"
-      aria-label="Select area"
-      (click)="this.areaSelectWithNormalMouse = !this.areaSelectWithNormalMouse"
-    >
-      <mat-icon>photo_size_select_large</mat-icon>
-    </button>
+  <div
+    class="cornerPoint cornerTwo"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(2, $event)"
+    (mousedown)="areaCornerMouseDown(2, $event)"
+  ></div>
+  <div
+    class="cornerPoint cornerThree"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(3, $event)"
+    (mousedown)="areaCornerMouseDown(3, $event)"
+  ></div>
+  <div
+    class="cornerPoint cornerFour"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(4, $event)"
+    (mousedown)="areaCornerMouseDown(4, $event)"
+  ></div>
+  <div
+    class="cornerPoint cornerSide left"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(-1, $event)"
+    (mousedown)="areaCornerMouseDown(-1, $event)"
+  ></div>
+  <div
+    class="cornerPoint cornerSide top"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(-2, $event)"
+    (mousedown)="areaCornerMouseDown(-2, $event)"
+  ></div>
+  <div
+    class="cornerPoint cornerSide right"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(-3, $event)"
+    (mousedown)="areaCornerMouseDown(-3, $event)"
+  ></div>
+  <div
+    class="cornerPoint cornerSide bottom"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+    (touchstart)="areaCornerMouseDown(-4, $event)"
+    (mousedown)="areaCornerMouseDown(-4, $event)"
+  ></div>
+  <div
+    class="areaSelectionOptions"
+    [style.pointer-events]="isCurrentlySelectingArea ? 'none' : 'all'"
+  >
+    <div class="areaSelectionFinalAction">
+      <div class="firstAreaSelectionActionRow">
+        <app-fab-expand-button
+          class="areaSelectionAddButton"
+          [options]="this.utils.addAreaOptions"
+          [(selected)]="this.utils.selectedAddAreaOption"
+          [forceExpandToTop]="true"
+        ></app-fab-expand-button>
+
+        <app-fab-expand-button
+          [options]="[
+            { id: 'front', icon: 'flip_to_front' },
+            { id: 'back', icon: 'flip_to_back' }
+          ]"
+          [selected]="
+            this.frontSelected
+              ? { id: 'front', icon: 'flip_to_front' }
+              : { id: 'back', icon: 'flip_to_back' }
+          "
+          (selectedChange)="this.frontSelected = $event.id === 'front'"
+        ></app-fab-expand-button>
+        <button mat-fab color="primary" (click)="addAreaSelection(this.rect)">
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
+      <button mat-mini-fab color="" (click)="closeAreaSelection()">
+        <mat-icon color="warn">close</mat-icon>
+      </button>
+    </div>
   </div>
-  
+</div>
+
+<div class="area-fab">
+  <button
+    mat-fab
+    color="{{ this.areaSelectWithNormalMouse ? 'accent' : '' }}"
+    aria-label="Select area"
+    (click)="this.areaSelectWithNormalMouse = !this.areaSelectWithNormalMouse"
+  >
+    <mat-icon>photo_size_select_large</mat-icon>
+  </button>
+</div>

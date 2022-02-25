@@ -128,7 +128,7 @@ export class AnnotationComponent implements OnInit, OnDestroy {
   }
 
   async dragStart(e: DragEvent) {
-    if (this.annotation && this.documentID && !this.isEditing) {
+    if (this.annotation && !this.isEditing) {
       const reference = await this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID,this.imgSrc)
       e.dataTransfer?.setData('text/html', reference);
     }

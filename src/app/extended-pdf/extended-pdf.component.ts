@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { imgSrcToBlob } from 'blob-util';
@@ -7,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { CardComponent } from '../card/card.component';
 import { FlipCardComponent } from '../card/flip-card/flip-card.component';
 import { DocumentEntry, DataApiService, CardEntryContent, CardEntry } from '../data-api.service';
+import { FabOption } from '../fab-expand-button/fab-expand-button.component';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Annotation } from '../types/annotation';
 import { UtilsService } from '../utils.service';
@@ -18,7 +20,7 @@ import { UtilsService } from '../utils.service';
 })
 export class ExtendedPdfComponent implements OnInit {
   public currPageNumber: number = 1;
-  public pdfSrc: string = '/assets/pdfs/flashcards_siter_eu.pdf';
+  public pdfSrc: string = '/assets/pdfs/cardflash.net.pdf';
   public frontSelected: boolean = true;
 
   public selectionInsertTypes: ['h1', 'h2', 'normal', 'small'] = ['h1', 'h2', 'normal', 'small'];
@@ -58,15 +60,6 @@ export class ExtendedPdfComponent implements OnInit {
   public documentid: string | undefined;
 
   public viewMode: 'pdf' | 'cards' | 'both' = 'both';
-  constructor(
-    public utils: UtilsService,
-    public dataApi: DataApiService,
-    private actRoute: ActivatedRoute,
-    private router: Router,
-    private userNotifier: UserNotifierService
-  ) {
-    this.documentid = actRoute.snapshot.params.id;
-  }
 
   public currentLeaderLines: Map<string, any> = new Map<string, any>();
   public currentLineDrawerInterval: NodeJS.Timeout | undefined;
@@ -77,6 +70,8 @@ export class ExtendedPdfComponent implements OnInit {
 
   private pdfOutline: { page: number; title: string }[] = [];
 
+  public frontPlaceholder = '';
+  public backPlaceholder = '';
   public currentCard: CardEntryContent = {
     front: '',
     back: '',
@@ -96,6 +91,25 @@ export class ExtendedPdfComponent implements OnInit {
   public busy: boolean = false;
 
   public isTouchDevice: boolean = false;
+
+  constructor(
+    public utils: UtilsService,
+    public dataApi: DataApiService,
+    private actRoute: ActivatedRoute,
+    private router: Router,
+    private userNotifier: UserNotifierService
+  ) {
+    this.documentid = actRoute.snapshot.params.id;
+    this.utils.annotationColorOptions = [{id: '#45454500', icon: 'text_fields'}];
+    for(const color of utils.availableAnnotationColors){
+      this.utils.annotationColorOptions.push({color: color.hex.substring(0, 7), id:color.hex, icon: 'circle'})
+    }
+    if(dataApi.config.areaSelectOnlyText){
+      this.utils.selectedAddAreaOption = {id: 'text', icon: 'text_snippet'};
+    }
+  }
+
+
   ngOnInit(): void {
     if (this.documentid) {
       this.busy = true;
@@ -113,11 +127,36 @@ export class ExtendedPdfComponent implements OnInit {
             'danger'
           );
         });
+    }else{
+      this.frontPlaceholder = 'Create some annotation and drag them here to insert them into the card.';
+      this.backPlaceholder = 'Annotations can be created by selecting text in the PDF or using the area selection tool on the bottom left. Clicking on a annotation shows you where it is used and where it came from.';
+      this.annotationForPage = new Map<number, Annotation[]>(
+        [
+          [1,[
+            {id:"7xCpXXBkkl","type":"highlight","color":"#f3ea504f", points:[[84.2125000982657,975.1113453159571,393.798635172191,908.6439784738517]],"page":1,"text":"Blazingly fast"},
+            {id:"sy9qkty14B","type":"highlight","color":"#5ef98c4f", points:[[482.54486740902195, 217.99875682176042, 578.6763814100041, 184.76507340070765]],"page":1,"text":"Annotate"},
+            {id:"VRbhCwAxNz","type":"highlight","color":"#f95ef34f", points:[[482.54486740902195,
+              106.93267753170636,
+              665.4121834502813,
+              73.6989941106536
+            ]],"page":1,"text":"create flashcards"},
+           
+          ]],
+          [2,[{id:"V8dz6a2PJS","type":"highlight","color":"#5eacf94f", points:[[
+            289.91259128329096,
+            102.70664590238174,
+            552.0689175495402,
+            52.24068218893149
+          ]],"page":2,"text":"Documentation"},
+        ]]
+        ]);
     }
     this.isTouchDevice = window.matchMedia('(any-hover: none)').matches;
     if (this.isTouchDevice) {
       this.viewMode = 'pdf';
     }
+
+
   }
 
   async ngAfterViewInit() {
@@ -135,6 +174,17 @@ export class ExtendedPdfComponent implements OnInit {
         }
       }
     }, 5);
+
+
+    // setInterval(() => {
+    //   if(this.areaSelection){
+    //     this.areaSelection.nativeElement.style.left = this.getMin(this.rect.x1, this.rect.x2) + 'px';
+    //     this.areaSelection.nativeElement.style.top = this.getMin(this.rect.y1, this.rect.y2) + 'px';
+    //     this.areaSelection.nativeElement.style.width = this.getAbs(this.rect.x1 - this.rect.x2) + 'px';
+    //     this.areaSelection.nativeElement.style.height = this.getAbs(this.rect.y1 - this.rect.y2) + 'px';
+    //   }
+
+    // },10)
   }
 
   ngOnDestroy(): void {
@@ -145,6 +195,8 @@ export class ExtendedPdfComponent implements OnInit {
 
   async loadFromDoc(doc: DocumentEntry) {
     if (doc) {
+      this.frontPlaceholder = '';
+      this.backPlaceholder = '';
       this.document = doc;
       this.currPageNumber = doc.currentPage;
       const src = (await this.dataApi.getFileView(this.document?.fileid)).href;
@@ -319,8 +371,8 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   mouseMoveOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
-    this.rect.x2 = e.x;
-    this.rect.y2 = e.y;
+      this.rect.x2 = e.x;
+      this.rect.y2 = e.y;
   }
 
   touchMoveOnPage(e: TouchEvent, pageEl: HTMLDivElement) {
@@ -349,32 +401,48 @@ export class ExtendedPdfComponent implements OnInit {
     }
 
     pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''));
-    this.addAreaSelection(this.rect);
+  }
+
+  async closeAreaSelection(){
     console.log('Area selection ended: ', this.rect);
+    this.isCurrentlySelectingArea = false;
     this.rect.x1 = 0;
     this.rect.y1 = 0;
     this.rect.x2 = 0;
     this.rect.y2 = 0;
   }
 
-  async addAreaSelection(rect: { x1: number; x2: number; y1: number; y2: number }) {
-    this.isCurrentlySelectingArea = false;
+  getSortedRect(rect: {x1: number, x2: number, y1: number, y2: number}){
     const x_min = this.getMin(rect.x1, rect.x2);
     const y_min = this.getMin(rect.y1, rect.y2);
     const x_max = this.getMax(rect.x1, rect.x2);
     const y_max = this.getMax(rect.y1, rect.y2);
-    const sortedRect = { x1: x_min, x2: x_max, y1: y_min, y2: y_max };
+    return { x1: x_min, x2: x_max, y1: y_min, y2: y_max };
+  }
+
+  trackByAnnotationForPage(index: number,a: KeyValue<number,Annotation[]>){
+    return a.key;
+  }
+
+  trackByAnnotation(index: number,a: Annotation){
+    return a.id;
+  }
+
+  async addAreaSelection(rect: { x1: number; x2: number; y1: number; y2: number }) {
+    const sortedRect = this.getSortedRect(this.rect);
     const pdfPoint = this.getPDFPoint({
-      left: x_min,
-      right: x_max,
-      top: y_min,
-      bottom: y_max,
+      left: sortedRect.x1,
+      right: sortedRect.x2,
+      top: sortedRect.y1,
+      bottom: sortedRect.y2,
     });
     if (pdfPoint) {
       let page = this.currPageNumber;
       let pageDetected = this.getPageNumberFromPoint(rect.x1, rect.y1);
       if (pageDetected) {
         page = pageDetected;
+      }else{
+        console.log('no page detected')
       }
       const id = this.nanoid();
       const newAnnotation: Annotation = {
@@ -384,8 +452,10 @@ export class ExtendedPdfComponent implements OnInit {
         points: [pdfPoint],
         page: page,
       };
+      this.closeAreaSelection();
+      
       const text = this.getTextFromPosition(sortedRect, page);
-      if (this.dataApi.config.areaSelectOnlyText) {
+      if (this.utils.selectedAddAreaOption.id === 'text') {
         newAnnotation.text = text;
       } else {
         newAnnotation.hiddenText = text;
@@ -402,6 +472,8 @@ export class ExtendedPdfComponent implements OnInit {
       }
 
       this.addAnnotation(newAnnotation);
+    }else{
+      this.closeAreaSelection();
     }
   }
 
@@ -464,6 +536,63 @@ export class ExtendedPdfComponent implements OnInit {
     }
   }
 
+  areaCornerMouseDown(corner: number, e: MouseEvent | TouchEvent){
+    console.log({corner,e})
+    this.rect = this.getSortedRect(this.rect)
+      const updateFunction = (event: MouseEvent | TouchEvent) => {
+        console.log('onmousemove',{event})
+        let x = 0,y = 0;
+        if (event instanceof MouseEvent) {
+          x = event.x;
+          y = event.y;
+        } else {
+          if (event.touches.length >= 0) {
+            x = event.touches[0].clientX;
+            y = event.touches[0].clientY;
+          }
+        }
+        event.preventDefault();
+        if(corner === 1){
+          this.rect.x1 = x;
+          this.rect.y1 = y;
+        }else if(corner === 2){
+          this.rect.x2 = x;
+          this.rect.y1 = y;
+        }else if(corner === 3){
+          this.rect.x1 = x;
+          this.rect.y2 = y;
+        }else if(corner === 4){
+          this.rect.x2 = x;
+          this.rect.y2 = y;
+        }else if(corner === -1){
+          this.rect.x1 = x;
+        }else if(corner === -2){
+          this.rect.y1 = y;
+        }else if(corner === -3){
+          this.rect.x2 = x;
+        }else if(corner === -4){
+          this.rect.y2 = y;
+        }
+      }
+      document.onmousemove = updateFunction;
+      document.ontouchmove = updateFunction;
+      document.onmouseup = (event) => {
+        event.preventDefault();
+        console.log('onmouseup',{event})
+        document.onmousemove = null;
+        document.ontouchmove = null;
+        document.onmouseup = null;
+    }
+    document.ontouchend = (event) => {
+      event.preventDefault();
+      console.log('onmouseup',{event})
+      document.onmousemove = null;
+      document.ontouchmove = null;
+      document.ontouchend = null;
+  }
+
+  }
+
   drawAnnotationsOnPage(pageNumber: number) {
     const annotations = this.annotationForPage.get(pageNumber);
     if (annotations) {
@@ -506,10 +635,7 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   addHighlightForSelection(
-    color: { hex: string; marker: string | undefined } = {
-      hex: '#45454500',
-      marker: undefined,
-    },
+   colorHex = '#45454500',
     pageNumber: number = this.currPageNumber
   ) {
     const selectionRects = document.getSelection()?.getRangeAt(0).getClientRects();
@@ -538,7 +664,7 @@ export class ExtendedPdfComponent implements OnInit {
       const newAnnotation: Annotation = {
         id: this.nanoid(),
         type: 'highlight',
-        color: color.hex,
+        color: colorHex,
         points: pdfPoints,
         page: pageNumber,
         text: this.getSelection(),
@@ -561,7 +687,7 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   async addAnnotationToCard(annotation: Annotation, side: 'front' | 'back') {
-    if (this.documentid) {
+    // if (this.documentid) {
       const reference = await this.utils.generateReferenceFromAnnotation(
         annotation,
         this.documentid
@@ -575,7 +701,7 @@ export class ExtendedPdfComponent implements OnInit {
       } else {
         this.currentCard.back += reference;
       }
-    }
+    // }
   }
 
   drawAnnotationOnPage(pageNumber: number, annotation: Annotation) {
@@ -995,6 +1121,7 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   async saveDocument() {
+    console.log('saving',this.annotationForPage)
     if (this.document) {
       this.document.currentPage = this.currPageNumber;
       const annotations = Array.from(this.annotationForPage.values());
@@ -1027,6 +1154,8 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   async finishCard(newCard?: CardEntryContent | CardEntry) {
+    this.frontPlaceholder = '';
+    this.backPlaceholder = '';
     const cardCopy = { ...this.currentCard };
     await this.saveCard(cardCopy);
     this.nextCard(newCard);

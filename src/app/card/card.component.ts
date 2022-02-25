@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostListener,
   Input,
   OnInit,
   Output,
@@ -19,7 +18,6 @@ import { imgSrcToDataURL } from 'blob-util';
 import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
 import { UtilsService } from '../utils.service';
 
-// const ImageEditor = require('tui-image-editor');
 
 @Component({
   selector: 'app-card',
@@ -47,13 +45,16 @@ export class CardComponent implements OnInit, AfterViewInit {
   };
 
   public annotations: { id: string; color: string }[] = [];
-
   @Output('cardChange') cardChange: EventEmitter<CardEntryContent | CardEntry> =
     new EventEmitter<CardEntryContent | CardEntry>();
 
   @Input('frontActive') frontActive: boolean = true;
   @Input('active') active: boolean = false;
   @Input('deckName') deckName?: string = this.dataApi.config.deckName;
+
+
+  @Input('placeholderFront') placeholderFront: string = '';
+  @Input('placeholderBack') placeholderBack: string = '';
 
   @ViewChildren('annotationHelperFront') annotationHelperFront?: QueryList<
     ElementRef<HTMLDivElement>

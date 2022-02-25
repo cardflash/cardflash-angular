@@ -18,6 +18,9 @@
           [(ngModel)]="card.front"
           (change)="change()"
         ></ckeditor>
+        <p *ngIf="card.front === ''" class="placeHolderText">
+          {{placeholderFront}}
+        </p>
       </div>
     </mat-card>
 
@@ -33,6 +36,9 @@
           [(ngModel)]="card.back"
           (change)="change()"
         ></ckeditor>
+        <p *ngIf="card.back === ''" class="placeHolderText">
+          {{placeholderBack}}
+        </p>
       </div>
     </mat-card>
   </div>

@@ -7,45 +7,24 @@ padding-left: 3px;
 }
 .front-div , .back-div{
   border: rgba(219, 207, 207, 0.548) 2px solid;
-  // padding: 2px;
-  // width: 100%;
-  // height: 50%;
-  // overflow-y: scroll;
   width: 100%;
-  // margin-left: auto;
-  // margin-right: auto;
   min-height: var(--editor-min-height);
-  // max-height: 250px;
   overflow: auto;
   text-align: center;
+  position: relative;
 }
 
 
 .front-card, .back-card{
-  // width: 85%;
   margin-left: auto;
   margin-right: auto;
-  // max-width: 400px;
   max-width: 100%;
 }
 
 div.front-div.active, div.back-div.active {
-  // border: rgba(88, 119, 117, 0.637) 2px dashed;
   box-shadow: 0px 0px 5px 2px rgb(112, 215, 255);
 }
 
-hr.solid {
-  border-top: 3px solid #bbb;
-}
-
-#dynamicHeight {
-  height: 95%;
-  width: 100%;
-  max-width: 500px;
-  max-height: 700px;
-  margin-left: auto;
-  margin-right: auto;
-}
 
 .cardMetaFields{
   width: 100%;
@@ -116,9 +95,6 @@ hr.solid {
   transform: scale(0.5);
 }
 
-.cardSides{
-  // display: flex;
-}
 
 
 .imageDrop{
@@ -196,7 +172,10 @@ hr.solid {
 
 }
 
-#tui-image-editor-container{
-  height: 90% !important;
-  border-radius: 20px;
+.placeHolderText {
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  color: gray;
+  margin: 1rem;
 }

@@ -1,8 +1,6 @@
 <div class="main">
   <h1 i18n>Your documents</h1>
-  <div *ngIf="!this.documentPromise">
-    <h2 i18n>You currently have no documents stored online.</h2>
-  </div>
+  
 
   <div class="documents">
     <div class="document">
@@ -39,7 +37,7 @@
           <mat-icon>keyboard_arrow_up</mat-icon>
         </mat-button-toggle>
       </mat-button-toggle-group>
-      <mat-chip-list aria-label="Filter by tags" i18n-aria-label>
+      <mat-chip-list aria-label="Filter by tags"  *ngIf="this.allTags.length > 0"i18n-aria-label>
         <h5 i18n>Filter by tag:</h5>
         <mat-chip
           selectable="true"
@@ -54,6 +52,19 @@
       </mat-chip-list>
     </div>
     <div *ngIf="documentPromise | async as docs">
+    <div *ngIf="docs.length < 1">
+      <h2 i18n>You currently have no documents stored online.</h2>
+      <p>
+        <b>Start by selecting a PDF file in the input above.</b>
+        <br />
+        <br />
+        After the file is processed, it will appear here.
+        <br />
+        Then you can use the <i>Create cards from PDF</i> button to start creating cards and annotations.
+      </p>
+    </div>
+    
+
       <div class="document" *ngFor="let doc of docs">
         <mat-card
           *ngIf="selectedTag === undefined || (doc.tags && doc.tags.indexOf(selectedTag) > -1)"
