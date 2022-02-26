@@ -256,8 +256,7 @@ export class UtilsService {
       params: {
         modelName: 'cardflash.net-V' + environment.ANKI_MODEL_VERSION,
         inOrderFields: ['ID', 'Front', 'Back', 'Title', 'Page', 'Chapter', 'URL', 'Hidden'],
-        css: `.card,
-        .ck-editor,
+        css: `.card, .ck-editor,
         .ck.ck-editor__editable_inline {
           width: auto;
           margin-left: auto;
@@ -326,8 +325,7 @@ export class UtilsService {
         .pen-green {
           color: var(--ck-highlight-pen-green);
           background-color: transparent;
-        }        
-        `,
+        }`,
         cardTemplates: [
           {
             Name: 'cardflash.net Card-V' + environment.ANKI_MODEL_VERSION,

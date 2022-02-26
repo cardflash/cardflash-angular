@@ -209,9 +209,7 @@ export class DataApiService {
   }
 
   async getFileView(id: string) {
-    console.log('getFileView in data api',{id})
     if(this.fileViewURLCache.has(id)){
-      console.log('using cached value for ' + id)
       return await this.fileViewURLCache.get(id)!;
     }else{
       const urlProm =  this.apiProvider.getFileView(id)

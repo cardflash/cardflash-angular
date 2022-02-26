@@ -1,5 +1,14 @@
 import { KeyValue } from '@angular/common';
-import { Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { imgSrcToBlob } from 'blob-util';
 import { customAlphabet } from 'nanoid';
@@ -16,7 +25,7 @@ import { UtilsService } from '../utils.service';
 @Component({
   selector: 'app-extended-pdf',
   templateUrl: './extended-pdf.component.html',
-  styleUrls: ['./extended-pdf.component.scss']
+  styleUrls: ['./extended-pdf.component.scss'],
 })
 export class ExtendedPdfComponent implements OnInit {
   public currPageNumber: number = 1;
@@ -91,10 +100,10 @@ export class ExtendedPdfComponent implements OnInit {
 
   public isTouchDevice: boolean = false;
 
-  public readonly cardOptions : FabOption[] = [
+  public readonly cardOptions: FabOption[] = [
     { id: 'front', icon: 'flip_to_front', title: 'Front' },
     { id: 'back', icon: 'flip_to_back', title: 'Back' },
-    { id: 'none', icon: 'browser_not_supported', title: 'Do not add' }
+    { id: 'none', icon: 'browser_not_supported', title: 'Do not add' },
   ];
 
   public cardOption: FabOption = this.cardOptions[0];
@@ -107,15 +116,18 @@ export class ExtendedPdfComponent implements OnInit {
     private userNotifier: UserNotifierService
   ) {
     this.documentid = actRoute.snapshot.params.id;
-    this.utils.annotationColorOptions = [{id: '#45454500', icon: 'text_fields'}];
-    for(const color of utils.availableAnnotationColors){
-      this.utils.annotationColorOptions.push({color: color.hex.substring(0, 7), id:color.hex, icon: 'circle'})
+    this.utils.annotationColorOptions = [{ id: '#45454500', icon: 'text_fields' }];
+    for (const color of utils.availableAnnotationColors) {
+      this.utils.annotationColorOptions.push({
+        color: color.hex.substring(0, 7),
+        id: color.hex,
+        icon: 'circle',
+      });
     }
-    if(dataApi.config.areaSelectOnlyText){
-      this.utils.selectedAddAreaOption = {id: 'text', icon: 'text_snippet'};
+    if (dataApi.config.areaSelectOnlyText) {
+      this.utils.selectedAddAreaOption = { id: 'text', icon: 'text_snippet' };
     }
   }
-
 
   ngOnInit(): void {
     if (this.documentid) {
@@ -134,37 +146,67 @@ export class ExtendedPdfComponent implements OnInit {
             'danger'
           );
         });
-    }else{
-      this.frontPlaceholder = 'Create some annotation and drag them here to insert them into the card.';
-      this.backPlaceholder = 'Annotations can be created by selecting text in the PDF or using the area selection tool on the bottom left. Clicking on a annotation shows you where it is used and where it came from.';
-      this.annotationForPage = new Map<number, Annotation[]>(
+    } else {
+      this.frontPlaceholder =
+        'Create some annotation and drag them here to insert them into the card.';
+      this.backPlaceholder =
+        'Annotations can be created by selecting text in the PDF or using the area selection tool on the bottom left. Clicking on a annotation shows you where it is used and where it came from.';
+      this.annotationForPage = new Map<number, Annotation[]>([
         [
-          [1,[
-            {id:"7xCpXXBkkl","type":"highlight","color":"#f3ea504f", points:[[84.2125000982657,975.1113453159571,393.798635172191,908.6439784738517]],"page":1,"text":"Blazingly fast"},
-            {id:"sy9qkty14B","type":"highlight","color":"#5ef98c4f", points:[[482.54486740902195, 217.99875682176042, 578.6763814100041, 184.76507340070765]],"page":1,"text":"Annotate"},
-            {id:"VRbhCwAxNz","type":"highlight","color":"#f95ef34f", points:[[482.54486740902195,
-              106.93267753170636,
-              665.4121834502813,
-              73.6989941106536
-            ]],"page":1,"text":"create flashcards"},
-           
-          ]],
-          [2,[{id:"V8dz6a2PJS","type":"highlight","color":"#5eacf94f", points:[[
-            289.91259128329096,
-            102.70664590238174,
-            552.0689175495402,
-            52.24068218893149
-          ]],"page":2,"text":"Documentation"},
-        ]]
-        ]);
+          1,
+          [
+            {
+              id: '7xCpXXBkkl',
+              type: 'highlight',
+              color: '#f3ea504f',
+              points: [[84.2125000982657, 975.1113453159571, 393.798635172191, 908.6439784738517]],
+              page: 1,
+              text: 'Blazingly fast',
+            },
+            {
+              id: 'sy9qkty14B',
+              type: 'highlight',
+              color: '#5ef98c4f',
+              points: [
+                [482.54486740902195, 217.99875682176042, 578.6763814100041, 184.76507340070765],
+              ],
+              page: 1,
+              text: 'Annotate',
+            },
+            {
+              id: 'VRbhCwAxNz',
+              type: 'highlight',
+              color: '#f95ef34f',
+              points: [
+                [482.54486740902195, 106.93267753170636, 665.4121834502813, 73.6989941106536],
+              ],
+              page: 1,
+              text: 'create flashcards',
+            },
+          ],
+        ],
+        [
+          2,
+          [
+            {
+              id: 'V8dz6a2PJS',
+              type: 'highlight',
+              color: '#5eacf94f',
+              points: [
+                [289.91259128329096, 102.70664590238174, 552.0689175495402, 52.24068218893149],
+              ],
+              page: 2,
+              text: 'Documentation',
+            },
+          ],
+        ],
+      ]);
     }
-    this.isTouchDevice = window.matchMedia('(any-hover: none)').matches
-    const smallScreen =  window.matchMedia('(max-width: 800px)').matches;
+    this.isTouchDevice = window.matchMedia('(any-hover: none)').matches;
+    const smallScreen = window.matchMedia('(max-width: 800px)').matches;
     if (smallScreen) {
       this.viewMode = 'pdf';
     }
-
-
   }
 
   async ngAfterViewInit() {
@@ -182,7 +224,6 @@ export class ExtendedPdfComponent implements OnInit {
         }
       }
     }, 5);
-
 
     // setInterval(() => {
     //   if(this.areaSelection){
@@ -342,7 +383,7 @@ export class ExtendedPdfComponent implements OnInit {
       this.startAreaSelection(e, pageEl);
     }
   }
-  
+
   contextMenuOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
     if (!this.getSelection()) {
       console.log('contextMenuOnPage', { e }, { pageEl });
@@ -379,8 +420,8 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   mouseMoveOnPage(e: MouseEvent, pageEl: HTMLDivElement) {
-      this.rect.x2 = e.x;
-      this.rect.y2 = e.y;
+    this.rect.x2 = e.x;
+    this.rect.y2 = e.y;
   }
 
   touchMoveOnPage(e: TouchEvent, pageEl: HTMLDivElement) {
@@ -411,7 +452,7 @@ export class ExtendedPdfComponent implements OnInit {
     pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''));
   }
 
-  async closeAreaSelection(){
+  async closeAreaSelection() {
     console.log('Area selection ended: ', this.rect);
     this.isCurrentlySelectingArea = false;
     this.rect.x1 = 0;
@@ -420,7 +461,7 @@ export class ExtendedPdfComponent implements OnInit {
     this.rect.y2 = 0;
   }
 
-  getSortedRect(rect: {x1: number, x2: number, y1: number, y2: number}){
+  getSortedRect(rect: { x1: number; x2: number; y1: number; y2: number }) {
     const x_min = this.getMin(rect.x1, rect.x2);
     const y_min = this.getMin(rect.y1, rect.y2);
     const x_max = this.getMax(rect.x1, rect.x2);
@@ -428,11 +469,11 @@ export class ExtendedPdfComponent implements OnInit {
     return { x1: x_min, x2: x_max, y1: y_min, y2: y_max };
   }
 
-  trackByAnnotationForPage(index: number,a: KeyValue<number,Annotation[]>){
+  trackByAnnotationForPage(index: number, a: KeyValue<number, Annotation[]>) {
     return a.key;
   }
 
-  trackByAnnotation(index: number,a: Annotation){
+  trackByAnnotation(index: number, a: Annotation) {
     return a.id;
   }
 
@@ -449,8 +490,8 @@ export class ExtendedPdfComponent implements OnInit {
       let pageDetected = this.getPageNumberFromPoint(rect.x1, rect.y1);
       if (pageDetected) {
         page = pageDetected;
-      }else{
-        console.log('no page detected')
+      } else {
+        console.log('no page detected');
       }
       const id = this.nanoid();
       const newAnnotation: Annotation = {
@@ -461,7 +502,7 @@ export class ExtendedPdfComponent implements OnInit {
         page: page,
       };
       this.closeAreaSelection();
-      
+
       const text = this.getTextFromPosition(sortedRect, page);
       if (this.utils.selectedAddAreaOption.id === 'text') {
         newAnnotation.text = text;
@@ -480,7 +521,7 @@ export class ExtendedPdfComponent implements OnInit {
       }
 
       this.addAnnotation(newAnnotation);
-    }else{
+    } else {
       this.closeAreaSelection();
     }
   }
@@ -544,63 +585,63 @@ export class ExtendedPdfComponent implements OnInit {
     }
   }
 
-  areaCornerMouseDown(corner: number, e: MouseEvent | TouchEvent){
-    console.log({corner,e})
-    this.rect = this.getSortedRect(this.rect)
-      const updateFunction = (event: MouseEvent | TouchEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        document.getSelection()?.empty()
-        console.log('onmousemove',{event})
-        let x = 0,y = 0;
-        if (event instanceof MouseEvent) {
-          x = event.x;
-          y = event.y;
-        } else {
-          if (event.touches.length >= 0) {
-            x = event.touches[0].clientX;
-            y = event.touches[0].clientY;
-          }
-        }
-        if(corner === 1){
-          this.rect.x1 = x;
-          this.rect.y1 = y;
-        }else if(corner === 2){
-          this.rect.x2 = x;
-          this.rect.y1 = y;
-        }else if(corner === 3){
-          this.rect.x1 = x;
-          this.rect.y2 = y;
-        }else if(corner === 4){
-          this.rect.x2 = x;
-          this.rect.y2 = y;
-        }else if(corner === -1){
-          this.rect.x1 = x;
-        }else if(corner === -2){
-          this.rect.y1 = y;
-        }else if(corner === -3){
-          this.rect.x2 = x;
-        }else if(corner === -4){
-          this.rect.y2 = y;
+  areaCornerMouseDown(corner: number, e: MouseEvent | TouchEvent) {
+    console.log({ corner, e });
+    this.rect = this.getSortedRect(this.rect);
+    const updateFunction = (event: MouseEvent | TouchEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      document.getSelection()?.empty();
+      console.log('onmousemove', { event });
+      let x = 0,
+        y = 0;
+      if (event instanceof MouseEvent) {
+        x = event.x;
+        y = event.y;
+      } else {
+        if (event.touches.length >= 0) {
+          x = event.touches[0].clientX;
+          y = event.touches[0].clientY;
         }
       }
-      document.onmousemove = updateFunction;
-      document.ontouchmove = updateFunction;
-      document.onmouseup = (event) => {
-        event.preventDefault();
-        console.log('onmouseup',{event})
-        document.onmousemove = null;
-        document.ontouchmove = null;
-        document.onmouseup = null;
-    }
+      if (corner === 1) {
+        this.rect.x1 = x;
+        this.rect.y1 = y;
+      } else if (corner === 2) {
+        this.rect.x2 = x;
+        this.rect.y1 = y;
+      } else if (corner === 3) {
+        this.rect.x1 = x;
+        this.rect.y2 = y;
+      } else if (corner === 4) {
+        this.rect.x2 = x;
+        this.rect.y2 = y;
+      } else if (corner === -1) {
+        this.rect.x1 = x;
+      } else if (corner === -2) {
+        this.rect.y1 = y;
+      } else if (corner === -3) {
+        this.rect.x2 = x;
+      } else if (corner === -4) {
+        this.rect.y2 = y;
+      }
+    };
+    document.onmousemove = updateFunction;
+    document.ontouchmove = updateFunction;
+    document.onmouseup = (event) => {
+      event.preventDefault();
+      console.log('onmouseup', { event });
+      document.onmousemove = null;
+      document.ontouchmove = null;
+      document.onmouseup = null;
+    };
     document.ontouchend = (event) => {
       event.preventDefault();
-      console.log('onmouseup',{event})
+      console.log('onmouseup', { event });
       document.onmousemove = null;
       document.ontouchmove = null;
       document.ontouchend = null;
-  }
-
+    };
   }
 
   drawAnnotationsOnPage(pageNumber: number) {
@@ -644,10 +685,7 @@ export class ExtendedPdfComponent implements OnInit {
     }
   }
 
-  addHighlightForSelection(
-   colorHex = '#45454500',
-    pageNumber: number = this.currPageNumber
-  ) {
+  addHighlightForSelection(colorHex = '#45454500', pageNumber: number = this.currPageNumber) {
     const selectionRects = document.getSelection()?.getRangeAt(0).getClientRects();
 
     if (this.selectionTools) {
@@ -698,19 +736,16 @@ export class ExtendedPdfComponent implements OnInit {
 
   async addAnnotationToCard(annotation: Annotation, side: 'front' | 'back') {
     // if (this.documentid) {
-      const reference = await this.utils.generateReferenceFromAnnotation(
-        annotation,
-        this.documentid
-      );
-      if (this.currentCard.front === '' && this.currentCard.front === '') {
-        this.currentCard.title = this.document?.name || '';
-        this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber);
-      }
-      if (side === 'front') {
-        this.currentCard.front += reference;
-      } else {
-        this.currentCard.back += reference;
-      }
+    const reference = await this.utils.generateReferenceFromAnnotation(annotation, this.documentid);
+    if (this.currentCard.front === '' && this.currentCard.front === '') {
+      this.currentCard.title = this.document?.name || '';
+      this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber);
+    }
+    if (side === 'front') {
+      this.currentCard.front += reference;
+    } else {
+      this.currentCard.back += reference;
+    }
     // }
   }
 
@@ -1131,7 +1166,7 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   async saveDocument() {
-    console.log('saving',this.annotationForPage)
+    console.log('saving', this.annotationForPage);
     if (this.document) {
       this.document.currentPage = this.currPageNumber;
       const annotations = Array.from(this.annotationForPage.values());
@@ -1172,15 +1207,17 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   async saveCard(card: CardEntry | CardEntryContent) {
-    const res = await this.utils.saveCard(card);
-    if (res) {
-      if (res.isNew) {
-        this.cards.push(res.card);
-        const cardIDs = this.document?.cardIDs || [];
-        cardIDs.push(res.card.$id);
-        if (this.document) {
-          this.document.cardIDs = cardIDs;
-          this.saveDocument();
+    if (card.front !== '' || card.back !== '') {
+      const res = await this.utils.saveCard(card);
+      if (res) {
+        if (res.isNew) {
+          this.cards.push(res.card);
+          const cardIDs = this.document?.cardIDs || [];
+          cardIDs.push(res.card.$id);
+          if (this.document) {
+            this.document.cardIDs = cardIDs;
+            this.saveDocument();
+          }
         }
       }
     }
@@ -1198,8 +1235,8 @@ export class ExtendedPdfComponent implements OnInit {
         creationTime: Date.now(),
       };
     }
-    if(this.cardOption.id === 'back'){
-      this.cardOption = this.cardOptions[1]
+    if (this.cardOption.id === 'back') {
+      this.cardOption = this.cardOptions[1];
     }
     this.currentCard = newCard;
   }

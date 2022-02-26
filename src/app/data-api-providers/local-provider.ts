@@ -155,10 +155,11 @@ export class LocalProvider implements DataApiProvider{
 
     async getPreferences(): Promise<Config> {
     const prefs = await localforage.getItem<string>("cardflash_prefs");
+    console.log("Loaded local config",{prefs})
     if(prefs !== null){
         const parsedConfig = JSON.parse(prefs);
-        if(!parsedConfig|| parsedConfig['config']){
-         return parsedConfig
+        if(parsedConfig && parsedConfig['config']){
+         return parsedConfig['config']
         }
     }
     return DEFAULT_CONFIG;
@@ -166,6 +167,6 @@ export class LocalProvider implements DataApiProvider{
 
 
     async savePreferences(config: Config): Promise<void> {
-        const prefs = await localforage.setItem<string>("cardflash_prefs",JSON.stringify(config));
+        const prefs = await localforage.setItem<string>("cardflash_prefs",JSON.stringify({config: config}));
       }
 }
