@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { timeStamp } from 'console';
 
-export interface FabOption {id: string, icon: string, color?: string};
+export interface FabOption {id: string, icon: string, color?: string, title?: string};
 
 @Component({
   selector: 'app-fab-expand-button',

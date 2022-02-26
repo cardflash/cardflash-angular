@@ -48,10 +48,22 @@
     overflow-y: auto;
     --card-column-width: min(30vw,50rem);
     min-width: var(--card-column-width);
+    max-width: var(--card-column-width);
     --flip-card-width: calc(var(--card-column-width) - 30px);
     --flip-card-height: calc(var(--flip-card-width) * 0.9);
     --editor-min-height: calc(var(--card-column-width) * 0.8);
 }
+
+.bigCards{
+    --card-column-width: min(90vw,50rem);
+    min-width: var(--card-column-width);
+    max-width: var(--card-column-width);
+    --flip-card-width:  min(min(90vw,60rem),600px);
+    --flip-card-height: min(min(min(100vw,60rem),90vh),600px);
+    height: 100%;
+    overflow-y: unset
+}
+
 
 .annotationsColumn {
     text-align: center;
@@ -67,6 +79,15 @@
     color: red;
 }
 
+
+@media (hover: hover) {
+    .areaSelection {
+        .cornerPoint {
+            padding: 0 !important;
+        }
+    }
+}
+
 .areaSelection {
 	position: absolute;
 	border: 2px dashed;
@@ -75,8 +96,9 @@
     .cornerPoint {
         width: 10px;
         height: 10px;
-        background-color: rgb(65, 174, 218);
+        background-color: rgba(143, 168, 248, 0.527);
         position: absolute;
+        padding: 4px;
     }
     
     .cornerOne {
@@ -105,7 +127,7 @@
     .top {
         top: 0;
         left: 50%;
-        height: 5px;
+        height: 10px;
         width: 20%;
         transform: translateX(-50%);
         cursor: n-resize;
@@ -115,7 +137,7 @@
         left: 0;
         top: 50%;
         height: 20%;
-        width: 5px;
+        width: 10px;
         transform: translateY(-50%);
         cursor: w-resize;
     }
@@ -124,14 +146,14 @@
         right: 0;
         top: 50%;
         height: 20%;
-        width: 5px;
+        width: 10px;
         transform: translateY(-50%);
         cursor: e-resize;
     }
     .bottom {
         left: 50%;
         bottom: 0;
-        height: 5px;
+        height: 10px;
         width: 20%;
         transform: translateX(-50%);
         cursor: s-resize;
@@ -232,15 +254,6 @@ margin-bottom: 0.5rem;
     // left: 50%;
     // transform: translateX(-50%);
 }
-
-.bigCards{
-    width: min(95vw,60rem);
-    --flip-card-width:  min(min(90vw,60rem),600px);
-    --flip-card-height: min(min(min(100vw,60rem),90vh),600px);
-    height: 100%;
-    overflow-y: unset
-}
-
 
 @media screen and (max-width: 650px){
     .additionalTopButtons {

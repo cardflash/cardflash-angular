@@ -24,14 +24,14 @@ export class UtilsService {
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
 
-  public addToCardOptions: FabOption[] = [{id: 'p', icon: 'short_text'},{id: 'h1', icon: 'title'},{id: 'ul', icon: 'format_list_bulleted'},{id: 'ol', icon: 'format_list_numbered'}];
+  public addToCardOptions: FabOption[] = [{id: 'p', icon: 'short_text', title: 'Normal paragraph'},{id: 'h1', icon: 'title', title: 'Title'},{id: 'ul', icon: 'format_list_bulleted', title: 'Bulleted list'},{id: 'ol', icon: 'format_list_numbered', title: 'Numbered list'}];
   public annotationColorOptions: FabOption[] = [{id: '#45454500', icon: 'text_fields'}];
-  public selectedColorOption: FabOption = {id: '#45454500', icon: 'text_fields'};
-  public selectedOption: FabOption = {id: 'p', icon: 'short_text'};
+  public selectedColorOption: FabOption = this.annotationColorOptions[0];
+  public selectedOption: FabOption =  this.addToCardOptions[0];
 
 
-  public addAreaOptions: FabOption[] = [{id: 'image', icon: 'image'},{id: 'text', icon: 'text_snippet'}];
-  public selectedAddAreaOption: FabOption = {id: 'image', icon: 'image'};
+  public addAreaOptions: FabOption[] = [{id: 'image', icon: 'image', title: 'Add as image'},{id: 'text', icon: 'text_snippet', title: 'Add only text content'}];
+  public selectedAddAreaOption: FabOption = this.addAreaOptions[0];
 
 
   constructor(
@@ -154,7 +154,6 @@ export class UtilsService {
     } else {
       reference += `${innerEl}`;
     }
-    console.log({ innerEl }, { reference }, { annotation });
     let content : string = '';
 
     switch (this.selectedOption.id) {
@@ -171,7 +170,6 @@ export class UtilsService {
       content = `${reference}<br>`
       break;
     }
-    console.log({content})
     return content;
   }
 
@@ -258,7 +256,78 @@ export class UtilsService {
       params: {
         modelName: 'cardflash.net-V' + environment.ANKI_MODEL_VERSION,
         inOrderFields: ['ID', 'Front', 'Back', 'Title', 'Page', 'Chapter', 'URL', 'Hidden'],
-        // css: ckEditorCss,
+        css: `.card,
+        .ck-editor,
+        .ck.ck-editor__editable_inline {
+          width: auto;
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center !important;
+          font-size: 20px;
+          --marker-yellow: #f3ea504f;
+          --marker-blue: #5eacf94f;
+          --marker-green: #5ef98c4f;
+          --marker-pink: #f95ef34f;
+        
+          --ck-highlight-marker-blue: hsl(201, 97%, 72%);
+          --ck-highlight-marker-green: hsl(120, 93%, 68%);
+          --ck-highlight-marker-pink: hsl(345, 96%, 73%);
+          --ck-highlight-marker-yellow: hsl(60, 97%, 73%);
+          --ck-highlight-pen-green: hsl(112, 100%, 27%);
+          --ck-highlight-pen-red: hsl(0, 85%, 49%);
+          width: fit-content;
+        }
+        
+        ul,
+        ol {
+          max-width: fit-content;
+          text-align: left;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        
+        .marker-light-yellow {
+          background-color: var(--marker-yellow);
+        }
+        
+        .marker-light-blue {
+          background-color: var(--marker-blue);
+        }
+        
+        .marker-light-green {
+          background-color: var(--marker-green);
+        }
+        
+        .marker-light-pink {
+          background-color: var(--marker-pink);
+        }
+        
+        .marker-yellow {
+          background-color: var(--ck-highlight-marker-yellow);
+        }
+        
+        .marker-green {
+          background-color: var(--ck-highlight-marker-green);
+        }
+        
+        .marker-pink {
+          background-color: var(--ck-highlight-marker-pink);
+        }
+        
+        .marker-blue {
+          background-color: var(--ck-highlight-marker-blue);
+        }
+        
+        .pen-red {
+          color: var(--ck-highlight-pen-red);
+          background-color: transparent;
+        }
+        
+        .pen-green {
+          color: var(--ck-highlight-pen-green);
+          background-color: transparent;
+        }        
+        `,
         cardTemplates: [
           {
             Name: 'cardflash.net Card-V' + environment.ANKI_MODEL_VERSION,
@@ -294,10 +363,12 @@ export class UtilsService {
   }
 
   async exportCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download', deckName?: string) {
-    const imagelist = this.getImages(card);
-    const ankiNamingFunc = (i: number) => card.creationTime + '-' + i + '.png';
-    let newFrontContent = this.replaceImageLinks(card.front, imagelist, ankiNamingFunc);
-    let newBackContent = this.replaceImageLinks(card.back, imagelist, ankiNamingFunc);
+    // const imagelist = this.getImages(card);
+    const serverImages = this.getServerImageList(card);
+    let newFrontContent =  card.front; //this.replaceImageLinks(card.front, imagelist, ankiNamingFunc);
+    let newBackContent = card.back; //this.replaceImageLinks(card.back, imagelist, ankiNamingFunc);
+    console.log({newBackContent})
+
 
     if (to === 'anki') {
       let exReq = {
@@ -318,35 +389,83 @@ export class UtilsService {
       if (alreadyOnAnki) {
         ankiID = exRes.result.result[0];
       }
-      console.log(alreadyOnAnki);
-      const serverImages = this.getServerImageList(card);
-      console.log({ serverImages });
-      if (serverImages) {
-        for (let i = 0; i < serverImages.length; i++) {
-          const src = await this.dataApi.getFileView(serverImages[i]);
-          const dataURL = await imgSrcToDataURL(src.href, 'image/png', 'use-credentials');
-          let imgReq = {
-            action: 'storeMediaFile',
-            version: 6,
-            params: {
-              filename: 'API_' + serverImages[i] + '.png',
-              data: dataURL.substring(22),
-            },
-          };
-          const imgProm = this.makeHttpRequest(imgReq);
-          const imgRes = await this.userNotifierService.notifyOnPromiseReject(
-            imgProm,
-            'Image Upload',
-            'AnkiConnect is not reachable'
-          );
-          if (!imgRes.success || imgRes.result.error) {
-            return;
-          } else {
-            newBackContent = newBackContent.replace(src.href, 'API_' + serverImages[i] + '.png');
-            newFrontContent = newFrontContent.replace(src.href, 'API_' + serverImages[i] + '.png');
-          }
+
+
+    const domParser = new DOMParser();
+    const docFront = domParser.parseFromString(card.front, 'text/html');
+    const docBack = domParser.parseFromString(card.back, 'text/html');
+
+    const imgSavePromises: Promise<void>[] = [];
+    for (const side of [docFront, docBack]) {
+      const serverImageEls = side.querySelectorAll('[data-imageid]');
+      for(let i = 0; i < serverImageEls.length; i++){
+        const el = serverImageEls[i];
+          imgSavePromises.push(new Promise(async (resolve,reject) => {
+            const imageID = el.getAttribute('data-imageid');
+            if(imageID !== null){
+                const src = await this.dataApi.getFileView(imageID);
+                const dataURL = await imgSrcToDataURL(src.href, 'image/png', 'use-credentials');
+                const ankiFilename = 'API_' + imageID + '.png';
+                console.log({dataURL})
+                let imgReq = {
+                  action: 'storeMediaFile',
+                  version: 6,
+                  params: {
+                    filename: ankiFilename,
+                    data: dataURL.substring(22),
+                  },
+                };
+                const imgProm = this.makeHttpRequest(imgReq);
+                this.userNotifierService.notifyOnPromiseReject(
+                  imgProm,
+                  'Image Upload',
+                  'AnkiConnect is not reachable'
+                ).then((res) => {
+                  if(res.success){
+                    resolve();
+                  }else{
+                    reject();
+                  }
+                }).catch((error) => reject(error))
+                el.setAttribute('src',ankiFilename)
+            }
+          }))
         }
       }
+        await Promise.all(imgSavePromises)
+        newFrontContent = docFront.documentElement.outerHTML;
+        newBackContent = docBack.documentElement.outerHTML;
+
+      // console.log({ serverImages });
+      // if (serverImages) {
+      //   for (let i = 0; i < serverImages.length; i++) {
+      //     const src = await this.dataApi.getFileView(serverImages[i]);
+      //     const dataURL = await imgSrcToDataURL(src.href, 'image/png', 'use-credentials');
+      //     console.log({dataURL})
+      //     let imgReq = {
+      //       action: 'storeMediaFile',
+      //       version: 6,
+      //       params: {
+      //         filename: 'API_' + serverImages[i] + '.png',
+      //         data: dataURL.substring(22),
+      //       },
+      //     };
+      //     const imgProm = this.makeHttpRequest(imgReq);
+      //     const imgRes = await this.userNotifierService.notifyOnPromiseReject(
+      //       imgProm,
+      //       'Image Upload',
+      //       'AnkiConnect is not reachable'
+      //     );
+      //     if (!imgRes.success || imgRes.result.error) {
+      //       return;
+      //     } else {
+      //       console.log('replacing back content',{newBackContent})
+      //       newBackContent = newBackContent.replace(src.href, 'API_' + serverImages[i] + '.png');
+      //       console.log('new back content',{newBackContent})
+      //       newFrontContent = newFrontContent.replace(src.href, 'API_' + serverImages[i] + '.png');
+      //     }
+      //   }
+      // }
 
       const modelCreated = await this.createModelinAnki();
       if (!modelCreated) {
@@ -407,9 +526,7 @@ export class UtilsService {
                 Page: card.page.toString(),
                 Chapter: card.chapter,
                 Hidden: card.hiddenText,
-                URL: card.$id
-                  ? environment.BASE_URL + '/cards/' + card.$id
-                  : environment.BASE_URL + '/cards/local/' + card.creationTime,
+                URL: environment.BASE_URL + '/cards/' + card.$id
               },
               options: {
                 allowDuplicate: false,
@@ -426,48 +543,48 @@ export class UtilsService {
         };
       }
 
-      for (let i = 0; i < imagelist.length; i++) {
-        const img = imagelist[i];
-        let imgReq = {
-          action: 'storeMediaFile',
-          version: 6,
-          params: {
-            filename: card.creationTime + '-' + i + '.png',
-            data: img.substring(22),
-          },
-        };
-        const imgProm = this.makeHttpRequest(imgReq);
-        const imgRes = await this.userNotifierService.notifyOnRejectOrError(
-          imgProm,
-          'Image Upload',
-          'AnkiConnect is not reachable',
-          (res) => !res.success || res.result.error
-        );
-        if (imgRes.result['error']) {
-          this.userNotifierService.notify(
-            'Image upload failed',
-            'AnkiConnect was reachable, but unable to upload the image',
-            'danger'
-          );
-          return;
-        }
-        // .subscribe((res) => {
-        //   console.log(res);
-        //   if (res) {
-        //     if (res && 'error' in res && res['error']) {
-        //       this.toastrService.show(res['error'], 'Image Upload failed', {
-        //         status: 'danger',
-        //       });
-        //     }
-        //   } else {
-        //     this.toastrService.show(
-        //       'Check your settings and make sure Anki is running.',
-        //       'Image Upload failed',
-        //       { status: 'danger' }
-        //     );
-        //   }
-        // });
-      }
+      // for (let i = 0; i < imagelist.length; i++) {
+      //   const img = imagelist[i];
+      //   let imgReq = {
+      //     action: 'storeMediaFile',
+      //     version: 6,
+      //     params: {
+      //       filename: card.creationTime + '-' + i + '.png',
+      //       data: img.substring(22),
+      //     },
+      //   };
+      //   const imgProm = this.makeHttpRequest(imgReq);
+      //   const imgRes = await this.userNotifierService.notifyOnRejectOrError(
+      //     imgProm,
+      //     'Image Upload',
+      //     'AnkiConnect is not reachable',
+      //     (res) => !res.success || res.result.error
+      //   );
+      //   if (imgRes.result['error']) {
+      //     this.userNotifierService.notify(
+      //       'Image upload failed',
+      //       'AnkiConnect was reachable, but unable to upload the image',
+      //       'danger'
+      //     );
+      //     return;
+      //   }
+      //   // .subscribe((res) => {
+      //   //   console.log(res);
+      //   //   if (res) {
+      //   //     if (res && 'error' in res && res['error']) {
+      //   //       this.toastrService.show(res['error'], 'Image Upload failed', {
+      //   //         status: 'danger',
+      //   //       });
+      //   //     }
+      //   //   } else {
+      //   //     this.toastrService.show(
+      //   //       'Check your settings and make sure Anki is running.',
+      //   //       'Image Upload failed',
+      //   //       { status: 'danger' }
+      //   //     );
+      //   //   }
+      //   // });
+      // }
       const noteProm = this.makeHttpRequest(bodyData);
       const noteRes = await this.userNotifierService.notifyOnRejectOrError(
         noteProm,
@@ -506,12 +623,12 @@ export class UtilsService {
       anchor.download = card.creationTime + '.csv';
       anchor.click();
 
-      for (let i = 0; i < imagelist.length; i++) {
-        const img = imagelist[i];
-        anchor.href = img.replace('image/png', 'image/octet-stream');
-        anchor.download = card.creationTime + '-' + i + '.png';
-        anchor.click();
-      }
+      // for (let i = 0; i < imagelist.length; i++) {
+      //   const img = imagelist[i];
+      //   anchor.href = img.replace('image/png', 'image/octet-stream');
+      //   anchor.download = card.creationTime + '-' + i + '.png';
+      //   anchor.click();
+      // }
     }
   }
 
@@ -529,9 +646,11 @@ export class UtilsService {
         if (node.src.indexOf('data:') === 0) {
           imgSavePromises.push(
             new Promise<void>(async (resolve, reject) => {
+              console.log("Saving image", node, node.src, 'to datapi')
               this.dataApi
                 .saveFile(new File([await imgSrcToBlob(node.src)], card.creationTime + '_img.png'))
                 .then(async (file) => {
+                  console.log("file saved", {file})
                   node.src = (await this.dataApi.getFileView(file.$id)).href;
                   node.setAttribute('data-imageid', file.$id);
                   card.imgIDs?.push(file.$id);
@@ -562,7 +681,7 @@ export class UtilsService {
         ? this.dataApi.updateCard(card.$id, card)
         : this.dataApi.createCard(card);
       saveOrUpdatePromise
-        .then((res) => {
+        .then(async (res) => {
           if (this.dataApi.config.autoAddAnki) {
             this.exportCard(res, 'anki', this.dataApi.config.deckName);
           }
@@ -570,7 +689,7 @@ export class UtilsService {
           window.onbeforeunload = function (e) {
             delete e['returnValue'];
           };
-          resolve({ isNew: cardIsNew, card: res });
+          resolve({ isNew: cardIsNew, card: await this.dataApi.regenerateImageObjectURLs(res) });
         })
         .catch((reas) => {
           if (this.dataApi.config.autoAddAnki) {

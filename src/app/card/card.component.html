@@ -10,13 +10,14 @@
       </mat-card-header>
       <div
         class="front-div"
-        [ngClass]="{ active: active && frontActive }"
+        [ngClass]="{ active: active && activeSide === 'front' }"
       >
         <ckeditor
           #frontEditor
           [editor]="FrontEditor"
           [(ngModel)]="card.front"
           (change)="change()"
+          (ready)="onEditorReady($event)"
         ></ckeditor>
         <p *ngIf="card.front === ''" class="placeHolderText">
           {{placeholderFront}}
@@ -29,12 +30,13 @@
         <mat-card-subtitle i18n="card back side">Back</mat-card-subtitle>
       </mat-card-header>
       <div class="back-div"
-      [ngClass]="{ active: active && !frontActive }">
+      [ngClass]="{ active: active && activeSide === 'back' }">
         <ckeditor
           #backEditor
           [editor]="BackEditor"
           [(ngModel)]="card.back"
           (change)="change()"
+          (ready)="onEditorReady($event)"
         ></ckeditor>
         <p *ngIf="card.back === ''" class="placeHolderText">
           {{placeholderBack}}

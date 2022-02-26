@@ -70,6 +70,7 @@ export class DataApiService {
   }
 
   async saveConfig(){
+    console.log('saving config',this.config)
     await this.apiProvider.savePreferences(this.config);
   }
 
@@ -92,6 +93,10 @@ export class DataApiService {
     }else{
       return 'local';
     }
+  } 
+
+  getProviderInstance() : DataApiProvider{
+    return this.apiProvider;
   } 
 
   isOfflineMode() : boolean{

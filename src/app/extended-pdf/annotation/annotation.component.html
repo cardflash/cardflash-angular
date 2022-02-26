@@ -12,7 +12,7 @@
       'background-color': annotation?.color
     }"
     (click)="clicked()"
-    (mouseenter)="mouseOver = true; showLine()"
+    (mouseenter)="handleMouseEnter()"
     (mouseleave)="mouseOver = false; removeLine()"
     id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   >
@@ -53,6 +53,9 @@
   <div class="actionButtons">
     <button mat-icon-button (click)="toggleEdit()" title="Edit">
       <mat-icon>{{ isEditing ? "save" : "edit" }}</mat-icon>
+    </button>
+    <button mat-icon-button (click)="copy()" title="Copy">
+      <mat-icon>content_copy</mat-icon>
     </button>
     <br />
     <button *ngIf="isEditing"

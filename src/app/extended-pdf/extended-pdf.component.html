@@ -22,26 +22,22 @@
       class="areaSelectionAddButton"
       [options]="this.utils.addAreaOptions"
       [(selected)]="this.utils.selectedAddAreaOption"
+      title="Type of area selection"
     ></app-fab-expand-button>
     <app-fab-expand-button
       [options]="this.utils.annotationColorOptions"
       [(selected)]="this.utils.selectedColorOption"
+      title="Color of annotation"
     ></app-fab-expand-button>
     <app-fab-expand-button
       [options]="this.utils.addToCardOptions"
       [(selected)]="this.utils.selectedOption"
+      title="Annotation text markup"
     ></app-fab-expand-button>
     <app-fab-expand-button
-      [options]="[
-        { id: 'front', icon: 'flip_to_front' },
-        { id: 'back', icon: 'flip_to_back' }
-      ]"
-      [selected]="
-        this.frontSelected
-          ? { id: 'front', icon: 'flip_to_front' }
-          : { id: 'back', icon: 'flip_to_back' }
-      "
-      (selectedChange)="this.frontSelected = $event.id === 'front'"
+      [options]="cardOptions"
+      [(selected)]="cardOption"
+    title="Card side"
     ></app-fab-expand-button>
   </div>
 </div>
@@ -120,15 +116,15 @@
       <br />
       <mat-button-toggle-group class="currentCardSideToggle">
         <mat-button-toggle
-          [checked]="this.frontSelected"
-          (change)="this.frontSelected = !this.frontSelected"
+          [checked]="this.cardOption.id === 'front'"
+          (change)="this.cardOption = this.cardOptions[0]"
           i18n
         >
           Front
         </mat-button-toggle>
         <mat-button-toggle
-          [checked]="!this.frontSelected"
-          (change)="this.frontSelected = !this.frontSelected"
+        [checked]="this.cardOption.id === 'back'"
+        (change)="this.cardOption = this.cardOptions[1]"
           i18n
         >
           Back
@@ -139,7 +135,7 @@
       class="currentCard"
       [active]="true"
       [card]="currentCard"
-      [frontActive]="this.frontSelected"
+      [activeSide]="this.cardOption.id"
       [deckName]="this.dataApi.config.deckName"
       [placeholderFront]="frontPlaceholder"
       [placeholderBack]="backPlaceholder"
@@ -176,23 +172,22 @@
   <app-fab-expand-button
     [options]="this.utils.annotationColorOptions"
     [(selected)]="this.utils.selectedColorOption"
+    title="Color of annotation"
   ></app-fab-expand-button>
   <app-fab-expand-button
     [options]="this.utils.addToCardOptions"
     [(selected)]="this.utils.selectedOption"
+    title="Annotation text markup"
   ></app-fab-expand-button>
   <app-fab-expand-button
-    [options]="[
-      { id: 'front', icon: 'flip_to_front' },
-      { id: 'back', icon: 'flip_to_back' }
-    ]"
-    [selected]="
-      this.frontSelected
-        ? { id: 'front', icon: 'flip_to_front' }
-        : { id: 'back', icon: 'flip_to_back' }
-    "
-    (selectedChange)="this.frontSelected = $event.id === 'front'"
-  ></app-fab-expand-button>
+  [options]="[
+    { id: 'front', icon: 'flip_to_front', title: 'Front' },
+    { id: 'back', icon: 'flip_to_back', title: 'Back' }
+  ]"
+  title="Card side"
+      [options]="cardOptions"
+      [(selected)]="cardOption"
+></app-fab-expand-button>
   <button mat-flat-button (click)="addHighlightForSelection(this.utils.selectedColorOption.id)">
     Add
   </button>
@@ -270,20 +265,18 @@
           [options]="this.utils.addAreaOptions"
           [(selected)]="this.utils.selectedAddAreaOption"
           [forceExpandToTop]="true"
+          title="Type of area selection"
         ></app-fab-expand-button>
 
         <app-fab-expand-button
-          [options]="[
-            { id: 'front', icon: 'flip_to_front' },
-            { id: 'back', icon: 'flip_to_back' }
-          ]"
-          [selected]="
-            this.frontSelected
-              ? { id: 'front', icon: 'flip_to_front' }
-              : { id: 'back', icon: 'flip_to_back' }
-          "
-          (selectedChange)="this.frontSelected = $event.id === 'front'"
-        ></app-fab-expand-button>
+        [options]="[
+          { id: 'front', icon: 'flip_to_front', title: 'Front' },
+          { id: 'back', icon: 'flip_to_back', title: 'Back' }
+        ]"
+        title="Card side"
+            [options]="cardOptions"
+            [(selected)]="cardOption"
+      ></app-fab-expand-button>
         <button mat-fab color="primary" (click)="addAreaSelection(this.rect)">
           <mat-icon>check</mat-icon>
         </button>

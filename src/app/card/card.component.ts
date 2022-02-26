@@ -17,7 +17,7 @@ import { UserNotifierService } from '../services/notifier/user-notifier.service'
 import { imgSrcToDataURL } from 'blob-util';
 import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
 import { UtilsService } from '../utils.service';
-
+import { MyUploadAdapter} from 'src/ckeditor/CustomUploadAdapter'
 
 @Component({
   selector: 'app-card',
@@ -48,7 +48,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Output('cardChange') cardChange: EventEmitter<CardEntryContent | CardEntry> =
     new EventEmitter<CardEntryContent | CardEntry>();
 
-  @Input('frontActive') frontActive: boolean = true;
+  @Input('activeSide') activeSide: string = '';
   @Input('active') active: boolean = false;
   @Input('deckName') deckName?: string = this.dataApi.config.deckName;
 
@@ -84,6 +84,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
+    console.log(this.FrontEditor)
 
   }
 
@@ -237,5 +238,13 @@ export class CardComponent implements OnInit, AfterViewInit {
     }else{
       url = this.imageInEditingURL;
     }
+  }
+
+  onEditorReady(editor: any){
+    console.log('onEditorReady',{editor})
+    // editor.plugins.get('FileRepository').createUploadAdapter = (loader: any) => {
+    //   return new MyUploadAdapter(loader, this.dataApi.getProviderInstance());
+    // }
+
   }
 }

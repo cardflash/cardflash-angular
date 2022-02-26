@@ -21,7 +21,6 @@ import { UtilsService } from '../utils.service';
 export class ExtendedPdfComponent implements OnInit {
   public currPageNumber: number = 1;
   public pdfSrc: string = '/assets/pdfs/cardflash.net.pdf';
-  public frontSelected: boolean = true;
 
   public selectionInsertTypes: ['h1', 'h2', 'normal', 'small'] = ['h1', 'h2', 'normal', 'small'];
 
@@ -92,6 +91,14 @@ export class ExtendedPdfComponent implements OnInit {
 
   public isTouchDevice: boolean = false;
 
+  public readonly cardOptions : FabOption[] = [
+    { id: 'front', icon: 'flip_to_front', title: 'Front' },
+    { id: 'back', icon: 'flip_to_back', title: 'Back' },
+    { id: 'none', icon: 'browser_not_supported', title: 'Do not add' }
+  ];
+
+  public cardOption: FabOption = this.cardOptions[0];
+
   constructor(
     public utils: UtilsService,
     public dataApi: DataApiService,
@@ -151,8 +158,9 @@ export class ExtendedPdfComponent implements OnInit {
         ]]
         ]);
     }
-    this.isTouchDevice = window.matchMedia('(any-hover: none)').matches;
-    if (this.isTouchDevice) {
+    this.isTouchDevice = window.matchMedia('(any-hover: none)').matches
+    const smallScreen =  window.matchMedia('(max-width: 800px)').matches;
+    if (smallScreen) {
       this.viewMode = 'pdf';
     }
 
@@ -540,6 +548,9 @@ export class ExtendedPdfComponent implements OnInit {
     console.log({corner,e})
     this.rect = this.getSortedRect(this.rect)
       const updateFunction = (event: MouseEvent | TouchEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        document.getSelection()?.empty()
         console.log('onmousemove',{event})
         let x = 0,y = 0;
         if (event instanceof MouseEvent) {
@@ -551,7 +562,6 @@ export class ExtendedPdfComponent implements OnInit {
             y = event.touches[0].clientY;
           }
         }
-        event.preventDefault();
         if(corner === 1){
           this.rect.x1 = x;
           this.rect.y1 = y;
@@ -675,8 +685,8 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   addAnnotation(newAnnotation: Annotation) {
-    if (this.dataApi.config.autoAddAnnotationsToCard) {
-      this.addAnnotationToCard(newAnnotation, this.frontSelected ? 'front' : 'back');
+    if (this.cardOption.id === 'front' || this.cardOption.id === 'back') {
+      this.addAnnotationToCard(newAnnotation, this.cardOption.id);
     }
     const annotations = this.annotationForPage.get(newAnnotation.page) || [];
     annotations.push(newAnnotation);
@@ -747,25 +757,25 @@ export class ExtendedPdfComponent implements OnInit {
             break;
         }
         this.removeDivWithID(annotation.id);
-        const delDiv = document.createElement('div');
         const bounds = this.getBoundsForAnnotations(annotation);
         const rect = viewport.convertToViewportRectangle(bounds);
-        delDiv.setAttribute('id', environment.ANNOTATION_DEL_PREFIX + annotation.id);
-        delDiv.setAttribute('class', 'annotationToolOverlay');
-        delDiv.setAttribute('title', 'Delete annotation');
-        delDiv.setAttribute(
-          'style',
-          ` position: absolute;
-            left: ${Math.max(rect[0], rect[2]) - 1}px;
-            top: ${Math.min(rect[1], rect[3]) - 20}px;
-            width: 15px;
-            height: 15px;
-            background-image: url('assets/delete.svg');`
-        );
-        delDiv.onclick = async (event: any) => {
-          this.deleteAnnotation(annotation.id);
-        };
-        page.div.appendChild(delDiv);
+        // const delDiv = document.createElement('div');
+        // delDiv.setAttribute('id', environment.ANNOTATION_DEL_PREFIX + annotation.id);
+        // delDiv.setAttribute('class', 'annotationToolOverlay');
+        // delDiv.setAttribute('title', 'Delete annotation');
+        // delDiv.setAttribute(
+        //   'style',
+        //   ` position: absolute;
+        //     left: ${Math.max(rect[0], rect[2]) - 1}px;
+        //     top: ${Math.min(rect[1], rect[3]) - 20}px;
+        //     width: ${this.isTouchDevice ? 25 : 15}px;
+        //     height: ${this.isTouchDevice ? 25 : 15}px;
+        //     background-image: url('assets/delete.svg');`
+        // );
+        // delDiv.onclick = async (event: any) => {
+        //   this.deleteAnnotation(annotation.id);
+        // };
+        // page.div.appendChild(delDiv);
         const jumpDiv = document.createElement('div');
         jumpDiv.setAttribute('id', environment.ANNOTATION_JMP_PREFIX + annotation.id);
         jumpDiv.setAttribute('class', 'annotationToolOverlay annotationJumpOverlay');
@@ -775,8 +785,8 @@ export class ExtendedPdfComponent implements OnInit {
           ` position: absolute;
             left: ${Math.max(rect[0], rect[2]) - 1}px;
             top: ${Math.min(rect[1], rect[3]) - 5}px;
-            width: 15px;
-            height: 15px;
+            width: ${this.isTouchDevice ? 25 : 15}px;
+            height: ${this.isTouchDevice ? 25 : 15}px;
             background-image: url('assets/right.svg');`
         );
         jumpDiv.onclick = async (event: any) => {
@@ -1188,7 +1198,9 @@ export class ExtendedPdfComponent implements OnInit {
         creationTime: Date.now(),
       };
     }
-    this.frontSelected = true;
+    if(this.cardOption.id === 'back'){
+      this.cardOption = this.cardOptions[1]
+    }
     this.currentCard = newCard;
   }
 
@@ -1228,4 +1240,14 @@ export class ExtendedPdfComponent implements OnInit {
     }
     return '';
   }
+
+  // cardOptionChange(newOption: FabOption){
+  //   if(newOption.id === 'front'){
+  //     this.frontSelected = true;
+  //   }else if(newOption.id === 'back'){
+  //     this.frontSelected = false;
+  //   }else{
+  //     this.dataApi.config.autoAddAnnotationsToCard = false;
+  //   }
+  // }
 }

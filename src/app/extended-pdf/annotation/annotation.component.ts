@@ -43,13 +43,26 @@ export class AnnotationComponent implements OnInit, OnDestroy {
 
   public isEditing: boolean = false;
   public imgSrc: string | undefined = undefined;
+
+  public referenceText: string = '';
+
+  public isTouchDevice: boolean = false;
   constructor(public utils: UtilsService, public dataApi: DataApiService,public sanitizer: DomSanitizer) {}
 
   async ngOnInit() {
     if (this.annotation?.imgID) {
       this.imgSrc = (await this.dataApi.getFileView(this.annotation.imgID)).href;
     }
-  }
+
+    this.referenceText = await this.getReference();
+    this.updateAnnotation.subscribe(async () => {
+      this.referenceText = await this.getReference();
+    })
+
+
+    this.isTouchDevice = window.matchMedia('(any-hover: none)').matches;
+  
+}
 
   ngOnDestroy(): void {
     this.removeLine();
@@ -99,11 +112,13 @@ export class AnnotationComponent implements OnInit, OnDestroy {
   }
 
   removeLine() {
+    // alert('removing line');
     if (this.line) {
       this.line.remove();
       this.line = null;
     }
   }
+
 
   changeAnnotationColor(newColor: string) {
     if (this.annotation) {
@@ -127,10 +142,60 @@ export class AnnotationComponent implements OnInit, OnDestroy {
     this.isEditing = !this.isEditing;
   }
 
+  async getReference(){
+    if(this.annotation){
+      return await this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID,this.imgSrc)
+    }else{
+      return '';
+    }
+  }
+
+  async copy(){
+    const reference =this.referenceText;
+    let useFallback = !navigator.clipboard;
+
+    if (navigator.clipboard){
+      try{
+        const type = "text/html";
+        const blob = new Blob([reference], { type });
+        const data = [new ClipboardItem({ [type]: blob })];
+    
+        await navigator.clipboard.write(data)
+        useFallback = false;
+        }catch(e){
+          console.log('clipboard items not supported',e)
+          useFallback = true;
+        }
+      }
+
+      if(useFallback){
+
+        function listener(e: ClipboardEvent) {
+          if(e.clipboardData){
+            e.clipboardData.setData("text/html", reference);
+            e.clipboardData.setData("text/plain", reference);
+            e.preventDefault();
+          }
+        }
+        document.addEventListener("copy", listener);
+        document.execCommand("copy");
+        document.removeEventListener("copy", listener);
+      }
+
+  }
+
   async dragStart(e: DragEvent) {
+    console.log({e})
     if (this.annotation && !this.isEditing) {
-      const reference = await this.utils.generateReferenceFromAnnotation(this.annotation,this.documentID,this.imgSrc)
+      const reference = this.referenceText;
       e.dataTransfer?.setData('text/html', reference);
+    }
+  }
+
+  handleMouseEnter(){
+    if(!this.isTouchDevice){
+      this.mouseOver = true;
+      this.showLine();
     }
   }
 }

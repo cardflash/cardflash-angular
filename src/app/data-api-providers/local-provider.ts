@@ -140,7 +140,7 @@ export class LocalProvider implements DataApiProvider{
     }
     async saveFile(file: File): Promise<FileEntry> {
         let fileEntry : FileEntry = {$id: '', name: file.name, mimeType: file.type, dateCreated: Date.now()}
-        console.log({fileEntry})
+        console.log("SAVE FILE",{fileEntry})
         const savedEntry = await this.createEntry('file',fileEntry)
         console.log({savedEntry})
         fileEntry.$id = savedEntry.$id;

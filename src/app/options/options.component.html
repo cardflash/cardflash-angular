@@ -90,6 +90,7 @@
         i18n-placeholder
         [disabled]="!this.dataApi.config.autoAddAnki"
         [(ngModel)]="this.dataApi.config.deckName"
+        (ngModelChange)="saveConfig()"
       />
       <mat-icon matSuffix>inbox</mat-icon>
     </mat-form-field>

@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { FabExpandButtonModule } from '../fab-expand-button/fab-expand-button.module';
-
+import {ClipboardModule} from '@angular/cdk/clipboard'; 
 
 @NgModule({
   declarations: [
@@ -33,6 +33,7 @@ import { FabExpandButtonModule } from '../fab-expand-button/fab-expand-button.mo
     CardModule,
     FormsModule,
     MatInputModule,
+    ClipboardModule,
   FabExpandButtonModule  ]
 })
 export class ExtendedPdfModule { }
