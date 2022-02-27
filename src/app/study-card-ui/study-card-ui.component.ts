@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, HostListener, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { FlipCardComponent } from '../card/flip-card/flip-card.component';
@@ -23,8 +23,20 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
     $read: [],
     $write: [],
   };
+
   @Input('cards')
-  public cards: CardEntry[] = [];
+  set setCards(cards: CardEntry[]){
+    console.log({cards},'cards set')
+    this.cards = cards;
+    if(cards.length > 0){
+      this.card = cards[0]
+    }
+  }
+
+  public cards : CardEntry[] = [];
+  // public cards: CardEntry[] = [];
+  @Output('cardsChange')
+  public cardsChange: EventEmitter<CardEntry[]> = new EventEmitter<CardEntry[]>();
 
   public lastCards: CardEntry[]  = [];
 
@@ -39,9 +51,7 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
   public answerButtonEasy?: MatButton;
 
   @ViewChild('answerButtonGood')
-  set answerButtonGood(button: MatButton | undefined) {
-    button?.focus();
-  }
+  public answerButtonGood?: MatButton;
 
   @ViewChild('showAnswerButton')
   public showAnswerButton?: MatButton;
@@ -60,10 +70,12 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
 
   flip(toFlipped: boolean = !this.flipped, animate = true) {
     this.flipped = toFlipped;
-    // if(this.flipped){
-    //   console.log(this.answerButtonGood)
-    //   this.answerButtonGood?.focus();
-    // }
+    if(this.flipped){
+      console.log(this.answerButtonGood)
+      setTimeout(() => {
+        this.answerButtonGood?.focus();
+      },20)
+    }
     if (this.flipCard) {
       this.flipCard.animate = animate;
       setTimeout(() => {
@@ -78,7 +90,7 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
   selectRandomCard() {
     if (this.cards.length > 0) {
       this.flip(false, false);
-      const index = Math.floor(Math.random() * this.cards.length);
+      const index = 0 //Math.floor(Math.random() * this.cards.length);
       this.card = this.cards[index];
       this.showAnswerButton?.focus();
     }
@@ -127,6 +139,7 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
     if (status === 'hard') {
       this.cards.push(this.card);
     }
+    this.cardsChange.emit(this.cards);
     this.lastCards.push(this.card);
     this.selectRandomCard();
     setTimeout(() => {
@@ -143,6 +156,7 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
         this.card = card;
       }
     }
+    this.cardsChange.emit(this.cards);
   }
 
 

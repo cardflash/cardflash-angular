@@ -6,9 +6,14 @@
   // max-width: 500px;
   // min-width: 400px;
   position: relative;
-  background: white;
+  // background-color: white;
   border-radius: 10px;
+  // height: var(--static-card-height, 400px);
+  // width: var(--static-card-width, 500px);
 }
+
+
+
 .cardActions{
   display: flex;
   justify-content: space-around;

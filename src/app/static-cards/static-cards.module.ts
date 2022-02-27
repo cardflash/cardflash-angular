@@ -8,18 +8,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
-
+import { StackedCardsComponent } from '../stacked-cards/stacked-cards.component';
+import {DragDropModule} from '@angular/cdk/drag-drop'; 
 
 
 @NgModule({
-  declarations: [StaticCardSideComponent, StaticCardComponent, FlipCardComponent, FlipCardWithControlsComponent],
+  declarations: [StaticCardSideComponent, StaticCardComponent, FlipCardComponent, FlipCardWithControlsComponent, StackedCardsComponent],
   imports: [
     CommonModule,
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
-    MatCardModule
+    MatCardModule,
+    DragDropModule
   ],
-  exports: [StaticCardSideComponent, StaticCardComponent, FlipCardComponent, FlipCardWithControlsComponent]
+  exports: [StaticCardSideComponent, StaticCardComponent, FlipCardComponent, FlipCardWithControlsComponent, StackedCardsComponent]
 })
 export class StaticCardsModule { }

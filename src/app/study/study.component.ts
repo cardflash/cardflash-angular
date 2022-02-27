@@ -16,4 +16,9 @@ export class StudyComponent implements OnInit {
     this.cards = await this.dataApi.listCards(true)
   }
 
+  public cardChange(cards: CardEntry[]){
+    console.log("Card change")
+    this.cards = [...cards];
+  }
+
 }

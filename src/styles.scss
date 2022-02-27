@@ -2,13 +2,15 @@
 $material-design-icons-font-directory-path: '~material-design-icons-iconfont/dist/fonts/';
 @import '~material-design-icons-iconfont/src/material-design-icons';
 
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 html, body {
   height: 100%; 
   --editor-min-height: 250px;
   --editor-max-height: 250px;
+  touch-action: manipulation;
 }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: hidden }
-
 
 .ck-editor__editable {
   min-height: var(--editor-min-height);
@@ -73,6 +75,11 @@ svg.leader-line {
 // @import url('assets/card-styles.css');
 
 
+.flipCard.flipped .inner, .flipCardTrigger:hover .inner{
+  transform: rotateY(180deg);
+}
+
+
 .focusBackdrop {
   background-color: rgba(207, 247, 250, 0.911);
 }
@@ -114,18 +121,26 @@ svg.leader-line {
   margin-left: auto;
   margin-right: auto;
   text-align: center !important;
-  font-size: 20px;
+  font-size: 18px;
+  padding-top: 1rem;
+  
+
   ul, ol {
     max-width: fit-content;
   text-align: left;
   margin-left: auto;
   margin-right: auto;
+
+  ul, ol {
+    margin-left: 0;
+  }
   }
 
   [data-annotationid] {
     border: var(--data-annotation-border,none)
   }
 }
+
 
 .marker-light-yellow{
   background-color: var(--marker-yellow)
@@ -169,3 +184,66 @@ svg.leader-line {
   background-color: transparent;
 }
 
+
+
+@media (prefers-color-scheme: dark)
+{
+
+  :root{
+    --marker-yellow: #f3eb50;
+    --marker-blue: #5eabf9;
+    --marker-green: #5ef98df6;
+    --marker-pink: #f95ef4;
+  
+    --ck-highlight-marker-blue: hsl(201, 97%, 72%);
+    --ck-highlight-marker-green: hsl(120, 93%, 68%);
+    --ck-highlight-marker-pink: hsl(345, 96%, 73%);
+    --ck-highlight-marker-yellow: hsl(60, 97%, 73%);
+    --ck-highlight-pen-green: hsl(112, 100%, 27%);
+    --ck-highlight-pen-red: hsl(0, 85%, 49%);
+  }
+  .card {
+    color: white;
+  }
+
+  .card a {
+    color: white;
+  }
+  mark {
+    // background-color: unset !important;
+    color: black;
+  }
+  
+  // .marker-light-yellow{
+  //   border: 3px solid var(--marker-yellow) !important;
+  // }
+  
+  // .marker-light-blue{
+  //   border: 3px solid var(--marker-blue) !important;
+  // }
+  
+  // .marker-light-green{
+  //   border: 3px solid  var(--marker-green) !important;
+  // }
+  
+  // .marker-light-pink{
+  //   border: 3px solid  var(--marker-pink) !important;
+  // }
+  
+  //  .marker-yellow {
+  //   border: 3px solid  var(--ck-highlight-marker-yellow) !important;
+  // }
+  
+  //  .marker-green {
+  //   border: 3px solid  var(--ck-highlight-marker-green) !important;
+  // }
+  
+  //  .marker-pink {
+  //   border: 3px solid  var(--ck-highlight-marker-pink) !important;
+  // }
+  
+  //  .marker-blue {
+  //   border: 3px solid  var(--ck-highlight-marker-blue) !important;
+  // }
+  
+}

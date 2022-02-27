@@ -32,7 +32,7 @@
 .flipCard{
   perspective: 1000px;
   width: var(--flip-card-width,500px);
-  height: var(--flip-card-height,500px);
+  height: calc(var(--flip-card-height, 500px));
   width: 100%;
   min-width: var(--flip-card-width,500px);
   overflow: hidden;
@@ -42,7 +42,7 @@
 //   transform: rotateY(180deg);
 // }
 
-.flipCard.flipped .inner{
+.flipCard.flipped .inner, .flipCardTrigger:hover .inner{
   transform: rotateY(180deg);
 }
 
@@ -65,7 +65,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  max-height: calc(var(--flip-card-height,500px) - 110px);
+  max-height: calc(var(--flip-card-height,500px) - 0px);
 }
 
 .front, .back{
@@ -74,7 +74,14 @@
 	left: 0;
   width: 100%;
   backface-visibility: hidden;
-  background-color: white;
+  // background-color: white;
+}
+
+@media (prefers-color-scheme: dark)
+{
+  .front, .back{
+    background-color: #303030;
+  }
 }
 
 .back {

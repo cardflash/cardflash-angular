@@ -1,0 +1,85 @@
+.stacked-cards {
+display: flex;
+// flex-direction: row-reverse;
+position: relative;
+overflow: auto;
+padding: 4rem 3rem;
+}
+
+.stacked-cards-outer {
+--flip-card-height: var(--stacked-card-height, min(30vh,500px));
+--flip-card-width:  var(--stacked-card-width, min(calc(min(30vh,500px) * 1.5),calc(100vw - 200px)));
+
+
+--static-card-height: var(--stacked-card-height, min(30vh,500px));
+--static-card-width:  var(--stacked-card-width, min(calc(min(30vh,500px) * 1.5),calc(100vw - 200px)));
+--stacked-card-overlap: calc( 0.9 * var(--static-card-width));
+--static-card-overflow: hidden;
+--static-card-side-shadow: none;
+max-width: calc(100vw - 150px);
+margin-left: auto;
+margin-right: auto;
+}
+
+.stacked-card {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    border-radius : 16px;
+    box-shadow: 0.5rem 0 1rem rgba(133, 133, 133, 0.678);
+    transition: 0.1s ease-in;
+    background-color: white;
+    padding-bottom: 0.5rem;
+    height: calc(var(--stacked-card-height) + 55px);
+}
+
+.stacked-card.active {
+    transform: translateY(-1rem);
+    z-index: 9999 !important;
+    // pointer-events: none;
+    // transition: 0.4s;
+}
+
+.stacked-card.active~.stacked-card {
+    // transform: translateX(var(--stacked-card-overlap))
+}
+
+.stacked-card:not(:first-child) {
+    margin-left: calc(-1 * var(--stacked-card-overlap));
+}
+
+
+
+.stacked-card-header {
+    height: 2rem;
+    text-align: center;
+    font-size: calc(0.1 * var(--stacked-card-overlap));
+}
+
+.placeholder {
+    background: #ccc;
+    border: dotted 3px #999;
+    min-height: 60px;
+    min-width: 50px;
+    z-index: 4;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.scrollDiv {
+    display: flex;
+    align-items: center;
+}
+
+.archiveDrop {
+    width: 50px;
+    height: 50px;
+    font-size: 50px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.flipButton {
+    margin-left: auto;
+    margin-right: auto;
+}

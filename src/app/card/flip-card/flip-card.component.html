@@ -1,11 +1,11 @@
 
 <div class="card flipCard"  [ngClass]="{flipped: this.flipped}">
-  <div class="cardHeaderTitle">
+  <!-- <div class="cardHeaderTitle">
     <span>{{this.card.title || "-"}}</span>
   </div>
   <div  class="cardChapter">
     <span>{{this.card.chapter || "-"}}</span>
-  </div>
+  </div> -->
 
   <div class="inner" [style.--transition-duration]="animate ? '0.5s' : '0'">
 <app-static-card-side class="front" [content]="card.front" name="Front" #frontSide></app-static-card-side>

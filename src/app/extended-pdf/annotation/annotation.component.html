@@ -8,9 +8,10 @@
   <div
     class="annotationWrapper"
     [ngStyle]="{
-      cursor: this.isEditing ? 'default' : 'pointer',
-      'background-color': annotation?.color
+      cursor: this.isEditing ? 'default' : 'pointer'
     }"
+    [style.--annotation-color-transparent]="annotation?.color"
+    [style.--annotation-color]="annotation?.color?.substring(0,7)"
     (click)="clicked()"
     (mouseenter)="handleMouseEnter()"
     (mouseleave)="mouseOver = false; removeLine()"

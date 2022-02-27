@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExtendedPdfComponent } from './extended-pdf.component';
+import { StackedCardsComponent } from './stacked-cards.component';
 
-describe('ExtendedPdfComponent', () => {
-  let component: ExtendedPdfComponent;
-  let fixture: ComponentFixture<ExtendedPdfComponent>;
+describe('StackedCardsComponent', () => {
+  let component: StackedCardsComponent;
+  let fixture: ComponentFixture<StackedCardsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ExtendedPdfComponent ]
+      declarations: [ StackedCardsComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ExtendedPdfComponent);
+    fixture = TestBed.createComponent(StackedCardsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

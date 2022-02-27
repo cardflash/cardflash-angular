@@ -24,15 +24,21 @@ export class UtilsService {
     { hex: '#f95ef34f', marker: 'marker-light-pink' },
   ];
 
-  public addToCardOptions: FabOption[] = [{id: 'p', icon: 'short_text', title: 'Normal paragraph'},{id: 'h1', icon: 'title', title: 'Title'},{id: 'ul', icon: 'format_list_bulleted', title: 'Bulleted list'},{id: 'ol', icon: 'format_list_numbered', title: 'Numbered list'}];
-  public annotationColorOptions: FabOption[] = [{id: '#45454500', icon: 'text_fields'}];
+  public addToCardOptions: FabOption[] = [
+    { id: 'p', icon: 'short_text', title: 'Normal paragraph' },
+    { id: 'h1', icon: 'title', title: 'Title' },
+    { id: 'ul', icon: 'format_list_bulleted', title: 'Bulleted list' },
+    { id: 'ol', icon: 'format_list_numbered', title: 'Numbered list' },
+  ];
+  public annotationColorOptions: FabOption[] = [{ id: '#45454500', icon: 'text_fields' }];
   public selectedColorOption: FabOption = this.annotationColorOptions[0];
-  public selectedOption: FabOption =  this.addToCardOptions[0];
+  public selectedOption: FabOption = this.addToCardOptions[0];
 
-
-  public addAreaOptions: FabOption[] = [{id: 'image', icon: 'image', title: 'Add as image'},{id: 'text', icon: 'text_snippet', title: 'Add only text content'}];
+  public addAreaOptions: FabOption[] = [
+    { id: 'image', icon: 'image', title: 'Add as image' },
+    { id: 'text', icon: 'text_snippet', title: 'Add only text content' },
+  ];
   public selectedAddAreaOption: FabOption = this.addAreaOptions[0];
-
 
   constructor(
     private dataApi: DataApiService,
@@ -119,7 +125,7 @@ export class UtilsService {
 
   async generateReferenceFromAnnotation(
     annotation: Annotation,
-    documentID: string  = '',
+    documentID: string = '',
     annotationImgURL?: string
   ) {
     let imgURL: string | undefined;
@@ -133,7 +139,10 @@ export class UtilsService {
     }
     let reference = '';
     if (annotation.imgID) {
-      reference = `<figure class="image"><img src="${imgURL}" alt="${annotation.hiddenText?.replace(/"/g, "'")}" data-imageid="${annotation.imgID}"></figure>`;
+      reference = `<figure class="image"><img src="${imgURL}" alt="${annotation.hiddenText?.replace(
+        /"/g,
+        "'"
+      )}" data-imageid="${annotation.imgID}"></figure>`;
     }
     const color = this.availableAnnotationColors.find((val) => val.hex === annotation?.color);
     let innerEl = '';
@@ -147,28 +156,30 @@ export class UtilsService {
     } else if (annotation.text || this.dataApi.config.enableAnnotationLinking) {
       innerEl = `<span data-annotationid="_${annotation.id}">${
         this.dataApi.config.enableAnnotationLinking ? '[' : ''
-      }${annotation?.text || '📌'}${this.dataApi.config.enableAnnotationLinking ? ']' : ''}</span><span>&zwnj;</span>`;
+      }${annotation?.text || '📌'}${
+        this.dataApi.config.enableAnnotationLinking ? ']' : ''
+      }</span><span>&zwnj;</span>`;
     }
     if (this.dataApi.config.enableAnnotationLinking) {
-      reference += `<a href="${environment.PDF_ANNOT_URL}${documentID? '/' : '' }${documentID}#${annotation?.id}">${innerEl}</a>`;
+      reference += `<a href="${environment.PDF_ANNOT_URL}${documentID ? '/' : ''}${documentID}#${
+        annotation?.id
+      }">${innerEl}</a>`;
     } else {
       reference += `${innerEl}`;
     }
-    let content : string = '';
-
-    switch (this.selectedOption.id) {
-      case 'h1':
-        content = `<h1>${reference}</h1>`
-        break;
-      case 'ul':
-        content = `<ul><li>${reference}</li></ul>`
-        break;
-    case 'ol':
-      content = `<ol><li>${reference}</li></ol>`
-      break;
-      default:
-      content = `${reference}<br>`
-      break;
+    let content: string = `${reference}<br>`;
+    if (!annotation.imgID) {
+      switch (this.selectedOption.id) {
+        case 'h1':
+          content = `<h1>${reference}</h1>`;
+          break;
+        case 'ul':
+          content = `<ul><li>${reference}</li></ul>`;
+          break;
+        case 'ol':
+          content = `<ol><li>${reference}</li></ol>`;
+          break;
+      }
     }
     return content;
   }
@@ -363,10 +374,9 @@ export class UtilsService {
   async exportCard(card: CardEntry | CardEntryContent, to: 'anki' | 'download', deckName?: string) {
     // const imagelist = this.getImages(card);
     const serverImages = this.getServerImageList(card);
-    let newFrontContent =  card.front; //this.replaceImageLinks(card.front, imagelist, ankiNamingFunc);
+    let newFrontContent = card.front; //this.replaceImageLinks(card.front, imagelist, ankiNamingFunc);
     let newBackContent = card.back; //this.replaceImageLinks(card.back, imagelist, ankiNamingFunc);
-    console.log({newBackContent})
-
+    console.log({ newBackContent });
 
     if (to === 'anki') {
       let exReq = {
@@ -388,23 +398,23 @@ export class UtilsService {
         ankiID = exRes.result.result[0];
       }
 
+      const domParser = new DOMParser();
+      const docFront = domParser.parseFromString(card.front, 'text/html');
+      const docBack = domParser.parseFromString(card.back, 'text/html');
 
-    const domParser = new DOMParser();
-    const docFront = domParser.parseFromString(card.front, 'text/html');
-    const docBack = domParser.parseFromString(card.back, 'text/html');
-
-    const imgSavePromises: Promise<void>[] = [];
-    for (const side of [docFront, docBack]) {
-      const serverImageEls = side.querySelectorAll('[data-imageid]');
-      for(let i = 0; i < serverImageEls.length; i++){
-        const el = serverImageEls[i];
-          imgSavePromises.push(new Promise(async (resolve,reject) => {
-            const imageID = el.getAttribute('data-imageid');
-            if(imageID !== null){
+      const imgSavePromises: Promise<void>[] = [];
+      for (const side of [docFront, docBack]) {
+        const serverImageEls = side.querySelectorAll('[data-imageid]');
+        for (let i = 0; i < serverImageEls.length; i++) {
+          const el = serverImageEls[i];
+          imgSavePromises.push(
+            new Promise(async (resolve, reject) => {
+              const imageID = el.getAttribute('data-imageid');
+              if (imageID !== null) {
                 const src = await this.dataApi.getFileView(imageID);
                 const dataURL = await imgSrcToDataURL(src.href, 'image/png', 'use-credentials');
                 const ankiFilename = 'API_' + imageID + '.png';
-                console.log({dataURL})
+                console.log({ dataURL });
                 let imgReq = {
                   action: 'storeMediaFile',
                   version: 6,
@@ -414,25 +424,25 @@ export class UtilsService {
                   },
                 };
                 const imgProm = this.makeHttpRequest(imgReq);
-                this.userNotifierService.notifyOnPromiseReject(
-                  imgProm,
-                  'Image Upload',
-                  'AnkiConnect is not reachable'
-                ).then((res) => {
-                  if(res.success){
-                    resolve();
-                  }else{
-                    reject();
-                  }
-                }).catch((error) => reject(error))
-                el.setAttribute('src',ankiFilename)
-            }
-          }))
+                this.userNotifierService
+                  .notifyOnPromiseReject(imgProm, 'Image Upload', 'AnkiConnect is not reachable')
+                  .then((res) => {
+                    if (res.success) {
+                      resolve();
+                    } else {
+                      reject();
+                    }
+                  })
+                  .catch((error) => reject(error));
+                el.setAttribute('src', ankiFilename);
+              }
+            })
+          );
         }
       }
-        await Promise.all(imgSavePromises)
-        newFrontContent = docFront.documentElement.outerHTML;
-        newBackContent = docBack.documentElement.outerHTML;
+      await Promise.all(imgSavePromises);
+      newFrontContent = docFront.documentElement.outerHTML;
+      newBackContent = docBack.documentElement.outerHTML;
 
       // console.log({ serverImages });
       // if (serverImages) {
@@ -524,7 +534,7 @@ export class UtilsService {
                 Page: card.page.toString(),
                 Chapter: card.chapter,
                 Hidden: card.hiddenText,
-                URL: environment.BASE_URL + '/cards/' + card.$id
+                URL: environment.BASE_URL + '/cards/' + card.$id,
               },
               options: {
                 allowDuplicate: false,
@@ -644,11 +654,11 @@ export class UtilsService {
         if (node.src.indexOf('data:') === 0) {
           imgSavePromises.push(
             new Promise<void>(async (resolve, reject) => {
-              console.log("Saving image", node, node.src, 'to datapi')
+              console.log('Saving image', node, node.src, 'to datapi');
               this.dataApi
                 .saveFile(new File([await imgSrcToBlob(node.src)], card.creationTime + '_img.png'))
                 .then(async (file) => {
-                  console.log("file saved", {file})
+                  console.log('file saved', { file });
                   node.src = (await this.dataApi.getFileView(file.$id)).href;
                   node.setAttribute('data-imageid', file.$id);
                   card.imgIDs?.push(file.$id);

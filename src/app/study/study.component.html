@@ -1,4 +1,8 @@
-<div style="margin: 1rem;">
+<div>
     <h1 style="text-align: center;">Study</h1>
-    <app-study-card-ui [cards]="this.cards"></app-study-card-ui>
+    <app-study-card-ui [(cards)]="this.cards"></app-study-card-ui>
+    <div class="cardQueue">
+            <h2>Queue</h2>
+        <app-stacked-cards [(cards)]="this.cards" (cardsChange)="cardChange($event)"></app-stacked-cards>
+    </div>
 </div>

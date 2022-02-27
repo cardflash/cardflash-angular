@@ -14,6 +14,8 @@
   <button mat-raised-button routerLink="/doc" i18n>Create some</button>
 </div>
 
+<app-stacked-cards [cards]="filteredCards"></app-stacked-cards>
+
 <div class="cards">
 <app-static-card class="flexChild" *ngFor="let card of filteredCards; trackBy:trackyByCardId"
 [card]="card" (edit)="editCard($event)" (delete)="deleteCard($event)"></app-static-card>
