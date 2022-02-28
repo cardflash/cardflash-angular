@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -6,8 +6,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   templateUrl: './static-card-side.component.html',
   styleUrls: ['./static-card-side.component.scss']
 })
-export class StaticCardSideComponent implements OnInit {
+export class StaticCardSideComponent implements OnInit, AfterViewInit {
 
+  @ViewChild('innerCardContent')
+  public innerCardContent?: ElementRef<HTMLDivElement>;
 
   
   @Input('name') public name: string = "";
@@ -21,9 +23,14 @@ export class StaticCardSideComponent implements OnInit {
 
   constructor(private domSanitizer: DomSanitizer) {
   }
-
+  
   ngOnInit(): void {
+  }  
+  
+  ngAfterViewInit(): void {
+    if(this.innerCardContent?.nativeElement){
+      (window as any).renderMathInElement(this.innerCardContent?.nativeElement)
+    }
+   console.log(this.innerCardContent)
   }
-
-
 }
