@@ -1,5 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
+import { FlipCardComponent } from '../card/flip-card/flip-card.component';
 import { CardEntry, CardEntryContent } from '../data-api.service';
 
 @Component({
@@ -15,6 +16,9 @@ export class StackedCardsComponent implements OnInit {
   public cardsChange: EventEmitter<(CardEntry)[]> = new EventEmitter<(CardEntry)[]>();
 
 
+  @ViewChildren('stackedCard')
+  public stackedCards?: QueryList<ElementRef<HTMLDivElement>>;
+  
   public selectedIndex: number = 0;
 
   public interval: NodeJS.Timeout | null = null;
@@ -121,7 +125,14 @@ export class StackedCardsComponent implements OnInit {
       clearInterval(this.interval)
     }
   }
-      
+
+  scrollIndexIntoView(index: number){
+    if(this.stackedCards){
+      console.log(this.stackedCards.get(index)?.nativeElement)
+      this.stackedCards.get(index)?.nativeElement.scrollIntoView();
   }
+}
+
+} 
 
 

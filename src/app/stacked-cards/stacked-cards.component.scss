@@ -36,6 +36,7 @@ margin-right: auto;
 .stacked-card.active {
     transform: translateY(-1rem);
     z-index: 9999 !important;
+    --static-card-overflow: auto;
     // pointer-events: none;
     // transition: 0.4s;
 }
