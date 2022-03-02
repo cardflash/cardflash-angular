@@ -1,5 +1,5 @@
 <div style="overflow: auto;margin: 1rem;">
-    <mat-progress-bar value=0 [value]="getProgressValue()"></mat-progress-bar>
+    <mat-progress-bar value=0 [value]="getProgressValue()" aria-label="Study Progress"></mat-progress-bar>
     <div *ngIf="this.cards.length > 0">
         <app-flip-card class="flipCard" *ngIf="card" [card]="card" (edit)="editCard()" #flipCard ></app-flip-card>
         <div class="cardActions">

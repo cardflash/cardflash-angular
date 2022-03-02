@@ -9,7 +9,8 @@
           <mat-card-title i18n> Upload new </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <input type="file" accept=".pdf" #fileInput />
+          <label for="pdf-upload">Upload a PDF document</label>
+          <input id="pdf-upload" type="file" accept=".pdf" #fileInput />
           <br />
           <button mat-raised-button (click)="uploadDocument()">Upload</button>
           <br />
@@ -90,13 +91,13 @@
                 <mat-icon>save</mat-icon>
               </button>
             </mat-form-field>
-            <img mat-card-sm-image mat-card-avatar src="/assets/pdf.png" />
+            <img mat-card-sm-image mat-card-avatar src="/assets/pdf.png" alt="PDF document icon" />
           </mat-card-header>
           <mat-card-content>
             <span i18n>Created on {{ doc.creationTime | date }}</span>
             <div class="tagsDiv">
               <h5 i18n>Tags</h5>
-              <mat-chip-list aria-label="Document tags" i18n-aria-label>
+              <mat-chip-list aria-label="Document tags" i18n-aria-label *ngIf="doc.tags && doc.tags.length > 0">
                 <mat-chip
                   color="primary"
                   selected

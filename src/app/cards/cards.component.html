@@ -6,7 +6,7 @@
 <mat-form-field class="searchField" *ngIf="this.cards.length >= 1">
   <mat-label i18n>Search</mat-label>
   <input matInput type="text" #searchField (keydown.enter)="search(searchField.value)">
-  <button mat-icon-button matSuffix (click)="search(searchField.value)"><mat-icon>search</mat-icon></button>
+  <button mat-icon-button matSuffix (click)="search(searchField.value)" aria-label="Search"><mat-icon>search</mat-icon></button>
   
 </mat-form-field>
 <div *ngIf="this.cards.length < 1">

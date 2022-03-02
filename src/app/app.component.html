@@ -2,48 +2,49 @@
   <mat-drawer #drawer mode="over" class="mainDrawer">
     <div class="sideContent">
       <div>
-        <img src="/assets/logo.png" class="logo">
+        <img src="/assets/logo.png" class="logo" alt="Logo of cardflash.net. Showing a card and a lightning bold.">
         <h2>cardflash.net</h2>
         <h3 *ngIf="this.accountService.getAcc()">Hi, {{this.accountService.getAcc().name}}</h3>
+        <span>Start creating flashcards from PDFs now!</span>
         <nav class="sideNavigation">
           <ul class="pageList">
             <li>
               <a routerLink="/cards" routerLinkActive="active" style="--site-color: #3cbfc8;--site-color-background: #3cbfc840" (click)="drawer.toggle()">
-              <mat-icon>inventory</mat-icon>
-              <span i18n>Cards</span>
+              <mat-icon aria-labelledby="cards">inventory</mat-icon>
+              <span i18n id="cards">Cards</span>
             </a>
             </li>
             <li>
               <a routerLink="/documents" routerLinkActive="active" style="--site-color: #568ed8;--site-color-background: #568ed840" (click)="drawer.toggle()">
-              <mat-icon>folder</mat-icon>
-              <span i18n>Documents</span>
+              <mat-icon aria-labelledby="documents">folder</mat-icon>
+              <span i18n id="documents">Documents</span>
             </a>
             </li>
             <li>
               <a routerLink="/doc/" routerLinkActive="active" style="--site-color: #45ad45;--site-color-background: #45ad4540" (click)="drawer.toggle()">
-              <mat-icon>picture_as_pdf</mat-icon>
-              <span i18n>Create from PDF</span>
+              <mat-icon aria-labelledby="create-from-pdf">picture_as_pdf</mat-icon>
+              <span i18n id="create-from-pdf">Create from PDF</span>
             </a>
             </li>
             <li>
               <a routerLink="/study" routerLinkActive="active" style="--site-color: #21c3ae;--site-color-background: #a1fadcbe" (click)="drawer.toggle()">
-              <mat-icon>mark_chat_read</mat-icon>
-              <span i18n>Study</span>
+              <mat-icon aria-labelledby="study">mark_chat_read</mat-icon>
+              <span i18n id="study">Study</span>
             </a>
             </li>
             <li *ngIf="!this.accountService.isLoggedIn()">
               <button routerLink="/login" routerLinkActive="active" style="--site-color: #9e63d6;--site-color-background: #9e63d640" (click)="drawer.toggle()" [disabled]="dataApi.isOfflineMode()"
               [title]="dataApi.isOfflineMode ? 'Only possible if Server provider is selected below' : 'Login or Register on Server'">
-              <mat-icon>login</mat-icon>
-              <span i18n>Login or Register</span>
+              <mat-icon aria-labelledby="login">login</mat-icon>
+              <span i18n id="login">Login or Register</span>
             </button>
             </li>
             <li *ngIf="this.accountService.isLoggedIn()">
               <br/>
               <hr  style="border-color: #d663a0">
               <a routerLink="/login" style="--site-color: #d663a0;--site-color-background: #d663a040" (click)="logout()">
-              <mat-icon>logout</mat-icon>
-              <span i18n>Logout</span>
+              <mat-icon aria-labelledby="logout">logout</mat-icon>
+              <span i18n id="logout">Logout</span>
             </a>
             </li>
           </ul>
@@ -70,10 +71,10 @@
       <button
         mat-fab
         color="primary"
-        aria-label="Toggle sidenav"
+        aria-label="Open Sidenavigation"
         (click)="drawer.toggle()"
       >
-        <mat-icon>menu</mat-icon>
+        <mat-icon aria-hidden="true">menu</mat-icon>
       </button>
     </div>
     <!-- <mat-toolbar class="mainToolbar">
