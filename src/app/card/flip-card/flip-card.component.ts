@@ -36,7 +36,6 @@ export class FlipCardComponent implements OnInit {
 
 
   flipToSideForAnnotation(annotationID: string) {
-    console.log(this.frontSide)
     if(this.backSide && this.frontSide){
       // const frontSourceEl: HTMLElement =
       // this.frontSide.;

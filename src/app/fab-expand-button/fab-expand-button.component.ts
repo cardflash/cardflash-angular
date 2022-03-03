@@ -9,7 +9,7 @@ export interface FabOption {id: string, icon: string, color?: string, title?: st
   styleUrls: ['./fab-expand-button.component.scss']
 })
 export class FabExpandButtonComponent implements OnInit, AfterViewInit {
-  private showContent: boolean =false;
+  public showContent: boolean =false;
 
   @Input('defaultID')
   public defaultOption?:  FabOption

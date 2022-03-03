@@ -71,7 +71,7 @@
       (pdfLoaded)="pdfLoaded($event)"
       (pdfLoadingFailed)="pdfLoadFailed($event)"
       (pageRendered)="pageRendered($event)"
-      [ignoreKeys]="['1', '2', 'w', 's', 'space']"
+      [ignoreKeys]="['1', '2', 'w', 's','space','enter']"
       [enablePinchOnMobile]="true"
       [showBorders]="false"
       [pageViewMode]="'multiple'"
@@ -188,8 +188,9 @@
       [options]="cardOptions"
       [(selected)]="cardOption"
 ></app-fab-expand-button>
-  <button mat-flat-button (click)="addHighlightForSelection(this.utils.selectedColorOption.id)">
-    Add
+  <button mat-icon-button (click)="addHighlightForSelection(this.utils.selectedColorOption.id)" 
+  id="selectionToolsAddButton" color="primary">
+    <mat-icon>add</mat-icon>
   </button>
 </div>
 
@@ -277,8 +278,8 @@
             [options]="cardOptions"
             [(selected)]="cardOption"
       ></app-fab-expand-button>
-        <button mat-fab color="primary" (click)="addAreaSelection(this.rect)">
-          <mat-icon>check</mat-icon>
+        <button mat-fab color="primary"  id="areaSelectionAddButton"(click)="addAreaSelection(this.rect)">
+          <mat-icon>add</mat-icon>
         </button>
       </div>
       <button mat-mini-fab color="" (click)="closeAreaSelection()">

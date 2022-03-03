@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   OnInit,
   Output,
   QueryList,
@@ -317,6 +318,8 @@ export class ExtendedPdfComponent implements OnInit {
                 // try to position the toolbar in the middle on top of the selected text
                 this.selectionTools.nativeElement.style.left =
                   bounds.left - 100 + (bounds.right - bounds.left) / 2 + 'px';
+                const button = this.selectionTools.nativeElement.querySelector<HTMLButtonElement>('#selectionToolsAddButton');
+                button?.focus();
               }
             }
           }, 700);
@@ -448,8 +451,45 @@ export class ExtendedPdfComponent implements OnInit {
         pageEl.ontouchmove = null;
       }
     }
+    if(this.areaSelection){
+      const button = this.areaSelection.nativeElement.querySelector<HTMLButtonElement>('#areaSelectionAddButton');
+      button?.focus();
+    }
 
     pageEl?.querySelectorAll('*').forEach((e) => e instanceof HTMLElement && (e.style.cursor = ''));
+  }
+
+  @HostListener('window:keypress', ['$event'])
+  handleShortCut(event: KeyboardEvent){
+    if(event.target === document.body){
+      console.log({event})
+
+      switch(event.key){
+        case '1':
+          this.cardOption = this.cardOptions[0]
+          break;
+        case '2':
+          this.cardOption = this.cardOptions[1]
+          break;
+        case 'w':
+          if(this.cardOption.id === 'front'){
+            this.cardOption = this.cardOptions[1];
+          }else{
+            this.nextCard()
+          }
+          break;
+        case 's':
+          this.areaSelectWithNormalMouse = !this.areaSelectWithNormalMouse;
+          break;
+      }
+      if(event.key === '1'){
+  
+      }
+    }  
+    // (keydown.1)="this.cardOption = this.cardOptions[0]"
+    // (keydown.2)="this.cardOption = this.cardOptions[1]"
+    // (keydown.w)="this.cardOption.id === 'front' ? (this.cardOption = this.cardOptions[1]) : (this.nextCard())"
+    // (keydown.s)="this.areaSelectWithNormalMouse = !this.areaSelectWithNormalMouse"
   }
 
   async closeAreaSelection() {
