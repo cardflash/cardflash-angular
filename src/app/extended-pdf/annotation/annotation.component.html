@@ -1,7 +1,6 @@
 <div
   class="annotationOuterWrapper"
   [style]="{'--highlightColor' : this.annotation?.color}"
-  id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   #annotationOuterWrapper
   [draggable]="!isEditing"
   (dragstart)="dragStart($event)"
@@ -9,12 +8,14 @@
   <div
     class="annotationWrapper"
     [ngStyle]="{
-      cursor: this.isEditing ? 'default' : 'pointer',
-      'background-color': annotation?.color
+      cursor: this.isEditing ? 'default' : 'pointer'
     }"
+    [style.--annotation-color-transparent]="annotation?.color"
+    [style.--annotation-color]="annotation?.color?.substring(0,7)"
     (click)="clicked()"
-    (mouseenter)="mouseOver = true; showLine()"
+    (mouseenter)="handleMouseEnter()"
     (mouseleave)="mouseOver = false; removeLine()"
+    id="{{ this.getAnnotationOnCardPrefix() }}{{ annotation?.id }}"
   >
     <b *ngIf="annotation?.text && !isEditing">{{ annotation?.text }}</b>
     <textarea
@@ -25,7 +26,7 @@
       [(ngModel)]="annotation.text"
     ></textarea>
     <!-- <pre>{{ annotation?.id }}</pre> -->
-    <img *ngIf="imgSrc !== null" src="{{imgSrc}}" alt="{{this.annotation?.hiddenText}}" />
+    <img *ngIf="imgSrc !== undefined" [src]="this.sanitizer.bypassSecurityTrustUrl(imgSrc || '')" alt="{{this.annotation?.hiddenText}}" />
     <div class="commentWrapper">
       <textarea
         class="commentTextarea"
@@ -53,6 +54,9 @@
   <div class="actionButtons">
     <button mat-icon-button (click)="toggleEdit()" title="Edit">
       <mat-icon>{{ isEditing ? "save" : "edit" }}</mat-icon>
+    </button>
+    <button mat-icon-button (click)="copy()" title="Copy">
+      <mat-icon>content_copy</mat-icon>
     </button>
     <br />
     <button *ngIf="isEditing"

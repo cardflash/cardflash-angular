@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  HostListener,
   Input,
   OnInit,
   Output,
@@ -15,12 +14,10 @@ import * as CustomBalloonEditor from 'src/ckeditor/ckeditor.js';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 import { HttpClient } from '@angular/common/http';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
-import { DataService } from '../data.service';
 import { imgSrcToDataURL } from 'blob-util';
-import { CardEntry, CardEntryContent } from '../data-api.service';
+import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
 import { UtilsService } from '../utils.service';
-
-// const ImageEditor = require('tui-image-editor');
+import { MyUploadAdapter} from 'src/ckeditor/CustomUploadAdapter'
 
 @Component({
   selector: 'app-card',
@@ -48,13 +45,16 @@ export class CardComponent implements OnInit, AfterViewInit {
   };
 
   public annotations: { id: string; color: string }[] = [];
-
   @Output('cardChange') cardChange: EventEmitter<CardEntryContent | CardEntry> =
     new EventEmitter<CardEntryContent | CardEntry>();
 
-  @Input('frontActive') frontActive: boolean = true;
+  @Input('activeSide') activeSide: string = '';
   @Input('active') active: boolean = false;
-  @Input('deckName') deckName?: string = this.dataService.config.deckName;
+  @Input('deckName') deckName?: string = this.dataApi.config.deckName;
+
+
+  @Input('placeholderFront') placeholderFront: string = '';
+  @Input('placeholderBack') placeholderBack: string = '';
 
   @ViewChildren('annotationHelperFront') annotationHelperFront?: QueryList<
     ElementRef<HTMLDivElement>
@@ -73,7 +73,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   constructor(
     private http: HttpClient,
     private userNotifierService: UserNotifierService,
-    private dataService: DataService,
+    private dataApi: DataApiService,
     public utils: UtilsService
   ) {}
 
@@ -84,6 +84,7 @@ export class CardComponent implements OnInit, AfterViewInit {
     }
     this.FrontEditor = CustomBalloonEditor;
     this.BackEditor = CustomBalloonEditor;
+    console.log(this.FrontEditor)
 
   }
 
@@ -190,13 +191,14 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   change() {
+    console.log('CHANGE')
     if(!window.onbeforeunload){
-      window.addEventListener('beforeunload', function (e) {
+      window.onbeforeunload = function (e) {
         // Cancel the event
         e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
         // Chrome requires returnValue to be set
         e.returnValue = '';
-      });
+      }
     }
     this.cardChange.emit(this.card);
   }
@@ -236,5 +238,13 @@ export class CardComponent implements OnInit, AfterViewInit {
     }else{
       url = this.imageInEditingURL;
     }
+  }
+
+  onEditorReady(editor: any){
+    console.log('onEditorReady',{editor})
+    // editor.plugins.get('FileRepository').createUploadAdapter = (loader: any) => {
+    //   return new MyUploadAdapter(loader, this.dataApi.getProviderInstance());
+    // }
+
   }
 }

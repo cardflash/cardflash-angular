@@ -4,7 +4,7 @@ export const environment = {
   API_PROJECT: '6200475f2c3292dbc7b1',
   BASE_URL: 'https://app.cardflash.net',
   PDF_ANNOT_URL : 'https://app.cardflash.net/doc',
-  ANKI_MODEL_VERSION: '1.0a',
+  ANKI_MODEL_VERSION: '3.2a',
   MIN_PW_LENGTH: 8,
   MAX_PW_LENGTH: 32,
   collectionMap: {'cards': 'cards', documents: 'documents'}  as any,

@@ -1,0 +1,55 @@
+.fabContainer {
+  display: inline-block;
+  position: relative;
+  z-index: 3;
+  // bottom: 100px;
+  margin: 0 2px;
+}
+
+.expandContent.expandToTop {
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.expandContent {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  display: inline-flex;
+  flex-direction: column;
+  transition: transform ease 0.3s;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+  left: 50%;
+  height: 0;
+}
+
+.expandContent.showContent {
+  z-index: 4;
+  opacity: 1;
+  pointer-events: all;
+  height: fit-content;
+  top: 100%;
+}
+.expandContent.showContent.expandToTop {
+  top: 0;
+}
+
+.expandContent.showContent .fabExpandContentButton {
+  width: 50px;
+  height: 50px;
+}
+
+.fabExpandContentButton {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 4px;
+  height: 0;
+  width: 0;
+}
+
+.expandContent.showContent .fabExpandCloseButton {
+  width: 40px;
+  height: 40px;
+}

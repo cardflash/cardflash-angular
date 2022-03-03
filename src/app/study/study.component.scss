@@ -1,0 +1,4 @@
+.cardQueue {
+    --stacked-card-width: min(60vw,400px);
+    --stacked-card-height: min(calc(0.6 * min(60vw,400px)),250px);
+}

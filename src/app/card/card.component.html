@@ -10,14 +10,18 @@
       </mat-card-header>
       <div
         class="front-div"
-        [ngClass]="{ active: active && frontActive }"
+        [ngClass]="{ active: active && activeSide === 'front' }"
       >
         <ckeditor
           #frontEditor
           [editor]="FrontEditor"
           [(ngModel)]="card.front"
           (change)="change()"
+          (ready)="onEditorReady($event)"
         ></ckeditor>
+        <p *ngIf="card.front === ''" class="placeHolderText">
+          {{placeholderFront}}
+        </p>
       </div>
     </mat-card>
 
@@ -26,13 +30,17 @@
         <mat-card-subtitle i18n="card back side">Back</mat-card-subtitle>
       </mat-card-header>
       <div class="back-div"
-      [ngClass]="{ active: active && !frontActive }">
+      [ngClass]="{ active: active && activeSide === 'back' }">
         <ckeditor
           #backEditor
           [editor]="BackEditor"
           [(ngModel)]="card.back"
           (change)="change()"
+          (ready)="onEditorReady($event)"
         ></ckeditor>
+        <p *ngIf="card.back === ''" class="placeHolderText">
+          {{placeholderBack}}
+        </p>
       </div>
     </mat-card>
   </div>
@@ -81,31 +89,34 @@
     </mat-accordion>
     <div class="cardActions">
       <mat-form-field
-        class="miniField"
-        appearance="standard"
-        style="margin-bottom: -1.25em"
+      class="miniField"
+      appearance="standard"
+      style="margin-bottom: -1.25em"
       >
-        <mat-label i18n>Page #</mat-label>
-        <!-- <span matPrefix>p.</span> -->
-        <input matInput type="number" [(ngModel)]="this.card.page" />
-      </mat-form-field>
-      <button mat-stroked-button aria-label="Save to Anki" (click)="this.utils.saveCard(this.card,'anki',this.deckName)">
+      <mat-label i18n>Page #</mat-label>
+      <!-- <span matPrefix>p.</span> -->
+      <input matInput type="number" [(ngModel)]="this.card.page" />
+    </mat-form-field>
+    <button
+      mat-stroked-button
+      aria-label="Delete card"
+      color="warn"
+      (click)="deleteCard()"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button mat-stroked-button aria-label="Save to Anki" (click)="this.utils.exportCard(this.card,'anki',this.deckName)">
         <mat-icon>save</mat-icon> Anki
       </button>
       <button
         mat-stroked-button
         aria-label="Download card"
-        (click)="this.utils.saveCard(this.card,'download')"
+        (click)="this.utils.exportCard(this.card,'download')"
       >
         <mat-icon>file_download</mat-icon>
       </button>
-      <button
-        mat-stroked-button
-        aria-label="Delete card"
-        color="warn"
-        (click)="deleteCard()"
-      >
-        <mat-icon>delete</mat-icon>
+      <button mat-flat-button aria-label="Save to Anki" (click)="this.utils.saveCard(this.card)" color="primary">
+        <mat-icon>save</mat-icon> Save
       </button>
     </div>
   </div>
@@ -123,11 +134,3 @@
 </div>
 </div>
 </div> -->
-<div *ngIf="this.showimageEditOverlay" class="overlayBackdrop"></div>
-<div #imageEditOverlay tabindex="0" class="imageEditOverlay" [ngClass]="{'hiddenOverlay': !this.showimageEditOverlay}" (keydown.esc)="finishImageEditing(false)">
-  <button mat-icon-button class="cancelImgEditButton" (click)="finishImageEditing(false)"><mat-icon>close</mat-icon></button>
-  <div id="tui-image-editor-container">
-    <canvas></canvas>
-  </div>
-  <button class="finishImgEditButton" mat-raised-button color="primary" (click)="finishImageEditing(true)" i18n>Finish Image Editing</button>
-</div>

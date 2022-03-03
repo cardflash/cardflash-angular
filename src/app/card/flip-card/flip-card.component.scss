@@ -1,15 +1,15 @@
 .card{
-  margin-bottom: 10px;
+  // margin-bottom: 10px;
   width: 85%;
   margin-left: auto;
   margin-right: auto;
-  max-width: 500px;
+  max-width: var(--flip-card-width,500px);
 }
 .cardActions{
   display: flex;
   justify-content: space-around;
-  position: absolute;
-  bottom: 0;
+  // position: absolute;
+  // bottom: 0;
   width: 100%
 }
 
@@ -31,21 +31,21 @@
 
 .flipCard{
   perspective: 1000px;
-  width: 600px;
-  height: 500px;
-  --editor-max-height: 300px;
-  --editor-min-height: 300px;
+  width: var(--flip-card-width,500px);
+  height: calc(var(--flip-card-height, 500px));
   width: 100%;
-  min-width: 350px; 
+  min-width: var(--flip-card-width,500px);
+  overflow: hidden;
 }
 
-.flipCard:hover .inner{
+// .flipCard:hover .inner{
+//   transform: rotateY(180deg);
+// }
+
+.flipCard.flipped .inner, .flipCardTrigger:hover .inner{
   transform: rotateY(180deg);
 }
-.flipCard:hover .inner .front{
-  --editor-max-height: 300px;
-  --editor-min-height: 300px;
-}
+
 
 
 .flipCard, .front, .back {
@@ -53,17 +53,19 @@
   // width: 85%;
   margin-left: auto;
   margin-right: auto;
-  max-width: 500px;
+  max-width: var(--flip-card-width,500px);
+  min-width: var(--flip-card-width,500px);
+  --static-card-height: calc(var(--flip-card-height,500px) - 0px);
 
 }
 
 .inner{
-  transition: 0.7s;
+  transition: var(--transition-duration,0.5s);
   transform-style: preserve-3d;
   position: relative;
   width: 100%;
   height: 100%;
-  max-height: 300px;
+  max-height: calc(var(--flip-card-height,500px) - 0px);
 }
 
 .front, .back{
@@ -72,7 +74,14 @@
 	left: 0;
   width: 100%;
   backface-visibility: hidden;
-  background-color: white;
+  // background-color: white;
+}
+
+@media (prefers-color-scheme: dark)
+{
+  .front, .back{
+    background-color: #303030;
+  }
 }
 
 .back {

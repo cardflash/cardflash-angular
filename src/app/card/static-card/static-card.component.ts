@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CardEntry, CardEntryContent } from 'src/app/data-api.service';
-import { DataService } from 'src/app/data.service';
 
 @Component({
   selector: 'app-static-card',

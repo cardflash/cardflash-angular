@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditorFlipCardComponent } from './editor-flip-card.component';
+import { CardDialogWrapperComponent } from './card-dialog-wrapper.component';
 
-describe('EditorFlipCardComponent', () => {
-  let component: EditorFlipCardComponent;
-  let fixture: ComponentFixture<EditorFlipCardComponent>;
+describe('CardDialogWrapperComponent', () => {
+  let component: CardDialogWrapperComponent;
+  let fixture: ComponentFixture<CardDialogWrapperComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EditorFlipCardComponent ]
+      declarations: [ CardDialogWrapperComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EditorFlipCardComponent);
+    fixture = TestBed.createComponent(CardDialogWrapperComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

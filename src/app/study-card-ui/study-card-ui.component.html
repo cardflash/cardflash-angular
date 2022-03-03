@@ -1,0 +1,30 @@
+<div style="overflow: auto;margin: 1rem;">
+    <mat-progress-bar value=0 [value]="getProgressValue()" aria-label="Study Progress"></mat-progress-bar>
+    <div *ngIf="this.cards.length > 0">
+        <app-flip-card class="flipCard" *ngIf="card" [card]="card" (edit)="editCard()" #flipCard ></app-flip-card>
+        <div class="cardActions">
+            <div> 
+                <button mat-button (click)="undoLastCard()" [disabled]="this.lastCards.length === 0">Undo</button>
+            </div>
+            <div>
+                <div class="answerButtons">
+                    <button [style.visibility]="(this.flipped || lastSelectedAnswer === 'hard') ? 'visible' : 'hidden'" [disabled]="!this.flipped" mat-button class="hardButton" #answerButtonHard (click)="this.finishCard('hard')">Hard</button>
+                    <button [style.visibility]="(this.flipped || lastSelectedAnswer === 'good') ? 'visible' : 'hidden'" [disabled]="!this.flipped"  mat-button class="goodButton" #answerButtonGood (click)="this.finishCard('good')">Good</button>
+                    <button [style.visibility]="(this.flipped || lastSelectedAnswer === 'easy') ? 'visible' : 'hidden'" [disabled]="!this.flipped"  mat-button class="easyButton" #answerButtonEasy (click)="this.finishCard('easy')">Easy</button>
+                </div>
+                <button cdkFocusInitial #showAnswerButton mat-stroked-button (click)="this.flip()" color="primary">{{this.flipped ? "Show Question" : "Show Answer"}}</button>
+            </div>
+            <div>
+                <button mat-button class="editButton" [routerLink]="['cards',card?.$id]">Edit Card</button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="this.cards.length === 0">
+        <h3>Good Job!</h3>
+        You have finished all cards.
+        <br />
+        <br />
+        <br />
+        <!-- <button mat-button (click)="this.dialog.close()">Close</button> -->
+    </div>
+</div>

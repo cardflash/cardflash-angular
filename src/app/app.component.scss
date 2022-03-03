@@ -24,8 +24,8 @@ a.mat-tab-link {
 .menu-fab{
   position: absolute;
   z-index: 3;
-  left: 15px;
-  top: 30px;
+  left: 10px;
+  top: 10px;
 }
 
 
@@ -78,7 +78,7 @@ footer{
   margin: 5px auto;
 }
 
-.pageList li a{
+.pageList li a, .pageList li button{
   padding: 11px;
   height: 30px;
   margin: 5px auto;
@@ -87,23 +87,35 @@ footer{
   align-items: center;
   text-decoration: none;
   border-radius: 10px;
+  box-sizing: content-box;
+  background: unset;
+  border: unset;
 }
 
-.pageList li a mat-icon{
+.pageList li a mat-icon, .pageList li button mat-icon{
   padding: 10px;
   border-radius: 100%;
   background-color: var(--site-color,rgba(134, 43, 219,1));
   color: white;
 }
-.pageList li a span{
+.pageList li a span, .pageList li button span{
   width: 15rem;
   text-align: left;
   margin-left: 10px;
   color: var(--site-color,rgba(134, 43, 219,1));
   font-weight: 500;
+  font-size: 1rem;
+  font-family: Roboto;
 }
 
-.pageList li a.active{
+.pageList li button:disabled mat-icon{
+  background-color: rgb(182, 182, 182);
+}
+.pageList li button:disabled span {
+  color: rgb(182, 182, 182);
+}
+
+.pageList li a.active, .pageList li button.active{
   background-color: var(--site-color-background,rgba(134, 43, 219,0.3));
 }
 

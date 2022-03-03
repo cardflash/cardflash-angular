@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Appwrite, Models, Query } from 'appwrite';
-import { REPL_MODE_SLOPPY } from 'repl';
-import { environment } from 'src/environments/environment';
+import { AppwriteProvider } from './data-api-providers/appwrite-provider';
+import { LocalProvider } from './data-api-providers/local-provider';
 import { Annotation } from './types/annotation';
+import {Config, DataApiProvider, DEFAULT_CONFIG, Entry, ENTRY_TYPES } from './types/data-api-provider';
+
+
 
 export interface DocumentEntryContent {
-  // $id: string,
   name: string;
   fileid: string;
   creationTime: number;
@@ -28,86 +29,99 @@ export interface CardEntryContent {
   title: string;
   creationTime: number;
   imgIDs?: string[];
-  // $collection?: string,
-  // $read?: string[],
-  // $write?: string[]
 }
 
-interface EntryWithCreationTime extends Models.Document {
-  creationTime: number
-}
 
-export const ENTRY_TYPES = {
-  DOCUMENTS: 'documents',
-  CARDS: 'cards',
-};
+export type DocumentEntry = Entry & DocumentEntryContent;
+export type CardEntry = Entry & CardEntryContent;
 
-export type DocumentEntry = Models.Document & DocumentEntryContent;
-export type CardEntry = Models.Document & CardEntryContent;
-type ENTRY_TYPES = typeof ENTRY_TYPES[keyof typeof ENTRY_TYPES];
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataApiService {
-  private appwrite: Appwrite;
+  private apiProvider: DataApiProvider;
+  public config: Config = DEFAULT_CONFIG;
 
+  private fileViewURLCache : Map<string,URL | Promise<URL>> = new Map<string,URL | Promise<URL>>(); 
   constructor() {
-    this.appwrite = new Appwrite();
-    this.appwrite.setEndpoint(environment.API_ENDPOINT);
-    this.appwrite.setProject(environment.API_PROJECT);
-  }
-
-  createEntry<T extends Models.Document>(
-    type: ENTRY_TYPES,
-    data: object,
-    read = undefined,
-    write = undefined
-  ) {
-    return this.appwrite.database.createDocument<T>(
-      environment.collectionMap[type],
-      'unique()',
-      data,
-      read,
-      write
-    );
-  }
-
-  getEntry<T extends Models.Document>(type: ENTRY_TYPES, id: string) {
-    return this.appwrite.database.getDocument<T>(environment.collectionMap[type], id);
-  }
-
-  updateEntry<T extends Models.Document>(type: ENTRY_TYPES, id: string, data: any) {
-    return this.appwrite.database.updateDocument<T>(environment.collectionMap[type], id, data);
-  }
-
-  deleteEntry(type: ENTRY_TYPES, id: string) {
-    return this.appwrite.database.deleteDocument(environment.collectionMap[type], id);
-  }
-
-  listEntries<T extends EntryWithCreationTime>(type: ENTRY_TYPES, queries: string[] | undefined , newestFirst: boolean | undefined) {
-    console.log({newestFirst})
-    return this.appwrite.database.listDocuments<T>(environment.collectionMap[type],queries,100,undefined,undefined,undefined,['creationTime'],[newestFirst ? 'DESC' : 'ASC']);
+    try {
+      const provider_setting = window.localStorage.getItem('cardflash_provider')
+      if(provider_setting !== null && provider_setting === 'appwrite'){
+        this.apiProvider = new AppwriteProvider();
+      }else if(provider_setting !== null && provider_setting === 'local'){
+        this.apiProvider= new LocalProvider();
+      }else{
+        // Default
+        window.localStorage.setItem('cardflash_provider','local');
+        this.apiProvider= new LocalProvider();
+      }
+    } catch (error) {
+      console.log('localStorage failed')
+      // localStorage fails to work, this properly means that the localProvider will also not work
+      // we should instead use the appwrite backend
+      this.apiProvider= new AppwriteProvider();
+    }
   }
 
 
-  
+  async fetchConfig(){
+    this.config = await this.apiProvider.getPreferences()
+  }
+
+  async saveConfig(){
+    console.log('saving config',this.config)
+    await this.apiProvider.savePreferences(this.config);
+  }
+
+  setProvider(type: 'appwrite' | 'local'){
+    try{
+      window.localStorage.setItem('cardflash_provider',type);
+    }catch(e){
+      console.log('could not store provider settings in localStorage',e)
+    }
+    if(type === 'appwrite'){
+      this.apiProvider = new AppwriteProvider();
+    }else{
+      this.apiProvider = new LocalProvider();
+    }
+  }
+
+  getProvider() : 'local' | 'appwrite'{
+    if(this.apiProvider instanceof AppwriteProvider){
+      return 'appwrite';
+    }else{
+      return 'local';
+    }
+  } 
+
+  getProviderInstance() : DataApiProvider{
+    return this.apiProvider;
+  } 
+
+  isOfflineMode() : boolean{
+    return this.apiProvider instanceof LocalProvider;
+  }
+
+  setOfflineMode(toOffline: boolean){
+    this.setProvider(toOffline ? 'local' : 'appwrite')
+  }
 
   async getDocument(id: string) {
-    return await this.getEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id);
+    return await this.apiProvider.getEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id);
   }
 
   async updateDocument(id: string, data: any) {
-    return await this.updateEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id, data);
+    return await this.apiProvider.updateEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, id, data);
   }
 
   async updateCard(id: string, data: any) {
-    return await this.updateEntry<CardEntry>(ENTRY_TYPES.CARDS, id, data);
+    return await this.apiProvider.updateEntry<CardEntry>(ENTRY_TYPES.CARDS, id, data);
   }
 
 
   async getCard(id: string) {
-    return await this.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id);
+    return await this.regenerateImageObjectURLs(await this.apiProvider.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id));
   }
   
   deleteCard(id: string) {
@@ -125,7 +139,7 @@ export class DataApiService {
       })
       Promise.all(imgsToRemove)
         .then(() => {
-          this.deleteEntry(ENTRY_TYPES.CARDS, id)
+          this.apiProvider.deleteEntry(ENTRY_TYPES.CARDS, id)
             .then(() => {
               resolve();
             })
@@ -162,7 +176,7 @@ export class DataApiService {
       // }
       Promise.all(additionalPromises)
         .then(() => {
-          this.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
+          this.apiProvider.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
             .then(() => {
               resolve();
             })
@@ -177,35 +191,78 @@ export class DataApiService {
   }
 
   async listDocuments(newestFirst: boolean) {
-    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
+    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
   }
   async listDocumentsForCard(cardID: string){
-    return (await this.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[Query.search('cardIDs',cardID)],undefined)).documents;
+    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[{type: 'search', attribute: 'cardIDs', values: [cardID]}],undefined)).documents;
   }
   async listCards(newestFirst: boolean) {
-    return (await this.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents;
+    return await Promise.all((await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents.map(c => this.regenerateImageObjectURLs(c)));
   }
 
   async createDocument(data: DocumentEntryContent) {
-    return await this.createEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, data);
+    return await this.apiProvider.createEntry<DocumentEntry>(ENTRY_TYPES.DOCUMENTS, data);
   }
 
   async createCard(data: CardEntryContent) {
-    return await this.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
+    return await this.apiProvider.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
   }
 
-  getFileView(id: string) {
-    return this.appwrite.storage.getFileView(id);
+  async getFileView(id: string) {
+    if(this.fileViewURLCache.has(id)){
+      return await this.fileViewURLCache.get(id)!;
+    }else{
+      const urlProm =  this.apiProvider.getFileView(id)
+      this.fileViewURLCache.set(id,urlProm);
+      const url = await urlProm;
+      this.fileViewURLCache.set(id,url);
+      return url;
+    }
   }
   getFilePreview(id: string) {
-    return this.appwrite.storage.getFilePreview(id);
+    return this.apiProvider.getFilePreview(id);
   }
 
   async saveFile(file: File) {
-    return this.appwrite.storage.createFile('unique()', file);
+    const res = await this.apiProvider.saveFile(file)
+    console.log('saving file',res)
+    return res;
   }
 
-  async deleteFile(id: string) {
-    return this.appwrite.storage.deleteFile(id);
+ deleteFile(id: string) {
+    return this.apiProvider.deleteFile(id);
+  }
+
+
+  async regenerateImageObjectURLs(
+    card: CardEntry
+  ): Promise<CardEntry> {
+    const domParser = new DOMParser();
+    const docFront = domParser.parseFromString(card.front, 'text/html');
+    const docBack = domParser.parseFromString(card.back, 'text/html');
+    const imgSavePromises: Promise<void>[] = [];
+    for (const side of [docFront, docBack]) {
+      let imgs = side.querySelectorAll<HTMLImageElement>('img[data-imageid]');
+      for (let i = 0; i < imgs.length; i++) {
+        const node = imgs[i];
+        const imageId = node.getAttribute('data-imageid');
+        if (imageId !== null) {
+          imgSavePromises.push(
+            new Promise<void>(async (resolve, reject) => {
+              try {
+                node.src = (await this.getFileView(imageId)).href;
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            })
+          );
+        }
+      }
+    }
+    await Promise.all(imgSavePromises);
+    card.front = docFront.documentElement.outerHTML;
+    card.back = docBack.documentElement.outerHTML;
+    return card;
   }
 }

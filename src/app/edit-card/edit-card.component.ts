@@ -1,13 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from 'src/app/data-api.service';
+import { CardEntry, CardEntryContent, DocumentEntry, DataApiService } from '../data-api.service';
 
 @Component({
   selector: 'app-edit-card',
   templateUrl: './edit-card.component.html',
   styleUrls: ['./edit-card.component.scss']
 })
-export class EditCardComponent implements OnInit, OnDestroy {
+export class EditCardComponent implements OnInit {
 
   public card:  CardEntry | CardEntryContent | undefined;
 

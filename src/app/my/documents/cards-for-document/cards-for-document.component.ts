@@ -1,6 +1,8 @@
 import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CardDialogWrapperComponent } from 'src/app/card-dialog-wrapper/card-dialog-wrapper.component';
 import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from 'src/app/data-api.service';
 
 @Component({
@@ -11,19 +13,20 @@ import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from 'src/
 export class CardsForDocumentComponent implements OnInit, OnDestroy {
 
   public document?: DocumentEntry;
-  public cards: Promise<CardEntry>[] = []
+  public cards: CardEntry[] = []
   public id: string;
-  constructor(public dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router){
+  constructor(public dataApi: DataApiService, private actRoute: ActivatedRoute, private router: Router,public dialog: MatDialog){
     this.id = actRoute.snapshot.params.id
    }
 
   async ngOnInit() {
-    this.dataApi.getDocument(this.id).then((doc) => {
+    this.dataApi.getDocument(this.id).then(async (doc) => {
       this.document = doc;
-      this.cards = [];
+      const cardsPromises : Promise<CardEntry>[] = [];
       doc.cardIDs?.forEach((cID) => {
-        this.cards.push(this.dataApi.getCard(cID))
+        cardsPromises.push(this.dataApi.getCard(cID))
       })
+      this.cards = await Promise.all(cardsPromises);
     })
   }
 
@@ -56,6 +59,15 @@ export class CardsForDocumentComponent implements OnInit, OnDestroy {
   editCard(card: CardEntry | CardEntryContent){
     this.router.navigate(["/cards/"+card.$id])
   }
+
+  async startStudy(){
+    this.dialog.open(CardDialogWrapperComponent,{data: {cards: this.cards}, backdropClass: 'focusBackdrop', panelClass: 'fullscreenPanel'})
+  }
+
+  trackyByCardId(index: number, card: CardEntry | CardEntryContent){
+    return card.$id || index;
+  }
+
 
 
 

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { DataService } from '../data.service';
+import { DataApiService } from '../data-api.service';
 import { TesseractLanguages } from '../data/tesseract-languages';
 import { Config } from '../types/config';
 
@@ -13,21 +13,16 @@ export class OptionsComponent implements OnInit {
   public readonly OCR_LANGUAGES: { short: string; long: string }[] =
     TesseractLanguages.LANGS;
 
-    @Input('expanded') expanded: boolean = false;
+    @Input('expanded') expanded: boolean = true;
     
-  constructor(public dataService: DataService) {
-    this.dataService.init().then(async () => {
-      if (this.dataService.prefs['config']) {
-        this.dataService.config = this.dataService.prefs['config'];
-      }
-    });
+  constructor(public dataApi: DataApiService) {
   }
 
   ngOnInit(): void {
   }
 
   async saveConfig() {
-    const res = await this.dataService.savePrefs({ config: this.dataService.config });
+    const res = await this.dataApi.saveConfig();
   }
 
 }

@@ -1,9 +1,21 @@
 .annotationWrapper {
-    padding: 10px;
     border-radius: 15px;
     transition: 0.3s ease-out;
     width: 100%;
+    touch-action: none;
+    background-color: var(--annotation-color-transparent);
+    border: 0.5rem solid transparent;
 }
+
+
+@media (prefers-color-scheme: dark)
+{
+    .annotationWrapper  {
+    background-color: unset;
+    border: 0.5rem solid var(--annotation-color);
+    }
+}
+
 
 textarea {
     background-color: rgba(255, 255, 255, 0.3);
@@ -13,13 +25,13 @@ textarea {
 .annotationOuterWrapper {
     padding-top: 10px;
     display: flex;
-    --highlightColor: rgb(246, 195, 26);
+    // --highlightColor: rgb(246, 195, 26);
 }
 
-.annotationOuterWrapper.highlight .annotationWrapper {
+.annotationOuterWrapper .annotationWrapper.highlight {
     // animation: blink 5s ease-in-out;
     filter: saturate(200%);
-    box-shadow: 0px 0px 10px 10px  var(--highlightColor); 
+    box-shadow: 0px 0px 5px 5px var(--annotation-color); 
 }
 
 .commentWrapper {

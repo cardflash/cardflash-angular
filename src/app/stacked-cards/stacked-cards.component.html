@@ -1,0 +1,45 @@
+<div style="display: flex">
+    <button
+    mat-button
+    (click)="this.selectedIndex > 0 && (this.selectedIndex = this.selectedIndex - 1) && scrollIndexIntoView(this.selectedIndex)"
+    [disabled]="this.selectedIndex <= 0"
+    aria-label="Previous Card"
+  >
+  <mat-icon>arrow_left</mat-icon>
+</button>
+<div class="stacked-cards-outer">
+    <div class="stacked-cards" id="stacked-cards">
+        <div
+        class="stacked-card"
+        [style.z-index]="cards.length - i + 1"
+        *ngFor="let card of cards; let i = index; trackBy: trackByCardId"
+        tabindex="-1"
+        draggable="true"
+        (dragstart)="dragStart($event, i)"
+        (dragover)="dragOver($event, i)"
+        (drop)="drop($event, i)"
+        [ngClass]="{ active: this.selectedIndex === i }"
+        (click)="this.selectedIndex = i"
+        tabindex="-1"
+        #stackedCard
+        >
+        <!-- <header class="stacked-card-header">
+            <h2>{{card.title}}</h2>
+        </header> -->
+        <app-flip-card #flipCard [card]="card"></app-flip-card>
+        <!-- <app-static-card-side [content]="card.front"></app-static-card-side> -->
+        <button class="flipButton" mat-icon-button (click)="flipCard.flipped = !flipCard.flipped" title="Flip"><mat-icon>360</mat-icon></button>
+    </div>
+</div>
+</div>
+<button
+mat-button
+(click)="
+this.selectedIndex < this.cards.length - 1 && (this.selectedIndex = this.selectedIndex + 1) && scrollIndexIntoView(this.selectedIndex)
+"
+[disabled]="this.selectedIndex >= this.cards.length - 1"
+aria-label="Next Card"
+>
+<mat-icon>arrow_right</mat-icon>
+</button>
+</div>

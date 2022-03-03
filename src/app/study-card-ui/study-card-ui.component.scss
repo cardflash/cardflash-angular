@@ -1,0 +1,96 @@
+.flipCard {
+    --flip-card-height: min(60vh, 50rem);
+    --flip-card-width: min(100%, 60rem);
+    // --flip-card-overflow: hidden
+    // --flip-card-height: min(min(min(100vw,60rem),90vh),600px);
+  }
+  
+  .cardActions {
+    display: flex;
+    justify-content: center;
+    > div {
+      width: 33.333%;
+      display: flex;
+      justify-content: flex-end;
+    }
+    > div:nth-child(1) {
+      justify-content: start;
+    }
+    > div:nth-child(2) {
+      align-content: center;
+      flex-direction: column;
+      // justify-content: flex-end;
+    }
+    > div:nth-child(3) {
+      justify-content: flex-end;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 1rem;
+    }
+  }
+  
+  .answerButtons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    visibility: visible;
+    button {
+      transition: 0.3s color;
+    }
+  }
+
+  // .answerButtons.hidden {
+  //   visibility: hidden;
+  // }
+  
+  
+  @media screen and (max-width: 800px){
+    .cardActions {
+      align-items: center;
+      flex-direction: column;
+      > div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      button {
+        width: 100%;
+      }
+      > div:nth-child(1) {
+        justify-content: center;
+        order: 2;
+      }
+      > div:nth-child(2) {
+        align-content: center;
+        flex-direction: column;
+        order: 1;
+        justify-content: flex-end;
+        // margin-bottom: 2rem;
+      }
+      > div:nth-child(3) {
+        justify-content: center;
+        order: 3;
+      }
+    }
+  }
+  
+  .hardButton {
+      color: red;
+  }
+  .hardButton:disabled {
+    color: rgb(250, 181, 181);
+  }
+  .goodButton {
+      color: blue;
+  }
+  .goodButton:disabled {
+    color: rgb(174, 174, 255);
+  }
+  .easyButton {
+      color: green;
+  }
+  .easyButton:disabled {
+    color: rgb(180, 231, 180);
+  }
