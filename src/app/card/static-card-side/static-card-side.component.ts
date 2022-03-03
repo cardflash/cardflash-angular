@@ -31,6 +31,5 @@ export class StaticCardSideComponent implements OnInit, AfterViewInit {
     if(this.innerCardContent?.nativeElement){
       (window as any).renderMathInElement(this.innerCardContent?.nativeElement)
     }
-   console.log(this.innerCardContent)
   }
 }
