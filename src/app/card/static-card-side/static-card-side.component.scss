@@ -1,3 +1,9 @@
+:host { display: block;
+  background-color: white;
+  
+  box-shadow: var(--static-card-side-shadow, rgba(99, 99, 99, 0.2) 0px 2px 8px 0px);
+  margin: 5px;}
+
 .innerCardContent{
   // border: rgba(219, 207, 207, 0.548) 2px solid;
   // padding: 2px;
@@ -11,14 +17,17 @@
   // max-height: var(--static-card-height);
   // height: calc(var(--static-card-height) - 200px);
   // max-height: calc(var(--flip-card-height) - 110px);
+  // font-size: 14px;
+  // padding-top: 10px;
+}
+
+.outerCardContent {
+  
   height: var(--static-card-height);
   width: var(--static-card-width);
   overflow: var(--static-card-overflow,auto);
-  // font-size: 14px;
-  // padding-top: 10px;
-  margin: 5px;
-  background-color: white;
-  box-shadow: var(--static-card-side-shadow, rgba(99, 99, 99, 0.2) 0px 2px 8px 0px);
+  z-index: 2;
+  position: relative;
 }
 
 

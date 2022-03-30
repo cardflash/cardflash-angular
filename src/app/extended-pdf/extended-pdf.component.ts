@@ -461,7 +461,7 @@ export class ExtendedPdfComponent implements OnInit {
 
   @HostListener('window:keypress', ['$event'])
   handleShortCut(event: KeyboardEvent){
-    if(event.target === document.body){
+    if(event.target === document.body || event.target instanceof HTMLButtonElement){
       console.log({event})
 
       switch(event.key){

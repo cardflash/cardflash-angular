@@ -4,8 +4,6 @@ import { LoginComponent } from './account/login/login.component';
 import { CardsComponent } from './cards/cards.component';
 
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
-import { ExtendedPdfComponent } from './extended-pdf/extended-pdf.component';
-import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
 import { StudyComponent } from './study/study.component';
 const routes: Routes = [
   { path: '', redirectTo: '/documents', pathMatch: 'full' },

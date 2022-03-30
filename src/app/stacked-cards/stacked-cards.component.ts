@@ -129,7 +129,7 @@ export class StackedCardsComponent implements OnInit {
   scrollIndexIntoView(index: number){
     if(this.stackedCards){
       console.log(this.stackedCards.get(index)?.nativeElement)
-      this.stackedCards.get(index)?.nativeElement.scrollIntoView();
+      this.stackedCards.get(index)?.nativeElement.scrollIntoView({block: 'nearest'});
   }
 }
 

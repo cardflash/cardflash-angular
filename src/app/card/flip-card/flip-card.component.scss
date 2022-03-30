@@ -45,6 +45,18 @@
 .flipCard.flipped .inner, .flipCardTrigger:hover .inner{
   transform: rotateY(180deg);
 }
+// .flipCard .inner .front {
+//   z-index: 3;
+// }
+// .flipCard.flipped .inner .front {
+//   z-index: 0;
+// }
+// .flipCard .inner .back {
+//   z-index: 0;
+// }
+.flipCard.flipped .inner .back {
+  z-index: 3;
+}
 
 
 

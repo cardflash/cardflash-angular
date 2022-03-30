@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { CardEntry, CardEntryContent, DataApiService } from './data-api.service';
 import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { Annotation } from './types/annotation';
-import { imgSrcToBlob, imgSrcToDataURL } from 'blob-util';
+import {imgSrcToDataURL, dataURLToBlob } from 'blob-util';
 import { FabOption } from './fab-expand-button/fab-expand-button.component';
 
 declare var LeaderLine: any;
@@ -258,85 +258,16 @@ export class UtilsService {
   }
 
   async createModelinAnki(): Promise<boolean> {
-    // const ckEditorCss: string = await this.http
-    //   .get('assets/card-styles.css', { responseType: 'text' })
-    //   .toPromise();
+    const ckEditorCss: string = await this.http
+      .get('/assets/card.css', { responseType: 'text' })
+      .toPromise();
     let bodyData = {
       action: 'createModel',
       version: 6,
       params: {
         modelName: 'cardflash.net-V' + environment.ANKI_MODEL_VERSION,
         inOrderFields: ['ID', 'Front', 'Back', 'Title', 'Page', 'Chapter', 'URL', 'Hidden'],
-        css: `.card, .ck-editor,
-        .ck.ck-editor__editable_inline {
-          width: auto;
-          margin-left: auto;
-          margin-right: auto;
-          text-align: center !important;
-          font-size: 20px;
-          --marker-yellow: #f3ea504f;
-          --marker-blue: #5eacf94f;
-          --marker-green: #5ef98c4f;
-          --marker-pink: #f95ef34f;
-        
-          --ck-highlight-marker-blue: hsl(201, 97%, 72%);
-          --ck-highlight-marker-green: hsl(120, 93%, 68%);
-          --ck-highlight-marker-pink: hsl(345, 96%, 73%);
-          --ck-highlight-marker-yellow: hsl(60, 97%, 73%);
-          --ck-highlight-pen-green: hsl(112, 100%, 27%);
-          --ck-highlight-pen-red: hsl(0, 85%, 49%);
-          width: fit-content;
-        }
-        
-        ul,
-        ol {
-          max-width: fit-content;
-          text-align: left;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        
-        .marker-light-yellow {
-          background-color: var(--marker-yellow);
-        }
-        
-        .marker-light-blue {
-          background-color: var(--marker-blue);
-        }
-        
-        .marker-light-green {
-          background-color: var(--marker-green);
-        }
-        
-        .marker-light-pink {
-          background-color: var(--marker-pink);
-        }
-        
-        .marker-yellow {
-          background-color: var(--ck-highlight-marker-yellow);
-        }
-        
-        .marker-green {
-          background-color: var(--ck-highlight-marker-green);
-        }
-        
-        .marker-pink {
-          background-color: var(--ck-highlight-marker-pink);
-        }
-        
-        .marker-blue {
-          background-color: var(--ck-highlight-marker-blue);
-        }
-        
-        .pen-red {
-          color: var(--ck-highlight-pen-red);
-          background-color: transparent;
-        }
-        
-        .pen-green {
-          color: var(--ck-highlight-pen-green);
-          background-color: transparent;
-        }`,
+        css: ckEditorCss,
         cardTemplates: [
           {
             Name: 'cardflash.net Card-V' + environment.ANKI_MODEL_VERSION,
@@ -652,11 +583,14 @@ export class UtilsService {
       for (let i = 0; i < imgs.length; i++) {
         const node = imgs[i];
         if (node.src.indexOf('data:') === 0) {
+
           imgSavePromises.push(
             new Promise<void>(async (resolve, reject) => {
               console.log('Saving image', node, node.src, 'to datapi');
               this.dataApi
-                .saveFile(new File([await imgSrcToBlob(node.src)], card.creationTime + '_img.png'))
+                // .saveFile(new File([await imgSrcToBlob(node.src)], card.creationTime + '_img.png'))
+                // dataURLToBlob
+                .saveFile(new File([dataURLToBlob(node.src)], card.creationTime + '_img.png'))
                 .then(async (file) => {
                   console.log('file saved', { file });
                   node.src = (await this.dataApi.getFileView(file.$id)).href;
