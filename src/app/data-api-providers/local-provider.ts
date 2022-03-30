@@ -23,7 +23,6 @@ export class LocalProvider implements DataApiProvider{
         return res;
     }
     getEntry<T extends Entry>(type: string, id: string): Promise<T> {
-        console.log('getEntry',{type,id})
         return new Promise<T>((resolve,reject) => {
             localforage.getItem<T>(type+'_'+id).then((value) => {
                 if(value !== null){
@@ -58,7 +57,6 @@ export class LocalProvider implements DataApiProvider{
     private setCollectionArray(type: string, value: string[]) : Promise<string[]>{
         return new Promise<string[]>((resolve,reject) => {
             localforage.setItem(type+'_collection',value).then((val) => {
-                console.log({val});
                 resolve(val)
             }).catch((reason) => {
                 console.log({reason});
@@ -68,10 +66,8 @@ export class LocalProvider implements DataApiProvider{
     }
 
     async listEntries<T extends EntryWithCreationTime>(type: string, queries: QueryOption[] | undefined, newestFirst: boolean | undefined): Promise<EntryList<T>> {
-        console.log('listEntries',{type})
        const ids = await this.getCollectionArray(type)
-       const itemPromises : Promise<T>[] = []
-       console.log('listEntries',{ids})
+       const itemPromises : Promise<T>[] = [];
        for (let i = 0; i < ids.length; i++) {
             itemPromises.push(this.getEntry(type,ids[i]))
        }
@@ -113,24 +109,14 @@ export class LocalProvider implements DataApiProvider{
        return {sum: timeSorted.length, documents: timeSorted}
     }
     async getFileView(id: string): Promise<URL> {
-        console.log('getFileView',{id})
         return new Promise<URL>(async (resolve,reject) => {
             const entry : FileEntry = await this.getEntry<Entry & FileEntry>('file',id)
             const arrayBuffer = await localforage.getItem<ArrayBuffer>('file-'+id);
-            console.log('file',{arrayBuffer})
             if(arrayBuffer === null){
                 reject('File not found locally')
             }else{
                 const file = new File([arrayBuffer],entry.name,{lastModified: entry.dateCreated, type: entry.mimeType})
                 resolve(new URL(URL.createObjectURL(file)));
-                // const reader = new FileReader();
-                // reader.onloadend = () => {
-                //   const res =reader.result;
-                //   if(res && !(res instanceof ArrayBuffer)){
-                //       resolve(new URL(res))
-                //   }
-                // };
-                // reader.readAsDataURL(file);
             }
           });
     }

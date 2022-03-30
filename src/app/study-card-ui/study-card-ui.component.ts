@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, HostListener, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { FlipCardComponent } from '../card/flip-card/flip-card.component';
 import { CardEntry } from '../data-api.service';
@@ -58,7 +59,7 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
 
   public flipped: boolean = false;
 
-  constructor(public router: Router) {}
+  constructor(public router: Router, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.selectRandomCard();
@@ -96,10 +97,15 @@ export class StudyCardUiComponent implements OnInit, AfterViewInit {
     }
   }
 
+  closeDialog(){
+    this.dialog.closeAll();
+
+  }
+
   editCard() {
     if (this.card) {
       this.router.navigate(['cards', this.card?.$id]);
-      // this.dialog.close();
+      this.closeDialog();
     }
   }
   @HostListener('window:keyup.1', ['$event'])

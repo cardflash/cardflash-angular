@@ -15,7 +15,7 @@
                 <button cdkFocusInitial #showAnswerButton mat-stroked-button (click)="this.flip()" color="primary">{{this.flipped ? "Show Question" : "Show Answer"}}</button>
             </div>
             <div>
-                <button mat-button class="editButton" [routerLink]="['cards',card?.$id]">Edit Card</button>
+                <button mat-button class="editButton" [routerLink]="['cards',card?.$id]" (click)="this.closeDialog()">Edit Card</button>
             </div>
         </div>
     </div>
