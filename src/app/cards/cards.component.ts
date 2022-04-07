@@ -17,6 +17,8 @@ export class CardsComponent implements OnInit, OnDestroy {
   public cards : CardEntry[]  = [];
   public filteredCards : CardEntry[]  = [];
   public newestFirst: boolean = true;
+
+  public isLoadingCards: boolean = true;
   constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService,public dialog: MatDialog) { }
 
   async ngOnInit() {
@@ -29,6 +31,7 @@ export class CardsComponent implements OnInit, OnDestroy {
   async refresh(){
     this.cards = await this.dataApi.listCards(this.newestFirst)
     this.filteredCards = this.cards;
+    this.isLoadingCards = false;
   }
 
 

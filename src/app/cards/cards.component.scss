@@ -34,6 +34,13 @@
 .searchField{
   // width: 300px;
 }
+
+.loadingIndicator {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 @media screen and (max-width: 1500px) {
   .cards{
     grid-template-columns: repeat(2,1fr);
