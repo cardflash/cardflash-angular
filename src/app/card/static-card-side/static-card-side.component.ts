@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import DOMPurify from 'dompurify';
 
 @Component({
   selector: 'app-static-card-side',
@@ -16,7 +17,8 @@ export class StaticCardSideComponent implements OnInit, AfterViewInit, OnChanges
   
   public safeContent : SafeHtml = '';
   @Input('content') set content(value: string){
-    this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(value)
+    const cleanContent = DOMPurify.sanitize(value,{ADD_DATA_URI_TAGS: ['img', 'a'],ALLOW_UNKNOWN_PROTOCOLS: true,});
+    this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(cleanContent)
   }
 
   
