@@ -1,29 +1,79 @@
-
 <div class="mainContent">
-    <h1>Edit card</h1>
-    <button class="backButton" mat-flat-button routerLink="/cards" color="accent">
-    <mat-icon>arrow_back_ios</mat-icon>Go back to all cards
-    </button>
+  <h1>Edit card</h1>
+  <button class="backButton" mat-flat-button routerLink="/cards">
+    Cancel
+  </button>
+  <button *ngIf="this.card" class="backButton" mat-flat-button routerLink="/cards" color="accent" (click)="this.utils.saveCard(card)">
+    <mat-icon>arrow_back_ios</mat-icon>Save & Go back to all cards
+  </button>
+  <br />
+  <mat-progress-spinner
+    class="centerSpinner"
+    mode="indeterminate"
+    *ngIf="!this.card && !this.requestFailed"
+  ></mat-progress-spinner>
+  <div class="cardWithDoc">
+    <app-card
+      *ngIf="this.card"
+      [card]="this.card"
+      [active]="true"
+      (delete)="this.deleteCard()"
+    ></app-card>
+
     <div *ngIf="this.document">
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>{{this.document.name}}</mat-card-title>
-              <mat-card-subtitle>Linked Document</mat-card-subtitle>
-              <img mat-card-sm-image  mat-card-avatar src="/assets/pdf.png">
-            </mat-card-header>
-            <mat-card-actions class="cardActions">
-              <!-- <a mat-flat-button target="_blank" [href]="(this.dataApi.getFileView(this.document.fileid) | async)?.href">View document</a> -->
-              <button mat-flat-button color="accent" routerLink="/doc/{{this.document.$id}}/cards/">View cards <mat-icon>inventory</mat-icon></button>
-              <button mat-flat-button color="primary" routerLink="/doc/{{this.document.$id}}/" fragment="CARD_{{this.card?.$id}}">View with annotations <mat-icon>picture_as_pdf</mat-icon></button>
-            </mat-card-actions>
-            </mat-card>
+      <mat-card class="documentCard">
+        <mat-card-header>
+          <mat-card-title>{{ this.document.name }}</mat-card-title>
+          <mat-card-subtitle>Linked Document</mat-card-subtitle>
+          <img mat-card-sm-image mat-card-avatar src="/assets/pdf.png" />
+        </mat-card-header>
+        <mat-card-content>
+          <br />
+          <!-- <mat-accordion>
+            <mat-expansion-panel expanded="true">
+              <mat-expansion-panel-header> -->
+                <!-- <h3>View PDF</h3> -->
+              <!-- </mat-expansion-panel-header> -->
+              <ngx-extended-pdf-viewer
+                *ngIf="pdfSrc"
+                #ngxPdfViewer
+                [listenToURL]="false"
+                [src]="pdfSrc"
+                [useBrowserLocale]="true"
+                [page]="currPageNumber"
+                [authorization]="true"
+                height="600px"
+                [zoom]="'page-width'"
+                [showPresentationModeButton]="true"
+                [showSecondaryToolbarButton]="true"
+                [showSpreadButton]="false"
+                [showSidebarButton]="false"
+                [showBookmarkButton]="false"
+                [showDownloadButton]="false"
+                [showHandToolButton]="false"
+                [showOpenFileButton]="false"
+                [showPrintButton]="false"
+                [ignoreKeys]="['CTRL+F']"
+              ></ngx-extended-pdf-viewer>
+            <!-- </mat-expansion-panel>
+          </mat-accordion> -->
+        </mat-card-content>
+        <mat-card-actions class="cardActions">
+          <!-- <a mat-flat-button target="_blank" [href]="(this.dataApi.getFileView(this.document.fileid) | async)?.href">View document</a> -->
+          <button mat-flat-button color="accent" routerLink="/doc/{{ this.document.$id }}/cards/">
+            View cards <mat-icon>inventory</mat-icon>
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            routerLink="/doc/{{ this.document.$id }}/"
+            fragment="CARD_{{ this.card?.$id }}"
+          >
+            View with annotations <mat-icon>picture_as_pdf</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+      <br />
     </div>
-    <br />
-    <app-card *ngIf="this.card" [card]="this.card"[active]="true" (delete)="this.deleteCard()"></app-card>
-    
-    <mat-progress-spinner class="centerSpinner" mode="indeterminate" *ngIf="!this.card && !this.requestFailed"></mat-progress-spinner>
-    <!-- <h3>Preview:</h3>
-    <app-flip-card  *ngIf="this.card" 
-    [card]="this.card"></app-flip-card> -->
-    
-    </div>
+  </div>
+</div>

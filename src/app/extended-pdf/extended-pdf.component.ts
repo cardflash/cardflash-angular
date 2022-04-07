@@ -780,6 +780,7 @@ export class ExtendedPdfComponent implements OnInit {
     if (this.currentCard.front === '' && this.currentCard.front === '') {
       this.currentCard.title = this.document?.name || '';
       this.currentCard.chapter = this.getOutlineForPage(this.currPageNumber);
+      this.currentCard.page = this.currPageNumber;
     }
     if (side === 'front') {
       this.currentCard.front += reference;

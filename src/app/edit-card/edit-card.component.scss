@@ -1,13 +1,17 @@
 .mainContent {
-    text-align: center;
-    width: 85%;
-    max-width: 900px;
+    max-width: 95%;
     margin-left: auto;
     margin-right: auto;
+  }
+  h1 {
+    text-align: center;
   }
   
   .backButton{
     margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
   }
   
   .document{
@@ -27,4 +31,30 @@
     width: 50%;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .cardWithDoc {
+    display: grid;
+    gap: 1rem;
+    // align-items: flex-start;
+    // justify-content: center;
+    grid-template-columns: 60% 40%;
+    --doc-width: calc(40% - 3rem);
+
+    .documentCard {
+
+      position: fixed;
+      width: var(--doc-width);
+    }
+  }
+
+  @media screen and (max-width: 1600px) {
+    .cardWithDoc{
+      grid-template-columns: 1fr;
+
+      .documentCard {
+        position: relative;
+        width: unset;
+      }
+    }
   }

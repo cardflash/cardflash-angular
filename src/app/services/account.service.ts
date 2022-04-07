@@ -9,7 +9,7 @@ import { UserNotifierService } from './notifier/user-notifier.service';
 })
 export class AccountService {
 
-  private account : any | undefined;
+  private account : any | undefined = undefined;
 
   private prefs : any;
 
@@ -17,6 +17,7 @@ export class AccountService {
 
   constructor(private userNotifier : UserNotifierService, private dataApi: DataApiService) {
     this.setUpApi();
+    this.updateAcc()
   }
 
   setUpApi(){

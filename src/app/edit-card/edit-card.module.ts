@@ -8,6 +8,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 
 @NgModule({
@@ -22,6 +24,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatCardModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    NgxExtendedPdfViewerModule,
+    MatExpansionModule
   ]
 })
 export class EditCardModule { }
