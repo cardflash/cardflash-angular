@@ -57,4 +57,11 @@ export class EditCardComponent implements OnInit {
     }
   }
 
+  async saveCardAndView(){
+    if(this.card){
+      await this.utils.saveCard(this.card)
+      this.router.navigateByUrl(`/cards/${this.card?.$id}`)
+    }
+  }
+
 }

@@ -1,6 +1,6 @@
 <mat-drawer-container hasBackdrop="true" class="mainContainer">
   <mat-drawer #drawer mode="over" class="mainDrawer">
-    <div class="sideContent">
+    <div class="sideContent noprint">
       <div>
         <img src="/assets/logo.png" class="logo" alt="Logo of cardflash.net. Showing a card and a lightning bold.">
         <h2>cardflash.net</h2>
@@ -67,7 +67,7 @@
       </div>
   </mat-drawer>
   <mat-drawer-content class="mainContent" [style.--data-annotation-border]="this.dataApi.config.showDebugInfo ? '2px dashed orange' : '' ">
-    <div class="menu-fab">
+    <div class="menu-fab noprint">
       <button
         mat-fab
         color="primary"

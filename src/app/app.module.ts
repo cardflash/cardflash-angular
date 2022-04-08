@@ -29,6 +29,9 @@ import { StaticCardsModule } from './static-cards/static-cards.module';
 import { StudyCardUiComponent } from './study-card-ui/study-card-ui.component';
 import { StudyComponent } from './study/study.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { ViewCardComponent } from './view-card/view-card.component';
+import { MatCard, MatCardModule } from '@angular/material/card';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 @NgModule({
   declarations: [
@@ -41,6 +44,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     CardDialogWrapperComponent,
     StudyCardUiComponent,
     StudyComponent,
+    ViewCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +63,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     ReactiveFormsModule,
     MatInputModule,
     MatSidenavModule,
+    MatCardModule,
+    NgxExtendedPdfViewerModule,
     // MatCardModule,
     // MatChipsModule,
     MatExpansionModule,

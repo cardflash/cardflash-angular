@@ -3,15 +3,20 @@ $material-design-icons-font-directory-path: '~material-design-icons-iconfont/dis
 @import '~material-design-icons-iconfont/src/material-design-icons';
 
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@200;400&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500&display=swap');
 html, body {
   height: 100%; 
   --editor-min-height: 250px;
   --editor-max-height: 250px;
   touch-action: manipulation;
 }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: hidden }
+body { margin: 0; overflow: hidden; font-family: Roboto, "Helvetica Neue", sans-serif;}
 
+
+.onlyPrint {
+  display: none;
+}
 .ck-content {
   min-height: var(--editor-min-height);
 }

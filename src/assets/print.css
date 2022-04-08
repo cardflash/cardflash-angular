@@ -1,0 +1,30 @@
+/* Remove unwanted elements */
+ .noprint
+{
+display: none !important;
+width: 0;
+height: 0;
+}
+
+.onlyPrint {
+    display: block !important;
+}
+
+/* Ensure the content spans the full width */
+.mainPrintContent
+{
+width: 100%; margin: 0; float: none; position: relative;
+}
+
+.resetOnPrint {
+    display: block !important;
+}
+
+
+body,html {
+    height: fit-content !important;
+    overflow: auto;
+    width: 100%;
+    display: block;
+}
+

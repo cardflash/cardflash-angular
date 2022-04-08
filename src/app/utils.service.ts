@@ -6,7 +6,9 @@ import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { Annotation } from './types/annotation';
 import {imgSrcToDataURL, dataURLToBlob } from 'blob-util';
 import { FabOption } from './fab-expand-button/fab-expand-button.component';
-
+import DOMPurify from 'dompurify';
+import TurndownService from 'turndown'
+import { v4 } from 'uuid';
 declare var LeaderLine: any;
 
 @Injectable({
@@ -640,5 +642,107 @@ export class UtilsService {
           resolve(null);
         });
     });
+  }
+
+
+  async cardToMarkdown(card: CardEntry | CardEntryContent, options : {embedImages?: boolean} = {embedImages: false}){
+    const content = card.front+'<br><hr><br>' + card.back;
+    const domParser = new DOMParser();
+
+    const doc = domParser.parseFromString(content, 'text/html');
+    const imgPromises : Promise<any>[] = []
+    doc
+      .querySelectorAll('img').forEach((img) => {
+        if(options.embedImages){
+
+          imgPromises.push(fetch(img.src,{credentials: 'same-origin'}).then(async (res) => {
+            const blob = await res.blob();
+            const reader = new FileReader();
+            await new Promise((resolve, reject) => {
+              reader.onload = resolve;
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            img.src = reader.result?.toString().replace('data:application/octet-stream;',`data:image/png;`) || img.src;
+          }));
+        }else{
+          imgPromises.push(new Promise<void>((resolve,reject) => {
+            const tmp = document.createElement('a');
+            tmp.style.display = 'none';
+            tmp.href = img.src;
+            const filename = `${img.getAttribute('data-imageid') || new Date().toISOString()}.png`
+            tmp.download = filename;
+            document.body.appendChild(tmp);
+            tmp.click();
+            document.body.removeChild(tmp);
+            img.src = filename;
+            resolve();
+          }))
+        }
+      })
+
+    await Promise.all(imgPromises);
+    
+    const cleanContent = DOMPurify.sanitize(doc.body.outerHTML, {
+      ADD_DATA_URI_TAGS: ['img', 'a'],
+      ALLOW_UNKNOWN_PROTOCOLS: true,
+    });
+
+    console.log({cleanContent,content});
+
+
+
+    const turndownService = new TurndownService({hr: '---', codeBlockStyle: 'indented', bulletListMarker: '-',});
+    turndownService.keep(['img'])
+
+
+
+    turndownService.addRule('math', {
+      filter (node, options) {
+        return node.classList.contains('math-tex')
+      },
+      replacement (content, node, options) {
+        let str = node.textContent || '';
+        return str.replace('\\(','$').replace('\\)','$').replace('\\[','\n$$$').replace('\\]','$$$\n');
+      }
+    })
+
+    turndownService.addRule('admonition', {
+      filter (node, options) {
+        return node.classList.contains('admonition')
+      },
+      replacement (content, node, options) {
+        console.log({node})
+        let type = 'note';
+        (node as any).classList.forEach((className: string) => {
+          if(className !== 'admonition' && className !== 'ck-widget' && className !== 'default'){
+            type = className;
+          }
+        })
+//  Obsidian native syntax (from obsidian v0.14.0)
+        return `>[!${type.toUpperCase()}] ${node.querySelector('.admonition-title')?.textContent || ''}
+${content.split('\n').map(s => ">"+s).join('\n')}\n`
+// Admonition obsidian plugin syntax:
+//         return `\`\`\`ad-${type}
+// title: ${node.querySelector('.admonition-title')?.textContent || ''}
+// ${content.split('\n').map(s => " "+s).join('\n')}
+// \`\`\``
+      }
+    })
+    
+    const md = turndownService.turndown(cleanContent)
+    
+    navigator.clipboard.writeText(md);
+
+    const blob = new Blob([md],{type: 'text/md'});
+    const blobURL = window.URL.createObjectURL(blob);
+    const tempLink = document.createElement('a');
+    tempLink.style.display = 'none';
+    tempLink.href = blobURL;
+    tempLink.download = `${card.title}-${new Date().toISOString()}.md`
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+    console.log({md});
   }
 }

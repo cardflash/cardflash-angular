@@ -27,7 +27,7 @@ export class StaticCardSideComponent implements OnInit, AfterViewInit, OnChanges
       ADD_DATA_URI_TAGS: ['img', 'a'],
       ALLOW_UNKNOWN_PROTOCOLS: true,
     });
-    this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(cleanContent);
+    this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(value);
   }
 
   constructor(private domSanitizer: DomSanitizer) {}

@@ -1,43 +1,55 @@
-<div class="mainContent">
-  <h1 class="noprint">Edit card</h1>
-  <button *ngIf="this.card" class="backButton noprint" mat-flat-button routerLink="/cards" color="accent" (click)="this.utils.saveCard(card)">
-    <mat-icon>arrow_back_ios</mat-icon>Save & Go back to all cards
-  </button>
-  <button class="backButton"  *ngIf="card"  mat-flat-button (click)="saveCardAndView()"  color="primary">
-    <mat-icon>preview</mat-icon>Save & View
-  </button>
-  <button class="backButton"  *ngIf="card"  mat-flat-button routerLink="/cards/{{card.$id}}">
-    Cancel
-  </button>
-  <br />
-  <mat-progress-spinner
+<div class="backButton noprint">
+    <button *ngIf="card"  mat-flat-button routerLink="/cards" color="accent">
+        <mat-icon>arrow_back_ios</mat-icon>Go back to all cards
+      </button>
+      <br>
+      <br>
+      <button *ngIf="card"  mat-flat-button routerLink="/cards/{{card.$id}}/edit" color="primary">
+        <mat-icon>edit</mat-icon>Edit
+      </button>
+      <br>
+      <br>
+      <div class="exportButtons">
+        <button *ngIf="card"  mat-flat-button (click)="printCard()">
+          <mat-icon>print</mat-icon>PDF
+        </button> 
+        <button *ngIf="card"  mat-flat-button (click)="utils.cardToMarkdown(card)" title="markdown and images">
+          <mat-icon>text_snippet</mat-icon>MD
+        </button> 
+        <button *ngIf="card"  mat-flat-button (click)="utils.cardToMarkdown(card,{embedImages: true})" title="markdown as single file (embed images)">
+          <mat-icon>file_present</mat-icon>MD
+        </button>
+      </div>
+</div>
+
+
+
+<mat-progress-spinner
     class="centerSpinner noprint"
     mode="indeterminate"
     *ngIf="!this.card && !this.requestFailed"
   ></mat-progress-spinner>
-  <div class="cardWithDoc">
-    <app-card
-      *ngIf="this.card"
-      [card]="this.card"
-      [active]="true"
-      (delete)="this.deleteCard()"
-    ></app-card>
-
-    <div *ngIf="this.document">
+  <div class="cardWithDoc resetOnPrint">
+    <div class="staticCard mainPrintContent" >
+        <app-static-card *ngIf="card" [card]="card"></app-static-card>
+    </div>
+    <div *ngIf="this.document" class="noprint">
       <mat-card class="documentCard noprint">
         <mat-card-header>
           <mat-card-title>{{ this.document.name }}</mat-card-title>
           <mat-card-subtitle>Linked Document</mat-card-subtitle>
           <img mat-card-sm-image mat-card-avatar src="/assets/pdf.png" />
         </mat-card-header>
-        <mat-card-content>
+        <mat-card-content class="noprint">
           <br />
           <!-- <mat-accordion>
             <mat-expansion-panel expanded="true">
               <mat-expansion-panel-header> -->
                 <!-- <h3>View PDF</h3> -->
               <!-- </mat-expansion-panel-header> -->
-              <ngx-extended-pdf-viewer
+              <object type="application/pdf" *ngIf="pdfSrc" [data]="pdfSrc" width="95%" height="600" ></object>
+
+              <!-- <ngx-extended-pdf-viewer
                 *ngIf="pdfSrc"
                 #ngxPdfViewer
                 [listenToURL]="false"
@@ -58,17 +70,18 @@
                 [showPrintButton]="false"
                 [ignoreKeys]="['CTRL+F','CTRL+P']"
                 [enablePrint]="false"
-              ></ngx-extended-pdf-viewer>
+              ></ngx-extended-pdf-viewer> -->
             <!-- </mat-expansion-panel>
           </mat-accordion> -->
         </mat-card-content>
         <mat-card-actions class="cardActions noprint">
           <!-- <a mat-flat-button target="_blank" [href]="(this.dataApi.getFileView(this.document.fileid) | async)?.href">View document</a> -->
-          <button mat-flat-button color="accent" routerLink="/doc/{{ this.document.$id }}/cards/">
+          <button mat-flat-button class="noprint" color="accent" routerLink="/doc/{{ this.document.$id }}/cards/">
             View cards <mat-icon>inventory</mat-icon>
           </button>
           <button
             mat-flat-button
+            class="noprint"
             color="primary"
             routerLink="/doc/{{ this.document.$id }}/"
             fragment="CARD_{{ this.card?.$id }}"
@@ -80,4 +93,11 @@
       <br />
     </div>
   </div>
-</div>
+
+
+<br />
+<pre style="text-align: center;">Card {{card?.$id}}</pre>
+<p style="text-align: center;" class="onlyPrint">
+  <a href="https://cardflash.net" style="text-decoration: underline; color: unset;">cardflash.net</a>
+  <br/><img style="height: 1rem; vertical-align:middle;" src="assets/logo.png">
+</p>

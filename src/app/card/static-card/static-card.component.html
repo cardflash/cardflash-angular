@@ -2,7 +2,7 @@
 <div class="cardWrapper">
   <div class="cardHeaderTitle">
     <span>{{this.card.title || "-"}}</span>
-    <button mat-icon-button [matMenuTriggerFor]="menu" class="menu" aria-label="Edit or Delete Card">
+    <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
@@ -21,6 +21,7 @@
   </div>
   <app-static-card-side [content]="card.front" name="Front" i18n-name>
   </app-static-card-side>
+  <br />
 <app-static-card-side [content]="card.back" name="Back" i18n-name></app-static-card-side>
 </div>
 

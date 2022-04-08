@@ -61,7 +61,21 @@ export class CardsComponent implements OnInit, OnDestroy {
 
   editCard(card: CardEntry | CardEntryContent){
     if(card.$id){
+      this.router.navigate(["/cards/"+card.$id+"/edit"])
+    }
+  }
+
+  viewCard(card: CardEntry | CardEntryContent){
+    if(card.$id){
       this.router.navigate(["/cards/"+card.$id])
+    }
+  }
+
+  cardClicked(event: any, card: CardEntry | CardEntryContent){
+    console.log({event})
+    if(event.target && event.target.tagName !== 'MAT-ICON' && event.target.tagName !== 'BUTTON'){
+      event.preventDefault();
+      this.viewCard(card);
     }
   }
 

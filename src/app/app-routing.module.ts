@@ -5,6 +5,7 @@ import { CardsComponent } from './cards/cards.component';
 
 import { CardsForDocumentComponent } from './my/documents/cards-for-document/cards-for-document.component';
 import { StudyComponent } from './study/study.component';
+import { ViewCardComponent } from './view-card/view-card.component';
 const routes: Routes = [
   { path: '', redirectTo: '/documents', pathMatch: 'full' },
   {
@@ -54,7 +55,8 @@ const routes: Routes = [
   { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
   { path: 'doc/:id', loadChildren: () => import('./extended-pdf/extended-pdf.module').then(m => m.ExtendedPdfModule) },
   { path: 'doc', loadChildren: () => import('./extended-pdf/extended-pdf.module').then(m => m.ExtendedPdfModule) },
-  { path: 'cards/:id', loadChildren: () => import('./edit-card/edit-card.module').then(m => m.EditCardModule) }
+  { path: 'cards/:id/edit', loadChildren: () => import('./edit-card/edit-card.module').then(m => m.EditCardModule) },
+  { path: 'cards/:id', component: ViewCardComponent }
 ];
 
 const routerOptions: ExtraOptions = {
