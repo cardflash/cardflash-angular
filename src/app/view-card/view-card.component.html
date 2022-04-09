@@ -13,10 +13,10 @@
         <button *ngIf="card"  mat-flat-button (click)="printCard()">
           <mat-icon>print</mat-icon>PDF
         </button> 
-        <button *ngIf="card"  mat-flat-button (click)="utils.cardToMarkdown(card)" title="markdown and images">
+        <button *ngIf="card"  mat-flat-button (click)="dataApi.cardToMarkdown(card)" title="markdown and images">
           <mat-icon>text_snippet</mat-icon>MD
         </button> 
-        <button *ngIf="card"  mat-flat-button (click)="utils.cardToMarkdown(card,{embedImages: true})" title="markdown as single file (embed images)">
+        <button *ngIf="card"  mat-flat-button (click)="dataApi.cardToMarkdown(card,{embedImages: true})" title="markdown as single file (embed images)">
           <mat-icon>file_present</mat-icon>MD
         </button>
       </div>

@@ -98,4 +98,6 @@ export interface DataApiProvider {
   getPreferences(): Promise<Config>;
 
   savePreferences(config: Config): Promise<void>;
+
+  makeBackup() : Promise<any>;
 }

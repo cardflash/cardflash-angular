@@ -47,7 +47,7 @@ export class AppwriteProvider implements DataApiProvider {
     return this.appwrite.database.deleteDocument(environment.collectionMap[type], id);
   }
 
-  listEntries<T extends EntryWithCreationTime>(
+  async listEntries<T extends EntryWithCreationTime>(
     type: ENTRY_TYPES,
     queries: QueryOption[] | undefined,
     newestFirst: boolean | undefined
@@ -82,7 +82,8 @@ export class AppwriteProvider implements DataApiProvider {
       }
     }
     console.log({ newestFirst });
-    return this.appwrite.database.listDocuments<T>(
+    const results : T[]= [];
+    let response = await this.appwrite.database.listDocuments<T>(
       environment.collectionMap[type],
       appwriteQueries,
       100,
@@ -91,7 +92,23 @@ export class AppwriteProvider implements DataApiProvider {
       undefined,
       ['creationTime'],
       [newestFirst ? 'DESC' : 'ASC']
-    );
+      );
+      results.push(...response.documents)
+   while(results.length < response.sum){
+    let response = await this.appwrite.database.listDocuments<T>(
+      environment.collectionMap[type],
+      appwriteQueries,
+      100,
+      results.length,
+      undefined,
+      undefined,
+      ['creationTime'],
+      [newestFirst ? 'DESC' : 'ASC']
+      );
+      results.push(...response.documents)
+   }
+
+    return {sum: response.sum, documents: results}
   }
 
   async getFileView(id: string) {
@@ -120,5 +137,10 @@ export class AppwriteProvider implements DataApiProvider {
 
 async savePreferences(config: Config): Promise<void> {
   await this.appwrite.account.updatePrefs<Config>(config);
+}  
+
+makeBackup(): Promise<any> {
+  throw new Error('Method not implemented.');
 }
+
 }

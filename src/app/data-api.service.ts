@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
+import DOMPurify from 'dompurify';
+import TurndownService from 'turndown';
 import { AppwriteProvider } from './data-api-providers/appwrite-provider';
 import { LocalProvider } from './data-api-providers/local-provider';
 import { Annotation } from './types/annotation';
-import {Config, DataApiProvider, DEFAULT_CONFIG, Entry, ENTRY_TYPES } from './types/data-api-provider';
-
-
+import {
+  Config,
+  DataApiProvider,
+  DEFAULT_CONFIG,
+  Entry,
+  ENTRY_TYPES,
+} from './types/data-api-provider';
 
 export interface DocumentEntryContent {
   name: string;
@@ -20,7 +26,7 @@ export interface DocumentEntryContent {
 }
 
 export interface CardEntryContent {
-  $id?: string,
+  $id?: string;
   front: string;
   back: string;
   page: number;
@@ -31,10 +37,8 @@ export interface CardEntryContent {
   imgIDs?: string[];
 }
 
-
 export type DocumentEntry = Entry & DocumentEntryContent;
 export type CardEntry = Entry & CardEntryContent;
-
 
 @Injectable({
   providedIn: 'root',
@@ -43,68 +47,67 @@ export class DataApiService {
   private apiProvider: DataApiProvider;
   public config: Config = DEFAULT_CONFIG;
 
-  private fileViewURLCache : Map<string,URL | Promise<URL>> = new Map<string,URL | Promise<URL>>(); 
+  private fileViewURLCache: Map<string, URL | Promise<URL>> = new Map<string, URL | Promise<URL>>();
   constructor() {
     try {
-      const provider_setting = window.localStorage.getItem('cardflash_provider')
-      if(provider_setting !== null && provider_setting === 'appwrite'){
+      const provider_setting = window.localStorage.getItem('cardflash_provider');
+      if (provider_setting !== null && provider_setting === 'appwrite') {
         this.apiProvider = new AppwriteProvider();
-      }else if(provider_setting !== null && provider_setting === 'local'){
-        this.apiProvider= new LocalProvider();
-      }else{
+      } else if (provider_setting !== null && provider_setting === 'local') {
+        this.apiProvider = new LocalProvider();
+      } else {
         // Default
-        window.localStorage.setItem('cardflash_provider','local');
-        this.apiProvider= new LocalProvider();
+        window.localStorage.setItem('cardflash_provider', 'local');
+        this.apiProvider = new LocalProvider();
       }
     } catch (error) {
-      console.log('localStorage failed')
+      console.log('localStorage failed');
       // localStorage fails to work, this properly means that the localProvider will also not work
       // we should instead use the appwrite backend
-      this.apiProvider= new AppwriteProvider();
+      this.apiProvider = new AppwriteProvider();
     }
   }
 
-
-  async fetchConfig(){
-    this.config = await this.apiProvider.getPreferences()
+  async fetchConfig() {
+    this.config = await this.apiProvider.getPreferences();
   }
 
-  async saveConfig(){
-    console.log('saving config',this.config)
+  async saveConfig() {
+    console.log('saving config', this.config);
     await this.apiProvider.savePreferences(this.config);
   }
 
-  setProvider(type: 'appwrite' | 'local'){
-    try{
-      window.localStorage.setItem('cardflash_provider',type);
-    }catch(e){
-      console.log('could not store provider settings in localStorage',e)
+  setProvider(type: 'appwrite' | 'local') {
+    try {
+      window.localStorage.setItem('cardflash_provider', type);
+    } catch (e) {
+      console.log('could not store provider settings in localStorage', e);
     }
-    if(type === 'appwrite'){
+    if (type === 'appwrite') {
       this.apiProvider = new AppwriteProvider();
-    }else{
+    } else {
       this.apiProvider = new LocalProvider();
     }
   }
 
-  getProvider() : 'local' | 'appwrite'{
-    if(this.apiProvider instanceof AppwriteProvider){
+  getProvider(): 'local' | 'appwrite' {
+    if (this.apiProvider instanceof AppwriteProvider) {
       return 'appwrite';
-    }else{
+    } else {
       return 'local';
     }
-  } 
+  }
 
-  getProviderInstance() : DataApiProvider{
+  getProviderInstance(): DataApiProvider {
     return this.apiProvider;
-  } 
+  }
 
-  isOfflineMode() : boolean{
+  isOfflineMode(): boolean {
     return this.apiProvider instanceof LocalProvider;
   }
 
-  setOfflineMode(toOffline: boolean){
-    this.setProvider(toOffline ? 'local' : 'appwrite')
+  setOfflineMode(toOffline: boolean) {
+    this.setProvider(toOffline ? 'local' : 'appwrite');
   }
 
   async getDocument(id: string) {
@@ -119,11 +122,12 @@ export class DataApiService {
     return await this.apiProvider.updateEntry<CardEntry>(ENTRY_TYPES.CARDS, id, data);
   }
 
-
   async getCard(id: string) {
-    return await this.regenerateImageObjectURLs(await this.apiProvider.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id));
+    return await this.regenerateImageObjectURLs(
+      await this.apiProvider.getEntry<CardEntry>(ENTRY_TYPES.CARDS, id)
+    );
   }
-  
+
   deleteCard(id: string) {
     return new Promise<void>(async (resolve, reject) => {
       const toDelete = await this.getCard(id);
@@ -135,11 +139,14 @@ export class DataApiService {
       }
       (await this.listDocumentsForCard(id)).forEach((doc) => {
         const cardIDs = doc.cardIDs || [];
-        imgsToRemove.push(this.updateDocument(doc.$id,{cardIDs: cardIDs.filter((c) => c !== id)}))
-      })
+        imgsToRemove.push(
+          this.updateDocument(doc.$id, { cardIDs: cardIDs.filter((c) => c !== id) })
+        );
+      });
       Promise.all(imgsToRemove)
         .then(() => {
-          this.apiProvider.deleteEntry(ENTRY_TYPES.CARDS, id)
+          this.apiProvider
+            .deleteEntry(ENTRY_TYPES.CARDS, id)
             .then(() => {
               resolve();
             })
@@ -161,11 +168,11 @@ export class DataApiService {
       // For now: No! But: Delete all annotation images
       const additionalPromises: Promise<any>[] = [];
       additionalPromises.push(this.deleteFile(doc.fileid));
-      if(doc.annotationsJSON){
+      if (doc.annotationsJSON) {
         for (let i = 0; i < doc.annotationsJSON.length; i++) {
-          const annotation : Annotation = JSON.parse(doc.annotationsJSON[i])
+          const annotation: Annotation = JSON.parse(doc.annotationsJSON[i]);
           if (annotation.imgID !== undefined) {
-            additionalPromises.push(this.deleteFile(annotation.imgID))
+            additionalPromises.push(this.deleteFile(annotation.imgID));
           }
         }
       }
@@ -176,7 +183,8 @@ export class DataApiService {
       // }
       Promise.all(additionalPromises)
         .then(() => {
-          this.apiProvider.deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
+          this.apiProvider
+            .deleteEntry(ENTRY_TYPES.DOCUMENTS, id)
             .then(() => {
               resolve();
             })
@@ -191,13 +199,29 @@ export class DataApiService {
   }
 
   async listDocuments(newestFirst: boolean) {
-    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,undefined,newestFirst)).documents;
+    return (
+      await this.apiProvider.listEntries<DocumentEntry>(
+        ENTRY_TYPES.DOCUMENTS,
+        undefined,
+        newestFirst
+      )
+    ).documents;
   }
-  async listDocumentsForCard(cardID: string){
-    return (await this.apiProvider.listEntries<DocumentEntry>(ENTRY_TYPES.DOCUMENTS,[{type: 'search', attribute: 'cardIDs', values: [cardID]}],undefined)).documents;
+  async listDocumentsForCard(cardID: string) {
+    return (
+      await this.apiProvider.listEntries<DocumentEntry>(
+        ENTRY_TYPES.DOCUMENTS,
+        [{ type: 'search', attribute: 'cardIDs', values: [cardID] }],
+        undefined
+      )
+    ).documents;
   }
   async listCards(newestFirst: boolean) {
-    return await Promise.all((await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS,undefined,newestFirst)).documents.map(c => this.regenerateImageObjectURLs(c)));
+    return await Promise.all(
+      (
+        await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS, undefined, newestFirst)
+      ).documents.map((c) => this.regenerateImageObjectURLs(c))
+    );
   }
 
   async createDocument(data: DocumentEntryContent) {
@@ -209,13 +233,13 @@ export class DataApiService {
   }
 
   async getFileView(id: string) {
-    if(this.fileViewURLCache.has(id)){
+    if (this.fileViewURLCache.has(id)) {
       return await this.fileViewURLCache.get(id)!;
-    }else{
-      const urlProm =  this.apiProvider.getFileView(id)
-      this.fileViewURLCache.set(id,urlProm);
+    } else {
+      const urlProm = this.apiProvider.getFileView(id);
+      this.fileViewURLCache.set(id, urlProm);
       const url = await urlProm;
-      this.fileViewURLCache.set(id,url);
+      this.fileViewURLCache.set(id, url);
       return url;
     }
   }
@@ -224,19 +248,16 @@ export class DataApiService {
   }
 
   async saveFile(file: File) {
-    const res = await this.apiProvider.saveFile(file)
-    console.log('saving file',res)
+    const res = await this.apiProvider.saveFile(file);
+    console.log('saving file', res);
     return res;
   }
 
- deleteFile(id: string) {
+  deleteFile(id: string) {
     return this.apiProvider.deleteFile(id);
   }
 
-
-  async regenerateImageObjectURLs(
-    card: CardEntry
-  ): Promise<CardEntry> {
+  async regenerateImageObjectURLs(card: CardEntry): Promise<CardEntry> {
     const domParser = new DOMParser();
     const docFront = domParser.parseFromString(card.front, 'text/html');
     const docBack = domParser.parseFromString(card.back, 'text/html');
@@ -264,5 +285,191 @@ export class DataApiService {
     card.front = docFront.documentElement.outerHTML;
     card.back = docBack.documentElement.outerHTML;
     return card;
+  }
+
+  async downloadBackup() {
+    // const cards = await this.listCards(true);
+    // for (let i = 0; i < cards.length; i++) {
+    //   const card = cards[i];
+    //   await this.cardToMarkdown(card);
+    // }
+  }
+
+  async downloadCards() {
+    const cards = await this.listCards(true);
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
+      await this.cardToMarkdown(card);
+    }
+    const docs = await this.listDocuments(true);
+    for (let i = 0; i < docs.length; i++) {
+      const doc = docs[i];
+      // export doc
+      // probably as file (pdf) + json
+      // ideally: embed annotations
+    }
+  }
+
+  async cardToMarkdown(
+    card: CardEntry | CardEntryContent,
+    mdOptions: { embedImages?: boolean; markdownFlavor?: 'default' | 'mkdocs' | 'obsidian' | 'html' } = {
+      embedImages: false,
+      markdownFlavor: 'mkdocs',
+    }
+  ) {
+    const content = card.front + '<br><hr><br>' + card.back;
+    const domParser = new DOMParser();
+
+    const doc = domParser.parseFromString(content, 'text/html');
+    const imgPromises: Promise<any>[] = [];
+    doc.querySelectorAll('img').forEach((img) => {
+      if (mdOptions.embedImages) {
+        imgPromises.push(
+          new Promise<void>((resolve, reject) => {
+            fetch(img.src, { credentials: 'include' })
+              .then(async (res) => {
+                const blob = await res.blob();
+                const reader = new FileReader();
+                await new Promise((resolve, reject) => {
+                  reader.onload = resolve;
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+                img.src =
+                  reader.result
+                    ?.toString()
+                    .replace('data:application/octet-stream;', `data:image/png;`) || img.src;
+              })
+              .finally(() => resolve());
+          })
+        );
+      } else {
+        imgPromises.push(
+          new Promise<void>(async (resolve, reject) => {
+
+            fetch(img.src, { credentials: 'include' })
+            .then(async (res) => {
+              const blob = await res.blob();
+              const reader = new FileReader();
+              await new Promise((resolve, reject) => {
+                reader.onload = resolve;
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+                  const tmp = document.createElement('a');
+                    tmp.style.display = 'none';
+      
+                    tmp.href = reader.result
+                    ?.toString()
+                    .replace('data:application/octet-stream;', `data:image/png;`) || img.src;
+                    const filename = `${
+                      img.getAttribute('data-imageid') || new Date().toISOString()
+                    }.png`;
+                    tmp.download = filename;
+                    tmp.target = '_blank';
+                    document.body.appendChild(tmp);
+                    tmp.click();
+                    document.body.removeChild(tmp);
+                    img.src = filename;
+            })
+            .finally(() => resolve());
+          })
+        );
+      }
+    });
+
+    await Promise.all(imgPromises);
+
+    const cleanContent = DOMPurify.sanitize(doc.body.outerHTML, {
+      ADD_DATA_URI_TAGS: ['img', 'a'],
+      ALLOW_UNKNOWN_PROTOCOLS: true,
+    });
+
+    let res : string = '';
+    if(mdOptions.markdownFlavor && mdOptions.markdownFlavor === 'html'){
+      res = cleanContent;
+    }else{
+    const turndownService = new TurndownService({
+      hr: '---',
+      codeBlockStyle: 'indented',
+      bulletListMarker: '-',
+    });
+    turndownService.keep(['img']);
+
+    turndownService.addRule('highlighter', {
+      filter(node, options) {
+        return node.tagName === 'MARK';
+      },
+      replacement(content, node, options) {
+        return `==${content}==`;
+      },
+    });
+
+    turndownService.addRule('math', {
+      filter(node, options) {
+        return node.classList.contains('math-tex');
+      },
+      replacement(content, node, options) {
+        let str = node.textContent || '';
+        return str
+          .replace('\\(', '$')
+          .replace('\\)', '$')
+          .replace('\\[', '\n$$$')
+          .replace('\\]', '$$$\n');
+      },
+    });
+
+    turndownService.remove((node, options) => node.classList.contains('admonition-title'));
+
+    turndownService.addRule('admonition', {
+      filter(node, options) {
+        return node.classList.contains('admonition');
+      },
+      replacement(content, node, options) {
+        console.log({ node });
+        let type = 'note';
+        (node as any).classList.forEach((className: string) => {
+          if (className !== 'admonition' && className !== 'ck-widget' && className !== 'default') {
+            type = className;
+          }
+        });
+        //  Obsidian native syntax (from obsidian v0.14.0)
+        if (mdOptions.markdownFlavor && mdOptions.markdownFlavor === 'obsidian') {
+          return `>[!${type.toUpperCase()}] ${
+            node.querySelector('.admonition-title')?.textContent || ''
+          }
+${content
+  .split('\n')
+  .map((s) => '>' + s)
+  .join('\n')}\n`;
+          // Admonition obsidian plugin syntax:
+          //         return `\`\`\`ad-${type}
+          // title: ${node.querySelector('.admonition-title')?.textContent || ''}
+          // ${content.split('\n').map(s => " "+s).join('\n')}
+          // \`\`\``
+        } else {
+          return `!!! ${type} "${node.querySelector('.admonition-title')?.textContent || ''}"
+${content
+  .split('\n')
+  .map((s) => '    ' + s)
+  .join('\n')}\n`;
+        }
+      },
+    });
+
+    res = turndownService.turndown(cleanContent);
+  }
+    // navigator.clipboard.writeText(md);
+    const type = mdOptions.markdownFlavor === 'html' ? 'html' : 'md';
+    const blob = new Blob([res], { type: `text/${type}` });
+    const blobURL = window.URL.createObjectURL(blob);
+    const tempLink = document.createElement('a');
+    tempLink.style.display = 'none';
+    tempLink.href = blobURL;
+    tempLink.download = `${card.title}-${new Date().toISOString()}.${type}`;
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+    console.log({ res });
   }
 }

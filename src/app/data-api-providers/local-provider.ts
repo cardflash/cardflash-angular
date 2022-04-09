@@ -1,6 +1,7 @@
 import { Config, DataApiProvider, DEFAULT_CONFIG, Entry, EntryList, EntryWithCreationTime, FileEntry, QueryOption } from "../types/data-api-provider";
 import {v4 as uuidv4} from 'uuid'
 import localforage from "localforage";
+import { DocumentEntry } from "../data-api.service";
 export class LocalProvider implements DataApiProvider{
 
     constructor(){
@@ -154,5 +155,55 @@ export class LocalProvider implements DataApiProvider{
 
     async savePreferences(config: Config): Promise<void> {
         const prefs = await localforage.setItem<string>("cardflash_prefs",JSON.stringify({config: config}));
+      }
+
+      async makeBackup(): Promise<any> {
+        const types = ['documents','cards','file'];
+        console.log('make Backup');
+        const len = await localforage.length()
+        const keys = await localforage.keys();
+        let backup: any = {};
+        types.forEach((type)=> {backup[type] = []})
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            types.forEach(async (type) => {
+                if(key.indexOf(type+"_") === 0 && key !== `${type}_collection`){
+                    backup[type].push(await localforage.getItem(key));
+                }else if(key.indexOf('file-') === 0){
+                    const id = key.substring('file-'.length);
+                    const entry : FileEntry  = await this.getEntry<Entry & FileEntry>('file',id);
+                    const fileContent : ArrayBuffer | null = await localforage.getItem(key);
+                    if(fileContent){
+                        const blob = new Blob([fileContent],{type: entry.mimeType})
+                        const blobURL = window.URL.createObjectURL(blob);
+                        const tempLink = document.createElement('a');
+                        tempLink.style.display = 'none';
+                        tempLink.href = blobURL;
+                        tempLink.target = '_blank';
+                        const splitFilename = entry.name.split('.')
+                        tempLink.download = `${id}.${splitFilename[splitFilename.length-1]}`
+                        document.body.appendChild(tempLink);
+                        tempLink.click();
+                        document.body.removeChild(tempLink);
+                    }
+                }
+            })
+            
+        }
+        await localforage.iterate((val,key,num) => {
+           
+        })
+
+        const blob = new Blob([JSON.stringify(backup)],{type: 'text/json'});
+        const blobURL = window.URL.createObjectURL(blob);
+        const tempLink = document.createElement('a');
+        tempLink.style.display = 'none';
+        tempLink.href = blobURL;
+        tempLink.target = '_blank';
+        tempLink.download = `cardflash_backup-${new Date().toISOString()}.json`
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+        console.log({backup})
       }
 }

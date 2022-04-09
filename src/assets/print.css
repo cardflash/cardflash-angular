@@ -22,9 +22,15 @@ width: 100%; margin: 0; float: none; position: relative;
 
 
 body,html {
-    height: fit-content !important;
+    /* height: fit-content !important;
     overflow: auto;
     width: 100%;
-    display: block;
+    display: block; */
+}
+
+@media print {
+    body > * {
+        display: inline !important;
+    }
 }
 
