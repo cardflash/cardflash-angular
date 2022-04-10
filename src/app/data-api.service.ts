@@ -381,8 +381,9 @@ export class DataApiService {
     await Promise.all(imgPromises);
 
     const cleanContent = DOMPurify.sanitize(doc.body.outerHTML, {
-      ADD_DATA_URI_TAGS: ['img', 'a'],
+      // ADD_DATA_URI_TAGS: ['img', 'a'],
       ALLOW_UNKNOWN_PROTOCOLS: true,
+      
     });
 
     let res : string = '';
@@ -390,9 +391,10 @@ export class DataApiService {
       res = cleanContent;
     }else{
     const turndownService = new TurndownService({
-      hr: '---',
+      hr: '---------',
       codeBlockStyle: 'indented',
       bulletListMarker: '-',
+      headingStyle: 'atx'
     });
     turndownService.keep(['img']);
 
@@ -401,7 +403,12 @@ export class DataApiService {
         return node.tagName === 'MARK';
       },
       replacement(content, node, options) {
-        return `==${content}==`;
+        if((node as HTMLElement).classList.length > 0){
+          const color = (node as HTMLElement).classList[0];
+          return `<mark style="background-color: ${color.replace('marker-','').replace('-','')}">${content}</mark>`;
+        }else{
+          return `==${content}==`
+        }
       },
     });
 

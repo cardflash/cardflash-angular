@@ -148,27 +148,31 @@ export class UtilsService {
     }
     const color = this.availableAnnotationColors.find((val) => val.hex === annotation?.color);
     let innerEl = '';
-    if (color) {
+    if (color && annotation.text) {
       innerEl = `<mark class="${color.marker}"><span data-annotationid="_${annotation.id}">${
         annotation?.text || annotation.id
       }</span></mark>`;
       if (this.dataApi.config.enableAnnotationLinking) {
-        innerEl = '[' + innerEl + ']';
+        // innerEl = '[' + innerEl + ']';
       }
-    } else if (annotation.text || this.dataApi.config.enableAnnotationLinking) {
-      innerEl = `<span data-annotationid="_${annotation.id}">${
-        this.dataApi.config.enableAnnotationLinking ? '[' : ''
-      }${annotation?.text || '📌'}${
-        this.dataApi.config.enableAnnotationLinking ? ']' : ''
-      }</span><span>&zwnj;</span>`;
+    } else if (annotation.text) {
+      innerEl = `<span data-annotationid="_${annotation.id}">${annotation?.text}</span><span>&zwnj;</span>`;
     }
+    
     if (this.dataApi.config.enableAnnotationLinking) {
-      reference += `<a href="${environment.PDF_ANNOT_URL}${documentID ? '/' : ''}${documentID}#${
+      // reference += `<a href="${environment.PDF_ANNOT_URL}${documentID ? '/' : ''}${documentID}#${
+      //   annotation?.id
+      // }">${innerEl}</a>`;
+      reference += `${innerEl} <a href="${environment.PDF_ANNOT_URL}${documentID ? '/' : ''}${documentID}#${
         annotation?.id
-      }">${innerEl}</a>`;
+      }">(📌)</a>`;
     } else {
       reference += `${innerEl}`;
     }
+
+
+
+
     let content: string = `${reference}<br>`;
     if (!annotation.imgID) {
       switch (this.selectedOption.id) {
