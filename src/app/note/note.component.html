@@ -1,0 +1,17 @@
+<div class="noteActions">
+    <br/>
+    <button mat-flat-button color="accent" [routerLink]="'/notes'">
+        <mat-icon>arrow_back_ios</mat-icon>
+        Back
+    </button>
+    <br/>
+    <br/>
+    <button mat-flat-button color="primary" [routerLink]="'/notes/'+noteEntry?.$id + '/edit'">
+        <mat-icon>edit</mat-icon>
+        Edit
+    </button>
+</div>
+<h1>{{noteEntry?.title}}</h1>
+<div class="card note" #innerNoteEl [innerHTML]="safeContent"> 
+    
+</div>

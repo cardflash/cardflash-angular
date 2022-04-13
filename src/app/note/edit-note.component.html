@@ -1,0 +1,15 @@
+
+<div class="mainContent">
+
+  <button mat-flat-button (click)="newCard()">New Card</button>
+  <!-- <button mat-flat-button (click)="save()">Save</button> -->
+  <br/>
+  <button mat-flat-button [routerLink]="'/notes/'+note?.$id">Back</button>
+  <br />
+  <mat-form-field class="titleField" *ngIf="note">
+    <mat-label i18n>Title</mat-label>
+    <input matInput placeholder="Document Title" [(ngModel)]="this.note.title" (change)="change()"/>
+    <!-- <mat-icon matSuffix>title</mat-icon> -->
+  </mat-form-field>
+  <ckeditor *ngIf="note" #editor [editor]="Editor" [(ngModel)]="note.content" [config]="EDITOR_CONFIG" (change)="change()"></ckeditor>
+</div>

@@ -65,7 +65,19 @@ img{
   margin-right: auto;
   margin-top: 30px;
 }
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
 
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+.nodes g:hover circle{
+// stroke: red;
+fill: orange;
+}
 
 svg.leader-line {
   z-index: 1 !important;
@@ -252,8 +264,3 @@ svg.leader-line {
   // }
   
 }
-/** Inspired from:
- * @credits https://github.com/qjebbs/vscode-markdown-extended
- * @copyright 2018 jebbs
- * @license MIT
- */

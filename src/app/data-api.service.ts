@@ -20,6 +20,7 @@ export interface DocumentEntryContent {
   tags?: string[];
   annotationsJSON?: string[];
   cardIDs?: string[];
+  noteIDs?: string[];
   // $collection?: string,
   // $read?: string[],
   // $write?: string[]
@@ -37,8 +38,17 @@ export interface CardEntryContent {
   imgIDs?: string[];
 }
 
+export interface NoteEntryContent {
+  $id?: string;
+  content: string;
+  title: string;
+  creationTime: number;
+  // imgIDs?: string[];
+}
+
 export type DocumentEntry = Entry & DocumentEntryContent;
 export type CardEntry = Entry & CardEntryContent;
+export type NoteEntry = Entry & NoteEntryContent;
 
 @Injectable({
   providedIn: 'root',
@@ -128,6 +138,16 @@ export class DataApiService {
     );
   }
 
+  async updateNote(id: string, data: any) {
+    return await this.apiProvider.updateEntry<NoteEntry>(ENTRY_TYPES.NOTES, id, data);
+  }
+
+  async getNote(id: string) {
+    return await this.regenerateImageObjectURLsForNote(
+      await this.apiProvider.getEntry<NoteEntry>(ENTRY_TYPES.NOTES, id)
+    );
+  }
+
   deleteCard(id: string) {
     return new Promise<void>(async (resolve, reject) => {
       const toDelete = await this.getCard(id);
@@ -158,6 +178,10 @@ export class DataApiService {
           reject('Deleting image failed ' + reason);
         });
     });
+  }
+
+  deleteNote(id: string){
+    return this.apiProvider.deleteEntry(ENTRY_TYPES.NOTES,id);
   }
 
   async deleteDocument(id: string, doc: DocumentEntryContent) {
@@ -207,6 +231,7 @@ export class DataApiService {
       )
     ).documents;
   }
+
   async listDocumentsForCard(cardID: string) {
     return (
       await this.apiProvider.listEntries<DocumentEntry>(
@@ -216,11 +241,20 @@ export class DataApiService {
       )
     ).documents;
   }
+
   async listCards(newestFirst: boolean) {
     return await Promise.all(
       (
         await this.apiProvider.listEntries<CardEntry>(ENTRY_TYPES.CARDS, undefined, newestFirst)
       ).documents.map((c) => this.regenerateImageObjectURLs(c))
+    );
+  }
+
+  async listNotes(newestFirst: boolean) {
+    return await Promise.all(
+      (
+        await this.apiProvider.listEntries<NoteEntry>(ENTRY_TYPES.NOTES, undefined, newestFirst)
+      ).documents.map((c) => this.regenerateImageObjectURLsForNote(c))
     );
   }
 
@@ -230,6 +264,10 @@ export class DataApiService {
 
   async createCard(data: CardEntryContent) {
     return await this.apiProvider.createEntry<CardEntry>(ENTRY_TYPES.CARDS, data);
+  }
+
+  async createNote(data: NoteEntryContent) {
+    return await this.apiProvider.createEntry<NoteEntry>(ENTRY_TYPES.NOTES, data);
   }
 
   async getFileView(id: string) {
@@ -255,6 +293,33 @@ export class DataApiService {
 
   deleteFile(id: string) {
     return this.apiProvider.deleteFile(id);
+  }
+
+  async regenerateImageObjectURLsForNote(note: NoteEntry): Promise<NoteEntry>{
+    const domParser = new DOMParser();
+    const dom = domParser.parseFromString(note.content, 'text/html');
+    const imgSavePromises: Promise<void>[] = [];
+      let imgs = dom.querySelectorAll<HTMLImageElement>('img[data-imageid]');
+      for (let i = 0; i < imgs.length; i++) {
+        const node = imgs[i];
+        const imageId = node.getAttribute('data-imageid');
+        if (imageId !== null) {
+          imgSavePromises.push(
+            new Promise<void>(async (resolve, reject) => {
+              try {
+                node.src = (await this.getFileView(imageId)).href;
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            })
+          );
+        }
+      }
+    
+    await Promise.all(imgSavePromises);
+    note.content = dom.documentElement.innerHTML;
+    return note;
   }
 
   async regenerateImageObjectURLs(card: CardEntry): Promise<CardEntry> {

@@ -11,13 +11,14 @@ import {
   ViewChildren,
 } from '@angular/core';
 import * as CustomBalloonEditor from 'src/ckeditor/ckeditor.js';
-import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
+import { ChangeEvent, CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 import { HttpClient } from '@angular/common/http';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { imgSrcToDataURL } from 'blob-util';
-import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
+import { CardEntry, CardEntryContent, DataApiService, DocumentEntry } from '../data-api.service';
 import { UtilsService } from '../utils.service';
 import { MyUploadAdapter} from 'src/ckeditor/CustomUploadAdapter'
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-card',
@@ -28,6 +29,7 @@ export class CardComponent implements OnInit, AfterViewInit {
   FrontEditor: any;
   BackEditor: any;
 
+  private docs: DocumentEntry[] = [];
   @ViewChild('frontEditor') frontEditorComponent?: CKEditorComponent;
   @ViewChild('backEditor') backEditorComponent?: CKEditorComponent;
 
@@ -68,6 +70,73 @@ export class CardComponent implements OnInit, AfterViewInit {
   public imageEditorInstance: any;
 
   public imageInEditingURL : string = '';
+  public readonly EDITOR_CONFIG = {
+    extraPlugins : [function MentionLinks( editor: any ) {
+      // The upcast converter will convert a view
+      //
+      //		<a href="..." class="mention" data-mention="...">...</a>
+      //
+      // element to the model "mention" text attribute.
+      editor.conversion.for( 'upcast' ).elementToAttribute( {
+          view: {
+              name: 'a',
+              key: 'data-mention',
+              classes: 'mention',
+              attributes: {
+                  href: true
+              }
+          },
+          model: {
+              key: 'mention',
+              value: (viewItem : any) => editor.plugins.get( 'Mention' ).toMentionAttribute( viewItem )
+          },
+          converterPriority: 'high'
+      } );
+  
+      // Downcast the model "mention" text attribute to a view
+      //
+      //		<a href="..." class="mention" data-mention="...">...</a>
+      //
+      // element.
+      editor.conversion.for( 'downcast' ).attributeToElement( {
+          model: 'mention',
+          view: ( modelAttributeValue : any, { writer } : any) => {
+              // Do not convert empty attributes (lack of value means no mention).
+              if ( !modelAttributeValue ) {
+                  return;
+              }
+  
+              let href;
+  
+              // User mentions are downcasted as mailto: links. Tags become normal URLs.
+              if ( modelAttributeValue.id[ 0 ] === '@' ) {
+          href = `mailto:${ modelAttributeValue.id.slice( 1 ) }@example.com`;
+              } else {
+                  href = modelAttributeValue.href;
+              }
+  
+              return writer.createAttributeElement( 'a', {
+                  class: 'mention',
+                  'data-mention': modelAttributeValue.id,
+                  href
+              }, {
+                  // Make mention attribute to be wrapped by other attribute elements.
+                  priority: 20,
+                  // Prevent merging mentions together.
+                  id: modelAttributeValue.uid
+              } );
+          },
+          converterPriority: 'high'
+      } );
+  }],
+    mention: {
+      feeds: [
+    {marker: '[',
+    feed: this.getSuggestions.bind(this),
+   minimumCharacters: 1,
+   itemRenderer: this.customItemRenderer.bind(this)}
+      ]}
+  }
 
   @ViewChild('imageEditOverlay') imageEditOverlay!: ElementRef<HTMLDivElement>;
   constructor(
@@ -89,109 +158,13 @@ export class CardComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-  //   this.imageEditorInstance =  new ImageEditor(document.querySelector('#tui-image-editor-container'), {
-  //     usageStatistics: false,
-  //     includeUI: {
-  //       theme: {
-  // 'common.bisize.width': '251px',
-  // 'common.bisize.height': '21px',
-  // 'common.backgroundColor': '#fafafa',
-  // 'common.border': '1px solid #c1c1c1',
-
-  // // header
-  // 'header.backgroundImage': 'none',
-  // 'header.backgroundColor': 'transparent',
-  // 'header.border': '0px',
-
-  // // load button
-  // 'loadButton.backgroundColor': '#fff',
-  // 'loadButton.border': '1px solid #ddd',
-  // 'loadButton.color': '#222',
-  // 'loadButton.fontFamily': "'Noto Sans', sans-serif",
-  // 'loadButton.fontSize': '12px',
-
-  // // download button
-  // 'downloadButton.backgroundColor': '#fff',
-  // 'downloadButton.border': '1px solid #fff',
-  // 'downloadButton.color': '#000',
-  // 'downloadButton.fontFamily': "'Noto Sans', sans-serif",
-  // 'downloadButton.fontSize': '12px',
-
-  // // main icons
-  // 'menu.normalIcon.color': '#8a8a8a',
-  // 'menu.activeIcon.color': '#555555',
-  // 'menu.disabledIcon.color': '#434343',
-  // 'menu.hoverIcon.color': '#e9e9e9',
-  // 'menu.iconSize.width': '24px',
-  // 'menu.iconSize.height': '24px',
-
-  // // submenu icons
-  // 'submenu.normalIcon.color': '#8a8a8a',
-  // 'submenu.activeIcon.color': '#555555',
-  // 'submenu.iconSize.width': '32px',
-  // 'submenu.iconSize.height': '32px',
-
-  // // submenu primary color
-  // 'submenu.backgroundColor': 'transparent',
-  // 'submenu.partition.color': '#e5e5e5',
-
-  // // submenu labels
-  // 'submenu.normalLabel.color': '#858585',
-  // 'submenu.normalLabel.fontWeight': 'normal',
-  // 'submenu.activeLabel.color': '#000',
-  // 'submenu.activeLabel.fontWeight': 'normal',
-
-  // // checkbox style
-  // 'checkbox.border': '1px solid #ccc',
-  // 'checkbox.backgroundColor': '#fff',
-
-  // // rango style
-  // 'range.pointer.color': '#333',
-  // 'range.bar.color': '#ccc',
-  // 'range.subbar.color': '#606060',
-
-  // 'range.disabledPointer.color': '#d3d3d3',
-  // 'range.disabledBar.color': 'rgba(85,85,85,0.06)',
-  // 'range.disabledSubbar.color': 'rgba(51,51,51,0.2)',
-
-  // 'range.value.color': '#000',
-  // 'range.value.fontWeight': 'normal',
-  // 'range.value.fontSize': '11px',
-  // 'range.value.border': '0',
-  // 'range.value.backgroundColor': '#f5f5f5',
-  // 'range.title.color': '#000',
-  // 'range.title.fontWeight': 'lighter',
-
-  // // colorpicker style
-  // 'colorpicker.button.border': '0px',
-  // 'colorpicker.title.color': '#000',
-  // 'controls.backgroundColor': '#fff'
-  //         // 'downloadButton.backgroundColor': '#28395ef1',
-  //         // 'loadButton.backgroundColor': '#28395ef1',
-  //         // 'loadButton.color': '#fff',
-  //         // 'loadButton.border': 'none',
-  //         // 'downloadButton.border': 'none',
-          
-  //       },
-  //       loadImage: {
-  //         path: 'assets/favicons/android-chrome-192x192.png',
-  //         name: 'No image provided'
-  //       },
-  //       initMenu: 'filter',
-  //       menuBarPosition: 'bottom',
-  //     },
-  //     cssMaxWidth: 700,
-  //     cssMaxHeight: 800,
-  //     selectionStyle: {
-  //       cornerSize: 20,
-  //       rotatingPointOffset: 70,
-  //     },
-  //   });
-  //   console.log(this.imageEditorInstance)
+    this.dataApi.listDocuments(true).then((res) => {
+      this.docs = res;
+    })
   }
 
-  change() {
-    console.log('CHANGE')
+  change(e: ChangeEvent) {
+    console.log('CHANGE',{e})
     if(!window.onbeforeunload){
       window.onbeforeunload = function (e) {
         // Cancel the event
@@ -246,5 +219,84 @@ export class CardComponent implements OnInit, AfterViewInit {
     //   return new MyUploadAdapter(loader, this.dataApi.getProviderInstance());
     // }
 
+  }
+
+  async getSuggestions(queryText: string){
+    const searchStrings = queryText.toLowerCase().replace('[','').replace(']','').split('#');
+    const docSearchStrings = searchStrings.length === 0 ? [] : searchStrings[0].split(' ');
+    // const res = await this.dataApi.listDocuments(true);
+    // console.log({res})
+    const relevant_docs =  this.docs.filter((doc) => {
+      for (let i = 0; i < docSearchStrings.length; i++) {
+        if(!doc.name.toLowerCase().includes(docSearchStrings[i])){
+          return false;
+        }
+      }
+      return true;
+    });
+    const suggestions = queryText.includes('#') ? [] : relevant_docs.map((doc) => {
+      return {id: `[[${doc.name}]]`, href: environment.BASE_URL+'/doc/'+doc.$id, text: `[[${doc.name}]]`, docName: doc.name, cardContent: ''}
+    })
+    let promises : Promise<void>[] = [];
+      for (let i = 0; i < Math.min(relevant_docs.length,5); i++) {
+        const doc = relevant_docs[i];
+        if(doc.cardIDs){
+          for (let j = 0; j < doc.cardIDs.length; j++) {
+            const cardID = doc.cardIDs[j];
+            promises.push(new Promise<void>(async (resolve,reject) => {
+              this.dataApi.getCard(cardID).then((card) => {
+                let shouldIncludeCard = false;
+                for (let i = 0; i < searchStrings.length; i++) {
+                  if(card.front.toLowerCase().includes(searchStrings[i]) || card.back.toLowerCase().includes(searchStrings[i]) || card.$id.toLowerCase().includes(searchStrings[i])){
+                    shouldIncludeCard = true;
+                  }
+                }
+                if(shouldIncludeCard){
+                  // const parser = new DOMParser();
+                  // const dom = parser.parseFromString(card.front,'text/html');
+                  // console.log({dom})
+                  // const cardContent = dom.documentElement.textContent || '-';
+                  const cardContent = card.front.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gm,' ') || '-';
+                  suggestions.push({id: `[[${doc.name}: Card ${cardContent}]]`,href: environment.BASE_URL+'/doc/'+doc.$id+'#CARD_'+card.$id, text: `[[${doc.name}#${cardID}]]`, docName: doc.name, cardContent: cardContent})
+                }
+                resolve();
+              }).catch((reason) => reject(reason))
+            }))
+          }
+        }
+      }
+    await Promise.all(promises);
+    console.log({suggestions})
+    return suggestions;
+  
+  }
+
+  customItemRenderer(item: {id: string, href: string, text: string, docName: string, cardContent: string}){
+    const itemElement = document.createElement( 'span' );
+
+    itemElement.classList.add( 'custom-item' );
+    itemElement.id = `mention-list-item-id-${ item.id }`;
+
+    const docNameShort = (item.docName.length > 20) ? (item.docName.substring(0,18) + '...') : (item.docName);
+    itemElement.textContent = docNameShort;
+    itemElement.style.fontWeight = 'bold';
+    itemElement.style.display = 'inline-block';
+    
+    if(item.cardContent){
+      const cardElement = document.createElement( 'span' );
+      cardElement.classList.add( 'custom-item-username' );
+      const cardContentShort = (item.cardContent.length > 35) ? (item.cardContent.substring(0,33) + '...') : (item.cardContent);
+      cardElement.textContent = ': 🗃️ ' + cardContentShort;
+      itemElement.appendChild( cardElement );
+    }
+
+    return itemElement;
+  }
+
+  editorTest(){
+    console.log(this.frontEditorComponent);
+    this.frontEditorComponent?.editorInstance?.model.change((writer: any) => {
+      writer.insertText( 'foo',  this.frontEditorComponent?.editorInstance?.model.document.selection.getLastPosition() );
+    })
   }
 }

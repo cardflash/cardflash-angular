@@ -1,4 +1,5 @@
 <div>
+  <button mat-button (click)="editorTest()">Test</button>
   <div
     #expansionPanel
     class="cardAccordion"
@@ -16,8 +17,9 @@
           #frontEditor
           [editor]="FrontEditor"
           [(ngModel)]="card.front"
-          (change)="change()"
+          (change)="change($event)"
           (ready)="onEditorReady($event)"
+          [config]="EDITOR_CONFIG"
         ></ckeditor>
         <p *ngIf="card.front === ''" class="placeHolderText">
           {{placeholderFront}}
@@ -35,8 +37,9 @@
           #backEditor
           [editor]="BackEditor"
           [(ngModel)]="card.back"
-          (change)="change()"
+          (change)="change($event)"
           (ready)="onEditorReady($event)"
+          [config]="EDITOR_CONFIG"
         ></ckeditor>
         <p *ngIf="card.back === ''" class="placeHolderText">
           {{placeholderBack}}

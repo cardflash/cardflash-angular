@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { FabExpandButtonModule } from '../fab-expand-button/fab-expand-button.module';
 import {ClipboardModule} from '@angular/cdk/clipboard'; 
+import { NoteModule } from '../note/note.module';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
     FormsModule,
     MatInputModule,
     ClipboardModule,
-  FabExpandButtonModule  ]
+  FabExpandButtonModule,
+  NoteModule]
 })
 export class ExtendedPdfModule { }

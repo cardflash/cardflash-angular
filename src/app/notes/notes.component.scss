@@ -1,0 +1,57 @@
+
+
+.main{
+  text-align: center;
+  width: 95%;
+  margin: 0 auto;
+  max-width: 70rem;
+}
+
+.title{
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.searchField{
+  // width: 300px;
+}
+
+.loadingIndicator {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.noteEl {
+  display: block;
+  width: 100%;
+  height: 3rem;
+  text-align: left;
+  font-weight: bold;
+  margin: 3px;
+  background-color: white;
+  mat-icon {
+    margin-right: 3rem;
+  }
+  span {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+  }
+  mat-icon {
+    align-self: center;
+  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.noteInner {
+}
+
+.noteEl:hover {
+  box-shadow: 0px 0px 3px 3px rgba(112, 214, 255, 0.51);
+}

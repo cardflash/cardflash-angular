@@ -1,0 +1,46 @@
+<div class="main">
+  
+  <h1 class="title" i18n>Your notes</h1>
+  <mat-form-field class="searchField" *ngIf="this.notes.length >= 1">
+    <mat-label i18n>Search</mat-label>
+    <input matInput type="text" #searchField (keydown.enter)="search(searchField.value)">
+    <button mat-icon-button matSuffix (click)="search(searchField.value)" aria-label="Search"><mat-icon>search</mat-icon></button>
+  </mat-form-field>
+  <div *ngIf="isLoading">
+    <h1>Loading notes...</h1>
+    <mat-progress-spinner
+    class="loadingIndicator"
+    mode="indeterminate"
+    ></mat-progress-spinner>
+  </div>
+  <div *ngIf="!isLoading && this.notes.length < 1">
+    <h2 i18n>No notes found.</h2>
+  </div>
+  
+  <br />
+  <button mat-flat-button (click)="addNew()"><mat-icon>add</mat-icon> New...</button>
+  <br />
+  <br />
+<!-- <app-stacked-cards [cards]="filteredCards"></app-stacked-cards> -->
+<div class="noteList">
+  <div mat-flat-button class="noteEl" *ngFor="let note of filteredNotes; trackBt: trackyByNoteId" >
+    <!-- <div class="noteInner"> -->
+      <mat-icon>text_snippet</mat-icon>
+      <span  [routerLink]="'/notes/'+note.$id">{{note.title || 'No title'}}</span>
+      <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <!-- <button mat-menu-item aria-label="Edit icon button" title="edit" [routerLink]="'/notes/'+note.$id + '/edit'" i18n-title>
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button> -->
+        <button mat-menu-item class="deleteButton" aria-label="Delete icon button" title="delete" (click)="deleteNote(note)" i18n-title>
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </mat-menu>
+    <!-- </div> -->
+  </div>
+</div>
+<app-graph #noteGraph></app-graph>

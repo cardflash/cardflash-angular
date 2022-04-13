@@ -21,18 +21,18 @@ const routes: Routes = [
     component: CardsComponent,
   },
   // {
-  //   path: 'cards/:id',
-  //   component: EditCardComponent,
-  // },
-  // {
-  //   path: 'cards/local/:localid',
-  //   component: EditCardComponent
-  // },
-  // {
-  //   path: 'documents',
-  //   component: DocumentsComponent
-  // },
-  // {
+    //   path: 'cards/:id',
+    //   component: EditCardComponent,
+    // },
+    // {
+      //   path: 'cards/local/:localid',
+      //   component: EditCardComponent
+      // },
+      // {
+        //   path: 'documents',
+        //   component: DocumentsComponent
+        // },
+        // {
   //   path: 'create/from-document/:id',
   //   component: ExtendedPdfComponent
   // },
@@ -56,7 +56,9 @@ const routes: Routes = [
   { path: 'doc/:id', loadChildren: () => import('./extended-pdf/extended-pdf.module').then(m => m.ExtendedPdfModule) },
   { path: 'doc', loadChildren: () => import('./extended-pdf/extended-pdf.module').then(m => m.ExtendedPdfModule) },
   { path: 'cards/:id/edit', loadChildren: () => import('./edit-card/edit-card.module').then(m => m.EditCardModule) },
-  { path: 'cards/:id', component: ViewCardComponent }
+  { path: 'cards/:id', component: ViewCardComponent },
+  { path: 'notes', loadChildren: () => import('./note/note.module').then(m => m.NoteModule) },
+  { path: 'graph', loadChildren: () => import('./graph/graph.module').then(m => m.GraphModule) }
 ];
 
 const routerOptions: ExtraOptions = {

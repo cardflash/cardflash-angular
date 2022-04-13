@@ -14,11 +14,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { imgSrcToBlob } from 'blob-util';
 import { customAlphabet } from 'nanoid';
 import { PageRenderedEvent, IPDFViewerApplication } from 'ngx-extended-pdf-viewer';
+import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CardComponent } from '../card/card.component';
 import { FlipCardComponent } from '../card/flip-card/flip-card.component';
-import { DocumentEntry, DataApiService, CardEntryContent, CardEntry } from '../data-api.service';
+import { DocumentEntry, DataApiService, CardEntryContent, CardEntry, NoteEntry } from '../data-api.service';
 import { FabOption } from '../fab-expand-button/fab-expand-button.component';
+import { EditNoteComponent } from '../note/edit-note.component';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Annotation } from '../types/annotation';
 import { UtilsService } from '../utils.service';
@@ -108,6 +110,11 @@ export class ExtendedPdfComponent implements OnInit {
   ];
 
   public cardOption: FabOption = this.cardOptions[0];
+
+  @ViewChild('noteComponent')
+  private noteComponent?: EditNoteComponent;
+
+  public note?: NoteEntry;
 
   constructor(
     public utils: UtilsService,
@@ -264,6 +271,7 @@ export class ExtendedPdfComponent implements OnInit {
           }
         }
       }
+      this.loadNotes();
       this.loadCards();
     }
   }
@@ -334,17 +342,34 @@ export class ExtendedPdfComponent implements OnInit {
     this.busy = false;
     setTimeout(() => {
       this.actRoute.fragment.subscribe((frag) => {
+        console.log({frag})
         if (frag && this.getAnnotationByID(frag)) {
           console.log({ frag });
           this.scrollToAnnotation({ annotationID: frag, where: 'all', drawLeaderLines: true });
           this.router.navigate([], { fragment: undefined });
+        }else if(frag && frag.indexOf('CARD_') === 0){
+          this.utils.scrollIDIntoView(frag);
+          this.router.navigate([], { fragment: undefined });
         }
       });
-    }, 2000);
+    }, 1000);
   }
 
   pdfLoadFailed(e: any) {}
 
+
+  async loadNotes(){
+    if(this.document){
+      if(!this.document.noteIDs || this.document.noteIDs.length === 0){
+        const note = await this.dataApi.createNote({title: 'Test Note', content: '<h1>Hello World!</h1>', creationTime: Date.now()})
+        this.note;
+        this.document.noteIDs = [note.$id];
+        await this.saveDocument();
+      }else{
+        this.note = await this.dataApi.getNote(this.document.noteIDs[0]);
+      }
+    }
+  }
   async loadCards() {
     if (this.document && this.document.cardIDs) {
       this.cards = [];
@@ -787,6 +812,7 @@ export class ExtendedPdfComponent implements OnInit {
     } else {
       this.currentCard.back += reference;
     }
+    this.noteComponent?.addAnnotation(reference);
     // }
   }
 

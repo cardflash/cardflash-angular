@@ -109,7 +109,13 @@
     [ngClass]="{ bigCards: this.viewMode === 'cards' }"
     [style.display]="this.viewMode === 'both' || this.viewMode === 'cards' ? '' : 'none'"
   >
-    <div class="currentCardActions">
+  <!-- <mat-button-toggle-group value="cards" #cardNoteSwitcher="matButtonToggleGroup">
+    <mat-button-toggle value="cards">Cards</mat-button-toggle>
+    <mat-button-toggle value="notes">Notes</mat-button-toggle>
+  </mat-button-toggle-group> -->
+  <h2>Notes</h2>
+  <app-edit-note #noteComponent  [note]="note" [activeSide]="this.cardOption.id"></app-edit-note>
+    <!-- <div class="currentCardActions">
       <button mat-stroked-button color="primary" (click)="finishCard()" class="nextCardButton" i18n>
         New Card
       </button>
@@ -131,6 +137,8 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
+
+    <br />
     <app-card
       class="currentCard"
       [active]="true"
@@ -150,7 +158,7 @@
         (delete)="this.deleteCard(card)"
       >
       </app-flip-card-with-controls>
-    </div>
+    </div> -->
   </div>
 </div>
 <div

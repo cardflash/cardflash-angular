@@ -35,7 +35,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const firstAnchor : HTMLAnchorElement | null = path.find(p => p && p.tagName && p.tagName.toLowerCase() === 'a');
     if (firstAnchor && !firstAnchor.hasAttribute('routerlink')) {
       const href = firstAnchor.getAttribute('href');
-      if(href?.indexOf(environment.BASE_URL) === 0){
+      if(href?.indexOf(environment.BASE_URL) === 0 && href.indexOf('/doc/') >= 0){
         console.log('internal link pressed',href)
         this.router.navigateByUrl(href.replace(environment.BASE_URL,''));
         event.preventDefault();
