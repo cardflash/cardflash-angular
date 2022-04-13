@@ -38,7 +38,7 @@ export class GraphComponent implements OnInit, AfterViewInit {
           const target = data_mention.replace('[[','').replace(']]','');
           if(target && this.nodes.find((n) => n.id === target)){
             console.log(dom.querySelectorAll('a.mention').length)
-            this.links.push({source: note.title, target: target || '', value: 100/(dom.querySelectorAll('a.mention').length*30)})
+            this.links.push({source: note.title, target: target || '', value: 200/(dom.querySelectorAll('a.mention').length*30)})
           }
         }
       })
@@ -76,11 +76,13 @@ var color = d3.scaleOrdinal(d3.schemeCategory10);
 var simulation = d3.forceSimulation()
 .force("link", d3.forceLink().id(function(d) { return (d as any).id; }))
 .force("charge", d3.forceManyBody())
-.force("center", d3.forceCenter(0, 0))
-// .force("x", d3.forceX())
-// .force("y",d3.forceY())
+// .force("center", d3.forceCenter(0, 0))
+.force("x", d3.forceX())
+.force("y",d3.forceY())
 .force('collide', d3.forceCollide(function(d){
-  return 20}));
+  return 35}));
+  // .force('collide', d3.forceCollide((d : any) => {
+  //   return Math.min(300 / this.nodes.length,50)}));
 const graph = {"nodes": [...this.nodes
 ],
 "links": [...this.links]}
