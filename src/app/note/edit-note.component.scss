@@ -11,3 +11,14 @@
     font-size: 2rem;
     margin: 0 auto
 }
+
+.editor {
+    min-height: 90vh;
+    display: block;
+    --editor-min-height: 90vh;
+    background-color: white;
+    // >.ck-content {
+
+    //     height: 90vh;
+    // }
+}

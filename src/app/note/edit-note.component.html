@@ -11,5 +11,5 @@
     <input matInput placeholder="Document Title" [(ngModel)]="this.note.title" (change)="change()"/>
     <!-- <mat-icon matSuffix>title</mat-icon> -->
   </mat-form-field>
-  <ckeditor *ngIf="note" #editor [editor]="Editor" [(ngModel)]="note.content" [config]="EDITOR_CONFIG" (change)="change()"></ckeditor>
+  <ckeditor class="editor" *ngIf="note" #editor [editor]="Editor" [(ngModel)]="note.content" [config]="EDITOR_CONFIG" (change)="change()"></ckeditor>
 </div>
