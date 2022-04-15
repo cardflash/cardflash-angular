@@ -24,6 +24,7 @@ export class NoteComponent implements OnInit {
       ALLOW_UNKNOWN_PROTOCOLS: true,
     });
     this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(cleanContent);
+    console.log(this.safeContent)
     setTimeout(() => {
       this.renderMath();
     },1)

@@ -4,6 +4,12 @@ import TurndownService from 'turndown';
 import { AppwriteProvider } from './data-api-providers/appwrite-provider';
 import { LocalProvider } from './data-api-providers/local-provider';
 import { Annotation } from './types/annotation';
+import * as MarkdownIt from 'markdown-it'
+var MarkdownItMark = require('markdown-it-mark');
+var MarkDownItContainer = require('markdown-it-container');
+var MarkDownItKatex = require('../markdown-it-math/index');
+import * as MarkDownWikiLinks from '../markdown-it-wikilinks/index';
+// import * as MarkDownItContainer from ';
 import {
   Config,
   DataApiProvider,
@@ -11,6 +17,8 @@ import {
   Entry,
   ENTRY_TYPES,
 } from './types/data-api-provider';
+import { html } from 'd3';
+import { environment } from 'src/environments/environment';
 
 export interface DocumentEntryContent {
   name: string;
@@ -56,8 +64,11 @@ export type NoteEntry = Entry & NoteEntryContent;
 export class DataApiService {
   private apiProvider: DataApiProvider;
   public config: Config = DEFAULT_CONFIG;
-
+  
   private fileViewURLCache: Map<string, URL | Promise<URL>> = new Map<string, URL | Promise<URL>>();
+
+  private mdIt?: MarkdownIt
+
   constructor() {
     try {
       const provider_setting = window.localStorage.getItem('cardflash_provider');
@@ -76,6 +87,7 @@ export class DataApiService {
       // we should instead use the appwrite backend
       this.apiProvider = new AppwriteProvider();
     }
+    this.initMDIt();
   }
 
   async fetchConfig() {
@@ -465,12 +477,12 @@ export class DataApiService {
         return node.tagName === 'MARK';
       },
       replacement(content, node, options) {
-        if((node as HTMLElement).classList.length > 0){
-          const color = (node as HTMLElement).classList[0];
-          return `<mark style="background-color: ${color.replace('marker-','').replace('-','')}">${content}</mark>`;
-        }else{
+        // if((node as HTMLElement).classList.length > 0){
+        //   const color = (node as HTMLElement).classList[0];
+        //   return `<mark style="background-color: ${color.replace('marker-','').replace('-','')}">${content}</mark>`;
+        // }else{
           return `==${content}==`
-        }
+        // }
       },
     });
 
@@ -488,7 +500,7 @@ export class DataApiService {
       },
     });
 
-    turndownService.remove((node, options) => node.classList.contains('admonition-title'));
+    // turndownService.remove((node, options) => node.classList.contains('admonition-title'));
 
     turndownService.addRule('wiki-link',{
       filter(node, options) {
@@ -513,18 +525,18 @@ export class DataApiService {
         });
         //  Obsidian native syntax (from obsidian v0.14.0)
         if (mdOptions.markdownFlavor && mdOptions.markdownFlavor === 'obsidian') {
-          return `>[!${type.toUpperCase()}] ${
-            node.querySelector('.admonition-title')?.textContent || ''
-          }
-${content
-  .split('\n')
-  .map((s) => '>' + s)
-  .join('\n')}\n`;
+//           return `>[!${type.toUpperCase()}] ${
+//             node.querySelector('.admonition-title')?.textContent || ''
+//           }
+// ${content
+//   .split('\n')
+//   .map((s) => '>' + s)
+//   .join('\n')}\n`;
           // Admonition obsidian plugin syntax:
-          //         return `\`\`\`ad-${type}
-          // title: ${node.querySelector('.admonition-title')?.textContent || ''}
-          // ${content.split('\n').map(s => " "+s).join('\n')}
-          // \`\`\``
+                  return `\`\`\`ad-${type}
+  title: ${node.querySelector('.admonition-title')?.textContent || ''}
+          ${content.split('\n').map(s => " "+s).join('\n')}
+\`\`\``
         } else {
           return `!!! ${type} "${node.querySelector('.admonition-title')?.textContent || ''}"
 ${content
@@ -549,6 +561,113 @@ ${content
     tempLink.click();
     document.body.removeChild(tempLink);
     console.log({ res });
+  }
+
+  async initMDIt(){
+    if(!this.mdIt){
+      const notes = await this.listNotes(true);
+      this.mdIt = new MarkdownIt()
+        .use(MarkdownItMark)
+        .use(MarkDownItKatex)
+        .use(MarkDownWikiLinks.default, (content, isEmbedding, env) => {
+          const note = notes.find((val) => val.title === content);
+          console.log({notes,note});
+          if(note){
+            return {
+                // 'onclick': function(e){console.log(e);},
+                "href": environment.BASE_URL + '/notes/' + note.$id,
+                "class": "mention",
+                "data-mention": `[[${note.$id}]]`,
+                "text": `[[${note.title}]]`,
+
+                // src: isEmbedding ? ((browser && (window as any).md_availableFiles) || availableFiles).find((file) => file.name === content)?.view : null
+            };
+          }else{
+            return {
+              "href":  environment.BASE_URL + '/notes',
+              "class": "mention",
+              "data-mention": `[[`,
+              "text": `[[${content}]]`,
+            }
+          }
+      })
+        .use(MarkDownItContainer,'ad-', {
+        marker: '`',
+  
+        validate: function (params: string) {
+            return params.trim().match(/\+?( ?)ad-(?<type>\w+)/gs);
+        },
+  
+        render: function (
+            tokens: {
+                info: string;
+                nesting: number;
+                type: string;
+                content: string;
+                children: { content: string; type: string; markup: string }[];
+            }[],
+            idx: number
+        ) {
+            if (tokens[idx].nesting === 1) {
+                var type = tokens[idx].info.trim().match(/\+?( ?)ad-(?<type>\w+)/);
+                if (type) {
+                    let title = type[2][0].toUpperCase() + type[2].substring(1);
+                    if (idx + 2 < tokens.length && tokens[idx + 2].type === 'inline') {
+                        let titleStartFound = false;
+                        let childrenToRemove : {content: string, type: string, markup: string}[] = [];
+                        for (let i = 0; i < tokens[idx + 2].children.length; i++) {
+                            const c = tokens[idx + 2].children[i];
+                            if (titleStartFound) {
+                                if (c.type === 'softbreak') {
+                                    break;
+                                } else {
+                                    // title += c.markup || c.content;
+                                    childrenToRemove.push(c);
+                                }
+                            } else {
+                                const m = c.content.match(/(title:( ?)([^\n]+))/);
+                                if (m != null && m.length > 3) {
+                                    title = m[3];
+                                    titleStartFound = true;
+                                    childrenToRemove.push(c);
+                                }
+                            }
+                        }
+                        const matches = tokens[idx + 2].content.match(/(title:( ?)([^\n]+)\n)/);
+                        if (matches && matches.length > 3) {
+                            title = matches[3];
+                        }
+                        tokens[idx + 2].children = tokens[idx + 2].children.filter(
+                            (c) => childrenToRemove.indexOf(c) < 0
+                        );
+                    }
+                    // opening tag
+                    return `<div class="admonition ${type[2]}" name="${type[2]}"><div class="admonition-title"><h3>${title}</h3></div>\n<div class="admonition-content">`;
+                }else{
+                  return '?\n';
+                }
+            } else {
+                // closing tag
+                return '</div></div>\n';
+            }
+        }
+    });
+    }
+  }
+
+  async renderMd(content: string){
+    await this.initMDIt();
+    if(this.mdIt){
+      return this.mdIt.render(content);
+    }else{
+      return 'MD Engine not available...';
+    }
+  }
+
+  async markdownToNote(title: string, mdContent: string){
+    let htmlContent = await this.renderMd(mdContent);
+    htmlContent = htmlContent.replace(/katex-display/g,"math-tex");
+    return await this.createNote({title: title, content: htmlContent, creationTime: Date.now()});
   }
 
 
@@ -653,7 +772,8 @@ ${content
         }
       },
     });
-
+    turndownService.remove((node, options) => node.classList.contains('admonition-title'));
+    
     turndownService.addRule('math', {
       filter(node, options) {
         return node.classList.contains('math-tex');
@@ -668,7 +788,6 @@ ${content
       },
     });
 
-    turndownService.remove((node, options) => node.classList.contains('admonition-title'));
 
     turndownService.addRule('admonition', {
       filter(node, options) {

@@ -112,9 +112,12 @@ export class NotesComponent implements OnInit, OnDestroy {
         console.log({file});
         if(file.type === 'text/markdown'){
           const content = await file.text();
+          await this.dataApi.markdownToNote(file.name.replace('.md',''),content);
           console.log({content});
         }
       }
+
+      await this.refresh();
     }
   }
 
