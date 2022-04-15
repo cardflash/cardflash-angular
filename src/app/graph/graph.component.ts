@@ -125,7 +125,7 @@ export class GraphComponent implements OnInit, AfterViewInit {
         if (d.source === this.noteID) {
           return 'stroke: #ff77c9';
         } else if (d.target === this.noteID) {
-          return 'stroke: #77ffad';
+          return 'stroke: #81fdff';
         } else {
         }
         return '';
