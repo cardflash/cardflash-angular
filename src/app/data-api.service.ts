@@ -375,6 +375,183 @@ export class DataApiService {
     }
   }
 
+
+  async noteToMarkdown(note: NoteEntry,  mdOptions: { embedImages?: boolean; markdownFlavor?: 'default' | 'mkdocs' | 'obsidian' | 'html' } = {
+    embedImages: false,
+    markdownFlavor: 'obsidian',
+  }){
+    const domParser = new DOMParser();
+
+    const doc = domParser.parseFromString(note.content, 'text/html');
+    const imgPromises: Promise<any>[] = [];
+    doc.querySelectorAll('img').forEach((img) => {
+      if (mdOptions.embedImages) {
+        imgPromises.push(
+          new Promise<void>((resolve, reject) => {
+            fetch(img.src, { credentials: 'include' })
+              .then(async (res) => {
+                const blob = await res.blob();
+                const reader = new FileReader();
+                await new Promise((resolve, reject) => {
+                  reader.onload = resolve;
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+                img.src =
+                  reader.result
+                    ?.toString()
+                    .replace('data:application/octet-stream;', `data:image/png;`) || img.src;
+              })
+              .finally(() => resolve());
+          })
+        );
+      } else {
+        imgPromises.push(
+          new Promise<void>(async (resolve, reject) => {
+
+            fetch(img.src, { credentials: 'include' })
+            .then(async (res) => {
+              const blob = await res.blob();
+              const reader = new FileReader();
+              await new Promise((resolve, reject) => {
+                reader.onload = resolve;
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+                  const tmp = document.createElement('a');
+                    tmp.style.display = 'none';
+      
+                    tmp.href = reader.result
+                    ?.toString()
+                    .replace('data:application/octet-stream;', `data:image/png;`) || img.src;
+                    const filename = `${
+                      img.getAttribute('data-imageid') || Date.now()
+                    }.png`;
+                    tmp.download = filename;
+                    tmp.target = '_blank';
+                    document.body.appendChild(tmp);
+                    tmp.click();
+                    document.body.removeChild(tmp);
+                    img.src = filename;
+            })
+            .finally(() => resolve());
+          })
+        );
+      }
+    });
+
+    await Promise.all(imgPromises);
+
+    const cleanContent = DOMPurify.sanitize(doc.body.outerHTML, {
+      // ADD_DATA_URI_TAGS: ['img', 'a'],
+      ALLOW_UNKNOWN_PROTOCOLS: true,
+      
+    });
+
+    let res : string = '';
+    if(mdOptions.markdownFlavor && mdOptions.markdownFlavor === 'html'){
+      res = cleanContent;
+    }else{
+    const turndownService = new TurndownService({
+      hr: '---------',
+      codeBlockStyle: 'indented',
+      bulletListMarker: '-',
+      headingStyle: 'atx'
+    });
+    turndownService.keep(['img']);
+
+    turndownService.addRule('highlighter', {
+      filter(node, options) {
+        return node.tagName === 'MARK';
+      },
+      replacement(content, node, options) {
+        if((node as HTMLElement).classList.length > 0){
+          const color = (node as HTMLElement).classList[0];
+          return `<mark style="background-color: ${color.replace('marker-','').replace('-','')}">${content}</mark>`;
+        }else{
+          return `==${content}==`
+        }
+      },
+    });
+
+    turndownService.addRule('math', {
+      filter(node, options) {
+        return node.classList.contains('math-tex');
+      },
+      replacement(content, node, options) {
+        let str = node.textContent || '';
+        return str
+          .replace('\\(', '$')
+          .replace('\\)', '$')
+          .replace('\\[', '\n$$$')
+          .replace('\\]', '$$$\n');
+      },
+    });
+
+    turndownService.remove((node, options) => node.classList.contains('admonition-title'));
+
+    turndownService.addRule('wiki-link',{
+      filter(node, options) {
+        return node.tagName === 'A' && node.classList.contains('mention');
+      },
+      replacement(content, node, options) {
+        console.log({node,content})
+        return node.textContent || '';
+      }
+    })
+    turndownService.addRule('admonition', {
+      filter(node, options) {
+        return node.classList.contains('admonition');
+      },
+      replacement(content, node, options) {
+        console.log({ node });
+        let type = 'note';
+        (node as any).classList.forEach((className: string) => {
+          if (className !== 'admonition' && className !== 'ck-widget' && className !== 'default') {
+            type = className;
+          }
+        });
+        //  Obsidian native syntax (from obsidian v0.14.0)
+        if (mdOptions.markdownFlavor && mdOptions.markdownFlavor === 'obsidian') {
+          return `>[!${type.toUpperCase()}] ${
+            node.querySelector('.admonition-title')?.textContent || ''
+          }
+${content
+  .split('\n')
+  .map((s) => '>' + s)
+  .join('\n')}\n`;
+          // Admonition obsidian plugin syntax:
+          //         return `\`\`\`ad-${type}
+          // title: ${node.querySelector('.admonition-title')?.textContent || ''}
+          // ${content.split('\n').map(s => " "+s).join('\n')}
+          // \`\`\``
+        } else {
+          return `!!! ${type} "${node.querySelector('.admonition-title')?.textContent || ''}"
+${content
+  .split('\n')
+  .map((s) => '    ' + s)
+  .join('\n')}\n`;
+        }
+      },
+    });
+
+    res = turndownService.turndown(cleanContent);
+  }
+    // navigator.clipboard.writeText(md);
+    const type = mdOptions.markdownFlavor === 'html' ? 'html' : 'md';
+    const blob = new Blob([res], { type: `text/${type}` });
+    const blobURL = window.URL.createObjectURL(blob);
+    const tempLink = document.createElement('a');
+    tempLink.style.display = 'none';
+    tempLink.href = blobURL;
+    tempLink.download = `${note.title}-${note.$id}.${type}`;
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+    console.log({ res });
+  }
+
+
   async cardToMarkdown(
     card: CardEntry | CardEntryContent,
     mdOptions: { embedImages?: boolean; markdownFlavor?: 'default' | 'mkdocs' | 'obsidian' | 'html' } = {

@@ -103,4 +103,19 @@ export class NotesComponent implements OnInit, OnDestroy {
     this.router.navigate(['notes',note.$id,'edit']);
   }
 
+  async fileinputChange(fileInput: HTMLInputElement){
+    console.log({fileInput})
+    if(fileInput.files){
+
+      for (let i = 0; i < fileInput.files?.length; i++) {
+        const file = fileInput.files[i];
+        console.log({file});
+        if(file.type === 'text/markdown'){
+          const content = await file.text();
+          console.log({content});
+        }
+      }
+    }
+  }
+
 }

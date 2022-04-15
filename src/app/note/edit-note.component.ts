@@ -61,12 +61,14 @@ export class EditNoteComponent implements OnInit {
   
               let href;
   
-              // User mentions are downcasted as mailto: links. Tags become normal URLs.
-              if ( modelAttributeValue.id[ 0 ] === '@' ) {
-          href = `mailto:${ modelAttributeValue.id.slice( 1 ) }@example.com`;
-              } else {
+              
+                console.log({modelAttributeValue});
+                if(modelAttributeValue.href){
                   href = modelAttributeValue.href;
-              }
+                }else{
+                  href = environment.BASE_URL + '/notes/' + modelAttributeValue.id.replace('[[','').replace(']]','');
+                }
+              
   
               return writer.createAttributeElement( 'a', {
                   class: 'mention',
@@ -236,6 +238,7 @@ export class EditNoteComponent implements OnInit {
 
   async save(){
     if(this.note){
+      console.log(this.note)
       await this.dataApi.updateNote(this.note.$id,this.note)
     }
   }
@@ -257,8 +260,11 @@ export class EditNoteComponent implements OnInit {
       return true;
     });
     const suggestions = queryText.includes('#') ? [] : relevant_docs.map((doc) => {
-      return {id: `[[${doc.title}]]`, href: environment.BASE_URL+'/notes/'+doc.$id, text: `[[${doc.title}]]`, docName: doc.title, cardContent: ''}
+      return {id: `[[${doc.$id}]]`, href: environment.BASE_URL+'/notes/'+doc.$id, text: `[[${doc.title}]]`, docName: doc.title, cardContent: '', isNew: false}
     })
+    if(queryText.length >= 2 && !queryText.includes(']')){
+      suggestions.push({id: `[[${queryText.replace('[','')}]]`, text: `[[${queryText.replace('[','')}]]`, docName: queryText.replace('[',''), cardContent: '', isNew: true, href: environment.BASE_URL+'/notes'})
+    }
     // let promises : Promise<void>[] = [];
     // await Promise.all(promises);
     console.log({suggestions})
@@ -266,7 +272,7 @@ export class EditNoteComponent implements OnInit {
   
   }
 
-  customItemRenderer(item: {id: string, href: string, text: string, docName: string, cardContent: string}){
+  customItemRenderer(item: {id: string, href: string, text: string, docName: string, cardContent: string, isNew: boolean}){
     const itemElement = document.createElement( 'span' );
 
     itemElement.classList.add( 'custom-item' );
@@ -274,6 +280,9 @@ export class EditNoteComponent implements OnInit {
 
     const docNameShort = (item.docName.length > 20) ? (item.docName.substring(0,18) + '...') : (item.docName);
     itemElement.textContent = docNameShort;
+    if(item.isNew){
+      itemElement.textContent += ' (create new)';
+    }
     itemElement.style.fontWeight = 'bold';
     itemElement.style.display = 'inline-block';
     

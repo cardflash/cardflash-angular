@@ -21,6 +21,8 @@
   <button mat-flat-button (click)="addNew()"><mat-icon>add</mat-icon> New...</button>
   <br />
   <br />
+  <input type="file" #fileInput (change)="fileinputChange(fileInput)">
+  <br/>
 <!-- <app-stacked-cards [cards]="filteredCards"></app-stacked-cards> -->
 <div class="noteList">
   <div mat-flat-button class="noteEl" *ngFor="let note of filteredNotes; trackBt: trackyByNoteId" >

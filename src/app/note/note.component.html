@@ -10,8 +10,16 @@
         <mat-icon>edit</mat-icon>
         Edit
     </button>
+    <br/>
+    <br/>
+    <button mat-flat-button (click)="downloadMD()">
+        <mat-icon>text_snippet</mat-icon>
+        Download MD
+    </button>
 </div>
 <h1>{{noteEntry?.title}}</h1>
 <div class="card note" #innerNoteEl [innerHTML]="safeContent"> 
     
 </div>
+
+<app-graph *ngIf="noteEntry" [noteID]="noteEntry.$id" #noteGraph></app-graph>

@@ -56,6 +56,12 @@ export class NoteComponent implements OnInit {
       (window as any).renderMathInElement(this.innerNoteEl.nativeElement);
     }
   }
+
+  downloadMD(){
+    if(this.noteEntry){
+      this.dataApi.noteToMarkdown(this.noteEntry);
+    }
+  }
 }
 
 

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
 import { environment } from 'src/environments/environment';
@@ -11,8 +11,10 @@ import { DataApiService, NoteEntry } from '../data-api.service';
 })
 export class GraphComponent implements OnInit, AfterViewInit {
 
+  @Input('noteID') noteID? : string;
+
   private notes: NoteEntry[] = [];
-  private nodes: {id: string, group: number, url: string}[] = [];
+  private nodes: {id: string, name: string, group: number, url: string}[] = [];
   private links: {source: string, target: string, value: number}[] = [];
   constructor(private dataApi: DataApiService, private router: Router) { }
 
@@ -27,18 +29,17 @@ export class GraphComponent implements OnInit, AfterViewInit {
 
   async refreshData(){
     this.notes = await this.dataApi.listNotes(true);
-    this.nodes = this.notes.map((note) => {return {id: note.title, group: 1, url: '/notes/'+note.$id}});
+    this.nodes = this.notes.map((note) => {return {id: note.$id, name: note.title, group: note.$id === this.noteID ? 1 : 0, url: '/notes/'+note.$id}});
     const domParser = new DOMParser();
     this.links = [];
     this.notes.forEach((note) => {
       const dom = domParser.parseFromString(note.content,'text/html');
       dom.querySelectorAll('a.mention').forEach((el) => {
-        const data_mention = el.getAttribute('data-mention');
+        const data_mention = el.getAttribute('data-mention')?.replace('[[','').replace(']]','');
         if(data_mention){
-          const target = data_mention.replace('[[','').replace(']]','');
+          const target = data_mention;
           if(target && this.nodes.find((n) => n.id === target)){
-            console.log(dom.querySelectorAll('a.mention').length)
-            this.links.push({source: note.title, target: target || '', value: 200/(dom.querySelectorAll('a.mention').length*30)})
+            this.links.push({source: note.$id, target: target, value: 200/(dom.querySelectorAll('a.mention').length*30)})
           }
         }
       })
@@ -65,13 +66,11 @@ export class GraphComponent implements OnInit, AfterViewInit {
     let zoom = d3.zoom()
     .extent([[0, 0], [width, height]])
     .scaleExtent([0.2, 15]).on("zoom",(e) => {
-      console.log({e});
       svg.selectAll('g').attr("transform",e.transform);
       ticked()
       // svg.attr("transform",e.transform)
     });
     svg.call(zoom as any);
-var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 var simulation = d3.forceSimulation()
 .force("link", d3.forceLink().id(function(d) { return (d as any).id; }))
@@ -105,9 +104,10 @@ var node = svg.append("g")
   // window.location.href = d.url;
 }).style('cursor','pointer');
 
+const colors = ['#1f77b4','#aa00ff']
 var circles = node.append("circle")
 .attr("r", 7)
-.attr("fill", function(d) { return color(d.group.toString()); });
+.attr("fill", function(d) { return colors[d.group] });
 
 // Create a drag handler and append it to the node object instead
 var drag_handler = d3.drag()
@@ -117,15 +117,15 @@ var drag_handler = d3.drag()
 
 drag_handler(node as any);
 
-var lables = node.append("text")
+var labels = node.append("text")
   .text(function(d) {
-    return d.id;
+    return d.name;
   })
   .attr('x', 6)
   .attr('y', 3);
 
 node.append("title")
-  .text(function(d) { return d.id; });
+  .text(function(d) { return d.name; });
 
 simulation
   .nodes(graph.nodes as any)
