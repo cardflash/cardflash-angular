@@ -23,6 +23,30 @@ body { margin: 0; overflow: hidden; font-family: Roboto, "Helvetica Neue", sans-
 .ck-mentions {
   --ck-mention-list-max-height: min(50vh,35rem) !important;
 }
+a.mention {
+  box-shadow: 0px 0px 2px 2px #70d7ff70;
+  background-color: unset;
+}
+a.mention{
+  color: #a400fcf9;
+}
+a:visited.mention{
+  color: #a970ffd6;
+}
+.editor .ck-content {
+  a.mention {
+    box-shadow: 0px 0px 2.5px 2.5px #70d7ff90;
+    color: #a400fcf9;
+    background-color: unset;
+  }
+  a:visited.mention{
+      color: #a970ffd6;
+    }
+  span.mention{
+    background-color: unset;
+  }
+}
+
 
 .ck.ck-editor__editable_inline{
   // text-align: center !important;

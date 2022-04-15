@@ -149,6 +149,9 @@ export class EditNoteComponent implements OnInit {
                 }
               );
 
+            }else if(modelAttributeValue.id.indexOf(':') === 0){
+              console.log({modelAttributeValue})
+              return;
             }else{
               let item = writer.createAttributeElement('none',{style: 'display: none', 'hidden': true},{priority: 5});
               // setTimeout(() => {
@@ -175,6 +178,25 @@ export class EditNoteComponent implements OnInit {
           feed: this.getCommandSuggestions.bind(this),
           minimumCharacters: 0,
           itemRenderer: this.customCommandRenderer.bind(this)
+        },
+        {marker: ':',
+        feed: [
+          {id: ':sunglasses: 😎', text: '😎'},
+          {id: ':smiley: 😀', text: '😀'},
+          {id: ':heart-face: 🥰', text: '🥰'},
+          {id: ':hugging: 🤗', text: '🤗'},
+          {id: ':laughing: 😂', text: '😂'},
+          {id: ':heart: ❤️', text: '❤️'},
+          {id: ':thumbs-up: 👍', text: '👍'},
+          {id: ':thumbs-down: 👎', text: '👎'},
+          {id: ':brain: 🧠', text: '🧠'},
+          {id: ':watermelon: 🍉', text: '🍉'},
+          {id: ':peach: 🍑', text: '🍑'},
+          {id: ':star: ⭐', text: '⭐'},
+          {id: ':rainbow: 🌈', text: '🌈'},
+          {id: ':lightning: ⚡', text: '⚡'},
+          {id: ':fire: 🔥', text: '🔥'},
+        ]
         }
       ],
     },
