@@ -10,7 +10,7 @@
           width: auto;
           margin-left: auto;
           margin-right: auto;
-          text-align: center !important;
+          /* text-align: center !important; */
           font-size: 20px;
           --marker-yellow: #f3ea504f;
           --marker-blue: #5eacf94f;
@@ -26,13 +26,13 @@
           width: fit-content;
         }
         
-        ul,
+        /* ul,
         ol {
           max-width: fit-content;
           text-align: left;
           margin-left: auto;
           margin-right: auto;
-        }
+        } */
         
         .marker-light-yellow {
           background-color: var(--marker-yellow);

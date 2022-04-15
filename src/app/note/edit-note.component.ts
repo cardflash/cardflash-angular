@@ -70,14 +70,15 @@ export class EditNoteComponent implements OnInit {
               setTimeout(() => {
                 switch (command) {
                   case '/admonition':
-                    editor.execute('insertAdmonition',{value: 'help'});
                     editor.execute('delete');
+                    editor.execute('insertAdmonition',{value: 'help'});
+                    
                     break;
-                    case '/header':
+                    case '/title':
                       editor.model.change((writer : any) => {
-                        const title = writer.createElement('heading2',{});
+                        const title = writer.createElement('heading1',{});
                         // writer.appendText('Title',{},title)
-                        editor.execute( 'heading', { value: 'heading2' } );
+                        editor.execute( 'heading', { value: 'heading1' } );
                         return title;
                         // editor.model.insertContent(title,editor.model.document.selection.getLastPosition(),'after');
                       })
@@ -86,10 +87,42 @@ export class EditNoteComponent implements OnInit {
                       editor.execute("insertDiagram");
                       editor.execute("editDiagram");
                       break;
-                      default:
+                    case '/bulleted-list':
+                      editor.execute("bulletedList");
+                      break;
+                    case '/numbered-list':
+                      editor.execute("numberedList")
+                      break;
+                    case '/highlight':
+                      editor.execute('delete');
+                      editor.execute("highlight", { value: 'lightBlueMarker' });
+                      break;
+                    case '/link':
+                      editor.execute("link",environment.BASE_URL)
+                      break;
+                    case '/bold':
+                      editor.execute('delete');
+                      editor.execute("bold",environment.BASE_URL)
+                      break;
+                    case '/wiki-link':
+                      editor.execute("mention",{marker: '[', mention: '[['});
+                      break;
+                    case '/math':
+                      editor.plugins.get('MathUI')._showUI();
+                      console.log({editor});
+                      break;
+                    case '/embed-html':
+                      // editor.execute('htmlEmbed','<b>Hello World</b>');
+                      editor.execute( 'htmlEmbed' );
+                      editor.editing.view.focus();
+              
+                      const widgetWrapper = editor.editing.view.document.selection.getSelectedElement();
+                      widgetWrapper.getCustomProperty( 'rawHtmlApi' ).makeEditable();
+                      break;
+                    default:
                         break;
                       }
-                    },10);
+                    },0);
               return item;
             }else if(modelAttributeValue.id.indexOf('[') === 0){
               if (modelAttributeValue.href) {
@@ -385,7 +418,43 @@ export class EditNoteComponent implements OnInit {
       return [];
     }
     console.log({queryText});
-    const allCommands = [{
+    const allCommands = [
+    //   {
+    //   id: `/bold`,
+    //   commandName: `Toggle bold`,
+    //   text: ' ',
+    //   type: 'command',
+    //   icon: 'format_bold'
+    // },
+    {
+      id: `/wiki-link`,
+      commandName: `Reference another note`,
+      text: ' ',
+      type: 'command',
+      icon: 'add_link'
+    },
+    {
+      id: `/math`,
+      commandName: `Insert math expression (LaTeX)`,
+      text: ' ',
+      type: 'command',
+      icon: 'attach_money'
+    },
+    {
+      id: `/highlight`,
+      commandName: `Create highlight`,
+      text: ' ',
+      type: 'command',
+      icon: 'color_lens'
+    },
+    {
+      id: `/title`,
+      commandName: `Insert title (header)`,
+      text: ' ',
+      type: 'command',
+      icon: 'title'
+    },
+    {
       id: `/diagram`,
       commandName: `Insert diagram`,
       text: ' ',
@@ -393,20 +462,42 @@ export class EditNoteComponent implements OnInit {
       icon: 'mediation'
     },
     {
-      id: `/header`,
-      commandName: `Insert header`,
-      text: ' ',
-      type: 'command',
-      icon: 'title'
-    },
-    {
       id: `/admonition`,
       commandName: `Insert admonition`,
       text: ' ',
       type: 'command',
       icon: 'info'
-    }];
-    return allCommands.filter((command) => command.commandName.includes(queryText));
+    },
+    {
+      id: `/bulleted-list`,
+      commandName: `Insert bulleted list`,
+      text: ' ',
+      type: 'command',
+      icon: 'format_list_bulleted'
+    },
+    {
+      id: `/numbered-list`,
+      commandName: `Insert numbered list`,
+      text: ' ',
+      type: 'command',
+      icon: 'format_list_numbered'
+    },
+    {
+      id: `/embed-html`,
+      commandName: `Embed HTML`,
+      text: ' ',
+      type: 'command',
+      icon: 'raw_on'
+    },
+    {
+      id: `/link`,
+      commandName: `Add a link`,
+      text: ' ',
+      type: 'command',
+      icon: 'link'
+    }
+  ];
+    return allCommands.filter((command) => command.commandName.toLowerCase().includes(queryText.toLowerCase()));
   }
   
 
@@ -427,7 +518,8 @@ export class EditNoteComponent implements OnInit {
     itemElement.style.display = 'inline-flex';
     itemElement.style.justifyContent = 'space-between';
     itemElement.style.alignItems = 'center';
-    itemElement.style.minWidth = '10rem';
+    itemElement.style.minWidth = '15rem';
+    // itemElement.style.paddingRight = '4rem';
     itemElement.id = `mention-list-item-id-${item.id}`;
     itemElement.classList.add('command-item-element');
     const itemLabel = document.createElement('span');

@@ -20,9 +20,12 @@ body { margin: 0; overflow: hidden; font-family: Roboto, "Helvetica Neue", sans-
 .ck-content {
   min-height: var(--editor-min-height);
 }
+.ck-mentions {
+  --ck-mention-list-max-height: min(50vh,35rem) !important;
+}
 
 .ck.ck-editor__editable_inline{
-  text-align: center !important;
+  // text-align: center !important;
 }
 
 .mat-app-background{
@@ -83,6 +86,11 @@ svg.leader-line {
   z-index: 1 !important;
   }   
 
+.command-item-element {
+  --ck-color-list-button-on-background-focus: #77cfff9c;
+  --ck-color-list-button-on-background: #77cfff8f;
+  --ck-color-list-button-hover-background: #fdf7f7;
+}
 
 
 .wrap .mat-slide-toggle-content {
@@ -137,21 +145,21 @@ svg.leader-line {
   width:auto;
   margin-left: auto;
   margin-right: auto;
-  text-align: center !important;
+  // text-align: center !important;
   font-size: 18px;
   padding-top: 1rem;
   
 
-  ul, ol {
-    max-width: fit-content;
-  text-align: left;
-  margin-left: auto;
-  margin-right: auto;
+  // ul, ol {
+  //   max-width: fit-content;
+  // text-align: left;
+  // margin-left: auto;
+  // margin-right: auto;
 
-  ul, ol {
-    margin-left: 0;
-  }
-  }
+  // ul, ol {
+  //   margin-left: 0;
+  // }
+  // }
 
   [data-annotationid] {
     border: var(--data-annotation-border,none)
