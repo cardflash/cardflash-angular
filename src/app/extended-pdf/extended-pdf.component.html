@@ -114,7 +114,7 @@
     <mat-button-toggle value="notes">Notes</mat-button-toggle>
   </mat-button-toggle-group> -->
   <h2>Notes</h2>
-  <app-edit-note #noteComponent  [note]="note" [activeSide]="this.cardOption.id"></app-edit-note>
+  <app-edit-note #noteComponent *ngIf="note"  [note]="note" [activeSide]="this.cardOption.id"></app-edit-note>
     <!-- <div class="currentCardActions">
       <button mat-stroked-button color="primary" (click)="finishCard()" class="nextCardButton" i18n>
         New Card

@@ -1,26 +1,28 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 import * as CustomBalloonEditor from 'src/ckeditor/ckeditor.js';
 import { environment } from 'src/environments/environment';
 import { v4 } from 'uuid';
-import { DataApiService, NoteEntry } from '../data-api.service';
+import { DataApiService, NoteEntry, NoteEntryContent } from '../data-api.service';
 import { UtilsService } from '../utils.service';
 @Component({
   selector: 'app-edit-note',
   templateUrl: './edit-note.component.html',
   styleUrls: ['./edit-note.component.scss'],
 })
-export class EditNoteComponent implements OnInit {
+export class EditNoteComponent implements OnInit, OnDestroy {
   @ViewChild('editor') editorComponent?: CKEditorComponent;
 
   public Editor: any;
 
   @Input('activeSide') activeSide: string = '';
 
-  @Input('note') note?: NoteEntry;
+  @Input('note') note: NoteEntry | NoteEntryContent = {content: '<h3>Loading...</h3>', title: 'Loading...', creationTime: 0 };
   private tempStyles: HTMLStyleElement | undefined;
 
+  private lastSave: number = Date.now();
+  public isLoading = true;
   private notes: NoteEntry[] = [];
   public readonly EDITOR_CONFIG = {
     extraPlugins: [
@@ -204,20 +206,39 @@ export class EditNoteComponent implements OnInit {
   constructor(
     public utils: UtilsService,
     private dataApi: DataApiService,
-    private actRoute: ActivatedRoute
+    private actRoute: ActivatedRoute,
+    private router: Router
   ) {}
 
   async ngOnInit() {
     this.Editor = CustomBalloonEditor;
-    if (!this.note) {
-      this.note = await this.dataApi.getNote(this.actRoute.snapshot.params.id);
-    }
+    // if (!this.note) {
+      this.dataApi.getNote(this.actRoute.snapshot.params.id).then((note) => {
+        this.note = note;
+              if(this.editorComponent?.editorInstance){
+                this.editorComponent.editorInstance.setData(this.note.content);
+                setInterval(() => {
+                  this.save();
+                }, 10000);
+                this.isLoading = false;
+              } 
+      });
+    // }
     this.dataApi.listNotes(true).then((notes) => {
       this.notes = notes;
     });
-    // setInterval(() => {
-    //   this.addTempStyles();
-    // }, 500);
+
+  }
+
+  async ngOnDestroy() {
+     await this.save();
+  }
+
+  async finishEditing(){
+    this.isLoading = true;
+    await this.save();
+    this.isLoading = false;
+    this.router.navigate(['notes',this.note.$id]);
   }
 
   editorTest() {
@@ -352,12 +373,19 @@ export class EditNoteComponent implements OnInit {
   }
 
   async save() {
-    if (this.note) {
+    if (this.note.$id && this.editorComponent?.editorInstance) {
+      console.log('saving');
+      this.note.content = this.editorComponent.editorInstance.getData();
       await this.dataApi.updateNote(this.note.$id, this.note);
     }
   }
-  async change() {
-    this.save();
+  async change() {  
+    // const now = Date.now();
+    // if(now - this.lastSave > 10 * 1000){
+    //   this.lastSave = now;
+    //   console.log('Saving');
+      this.save();
+    // }
   }
 
   async getSuggestions(queryText: string) {

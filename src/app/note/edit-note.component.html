@@ -1,15 +1,23 @@
 
 <div class="mainContent">
-
   <button mat-flat-button (click)="newCard()">New Card</button>
   <!-- <button mat-flat-button (click)="save()">Save</button> -->
   <br/>
-  <button mat-flat-button [routerLink]="'/notes/'+note?.$id">Back</button>
+  <button mat-flat-button (click)="finishEditing()">Back</button>
   <br />
+  <div *ngIf="isLoading">
+    <br />
+    <h1>Syncing note...</h1>
+    <mat-progress-spinner
+    class="loadingIndicator"
+    mode="indeterminate"
+  ></mat-progress-spinner>
+  <br />
+  </div>
   <mat-form-field class="titleField" *ngIf="note">
     <mat-label i18n>Title</mat-label>
     <input matInput placeholder="Document Title" [(ngModel)]="this.note.title" (change)="change()"/>
     <!-- <mat-icon matSuffix>title</mat-icon> -->
   </mat-form-field>
-  <ckeditor class="editor" *ngIf="note" #editor [editor]="Editor" [(ngModel)]="note.content" [config]="EDITOR_CONFIG" (change)="change()"></ckeditor>
+  <ckeditor class="editor"#editor [editor]="Editor"  [config]="EDITOR_CONFIG"></ckeditor>
 </div>
