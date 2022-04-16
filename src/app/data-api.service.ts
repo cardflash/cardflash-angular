@@ -6,6 +6,10 @@ import { LocalProvider } from './data-api-providers/local-provider';
 import { Annotation } from './types/annotation';
 import * as MarkdownIt from 'markdown-it'
 var MarkdownItMark = require('markdown-it-mark');
+// var { MarkDownItTable } = require('markdown-it-table');
+
+var MarkDownItTaskLists = require('markdown-it-task-lists');
+var { markdownItTable  } = require('markdown-it-table');
 var MarkDownItContainer = require('markdown-it-container');
 var MarkDownItKatex = require('../markdown-it-math/index');
 import * as MarkDownWikiLinks from '../markdown-it-wikilinks/index';
@@ -462,8 +466,6 @@ export class DataApiService {
 
     let res : string = '';
     if(mdOptions.markdownFlavor && mdOptions.markdownFlavor === 'html'){
-      res = cleanContent;
-    }else{
     const turndownService = new TurndownService({
       hr: '---------',
       codeBlockStyle: 'indented',
@@ -564,10 +566,12 @@ ${content
   }
 
   async initMDIt(){
-    if(!this.mdIt){
+    // if(!this.mdIt){
       const notes = await this.listNotes(true);
       this.mdIt = new MarkdownIt()
         .use(MarkdownItMark)
+        .use(markdownItTable)
+        .use(MarkDownItTaskLists)
         .use(MarkDownItKatex)
         .use(MarkDownWikiLinks.default, (content, isEmbedding, env) => {
           const note = notes.find((val) => val.title === content);
@@ -652,7 +656,7 @@ ${content
             }
         }
     });
-    }
+    // }
   }
 
   async renderMd(content: string){
