@@ -18,6 +18,9 @@ export class GraphComponent implements OnInit, AfterViewInit {
 
   private notes: NoteEntry[] = [];
   private nodes: { id: string; name: string; group: number; url: string }[] = [];
+  public mainNode : any;
+  private ticked : any;
+  private simulation: any;
   private links: { source: string; target: string; value: number }[] = [];
   constructor(private dataApi: DataApiService, private router: Router) {}
 
@@ -81,10 +84,10 @@ export class GraphComponent implements OnInit, AfterViewInit {
         [0, 0],
         [width, height],
       ])
-      .scaleExtent([0.2, 15])
+      .scaleExtent([0.01, 15])
       .on('zoom', (e) => {
         svg.selectAll('g').attr('transform', e.transform);
-        ticked();
+        this.ticked();
         // svg.attr("transform",e.transform)
       });
     svg.call(zoom as any);
@@ -98,15 +101,16 @@ export class GraphComponent implements OnInit, AfterViewInit {
         })
       )
       .force('charge', d3.forceManyBody())
-      // .force("center", d3.forceCenter(0, 0))
-      .force('x', d3.forceX())
-      .force('y', d3.forceY())
+      .force("center", d3.forceCenter(0, 0))
+      // .force('x', d3.forceX())
+      // .force('y', d3.forceY())
       .force(
         'collide',
         d3.forceCollide(function (d) {
-          return 35;
+          return 45;
         })
       );
+      this.simulation = simulation;
     // .force('collide', d3.forceCollide((d : any) => {
     //   return Math.min(300 / this.nodes.length,50)}));
     const graph = { nodes: [...this.nodes], links: [...this.links] };
@@ -127,6 +131,7 @@ export class GraphComponent implements OnInit, AfterViewInit {
         } else if (d.target === this.noteID) {
           return 'stroke: #81fdff';
         } else {
+          return 'stroke: #c2c2c2';
         }
         return '';
       });
@@ -144,7 +149,9 @@ export class GraphComponent implements OnInit, AfterViewInit {
         this.router.navigateByUrl(d.url);
         // window.location.href = d.url;
       })
-      .style('cursor', 'pointer');
+      .style('cursor', 'pointer')
+
+      // .filter((d)=> d.id === this.noteID).ce;
 
     const colors = ['#1f77b4', '#aa00ff'];
     var circles = node
@@ -152,6 +159,12 @@ export class GraphComponent implements OnInit, AfterViewInit {
       .attr('r', 7)
       .attr('fill', function (d) {
         return colors[d.group];
+      }).attr('style', function (d){
+        if(d.group === 1){
+          return 'stroke: #7900ff'
+        }else{
+          return '';
+        }
       });
 
     // Create a drag handler and append it to the node object instead
@@ -171,11 +184,7 @@ export class GraphComponent implements OnInit, AfterViewInit {
       return d.name;
     });
 
-    simulation.nodes(graph.nodes as any).on('tick', ticked);
-
-    (simulation?.force('link') as any).links(graph.links);
-
-    function ticked() {
+    this.ticked = () => {
       link
         .attr('x1', function (d: any) {
           return d.source.x;
@@ -190,10 +199,14 @@ export class GraphComponent implements OnInit, AfterViewInit {
           return d.target.y;
         });
 
-      node.attr('transform', function (d: any) {
+        node.attr('transform', (d: any) => {
         return 'translate(' + d.x + ',' + d.y + ')';
       });
     }
+    simulation.nodes(graph.nodes as any).on('tick',this.ticked);
+
+    (simulation?.force('link') as any).links(graph.links);
+
 
     function dragstarted(event: any, d: any) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -211,5 +224,49 @@ export class GraphComponent implements OnInit, AfterViewInit {
       d.fx = null;
       d.fy = null;
     }
+
+    this.mainNode= graph.nodes.find((n) => n.id === this.noteID);
+    this.centerMainNode();
+ }
+  
+
+  centerMainNode(){
+    if(this.mainNode){
+      this.mainNode.fx = 0;
+      this.mainNode.fy = 0;
+      this.mainNode.vx = 0;
+      this.mainNode.vy = 0;
+      var svg = d3.select('#graph');
+      svg.attr('transform', 'none');
+      svg.select('g.links').attr("transform","none");
+      svg.select('g.nodes').attr("transform","none");
+    }
+  }
+
+  downloadGraph(){
+    const svg = document.getElementById('graph');
+    if(svg){
+      // const transform = svg.getAttribute('transform') || 'none';
+      // const transformLinks = svg.querySelector('g.links')?.getAttribute('transform') || 'none';
+      // const transformNodes = svg.querySelector('g.nodes')?.getAttribute('transform') || 'none';
+      // console.log({svg,transform,transformLinks,transformNodes})
+      // svg.setAttribute('transform','none')
+      // svg.querySelector('g.links')?.setAttribute('transform','scale(0.2)')
+      // svg.querySelector('g.nodes')?.setAttribute('transform','scale(0.2)')
+      let xmlSerializer = new XMLSerializer();
+      const content = xmlSerializer.serializeToString(svg);
+      const svgBlob = new Blob([content], {type:"image/svg+xml;charset=utf-8"});
+      const svgURL = URL.createObjectURL(svgBlob);
+      const a = document.createElement('a');
+      a.href = svgURL;
+      a.download = new Date().toISOString() + '-graph.svg';
+      document.body.append(a);
+      a.click();
+      document.body.removeChild(a);
+      // svg.setAttribute('transform',transform);
+      // svg.querySelector('g.links')?.setAttribute('transform',transformLinks);
+      // svg.querySelector('g.nodes')?.setAttribute('transform',transformNodes);
+    }
+
   }
 }

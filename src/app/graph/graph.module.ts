@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { GraphRoutingModule } from './graph-routing.module';
 import { GraphComponent } from './graph.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @NgModule({
@@ -11,7 +13,9 @@ import { GraphComponent } from './graph.component';
   ],
   imports: [
     CommonModule,
-    GraphRoutingModule
+    GraphRoutingModule,
+    MatButtonModule,
+    MatIconModule
   ],
   exports: [GraphComponent]
 })

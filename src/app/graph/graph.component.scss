@@ -4,14 +4,21 @@
     background-color: white;
     border-radius: 10px;
     border: 5px solid whitesmoke;
-    margin: 0 auto;
-    max-width: min(50rem,85vw);
+    margin: 1rem auto;
+    max-width: min(60rem,85vw);
+}
+
+.centerNoteButton {
+    float:left;
+}
+.downloadButton {
+    float: right;
 }
 
 #graph {
     // width: 100%;
     width: 100%;
     height: auto;
-    min-height: 500px;
+    min-height: 600px;
     
 }

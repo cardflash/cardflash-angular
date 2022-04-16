@@ -1,10 +1,11 @@
-<!-- <button mat-flat-button (click)="createGraph()">Reset Graph</button> -->
 <div class="graphContainer">
     <span style="display: inline-flex; align-items: center;">
-    <h2>Note Graph
-    </h2>
-    <img style="width: 2rem; margin-left: 1rem;" src="/assets/graph-icon.svg">
-</span>
-
+        <h2>Note Graph
+        </h2>
+        <img style="width: 2rem; margin-left: 1rem;" src="/assets/graph-icon.svg">
+    </span>
+    <button class="centerNoteButton" mat-icon-button *ngIf="this.mainNode" (click)="centerMainNode()" title="Center current note"><mat-icon>center_focus_weak</mat-icon></button>
+    <button class="downloadButton" mat-icon-button (click)="downloadGraph()" title="Download graph"><mat-icon>save_alt</mat-icon></button>
+    
     <svg id="graph"></svg>
 </div>
