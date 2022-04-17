@@ -4,7 +4,14 @@ import { NotesComponent } from '../notes/notes.component';
 import { EditNoteComponent } from './edit-note.component';
 import { NoteComponent } from './note.component';
 
-const routes: Routes = [{ path: '', component: NotesComponent },{path: ':id', component: NoteComponent},{path: ':id/edit', component: EditNoteComponent}];
+const routes: Routes = [
+  { path: '', component: NotesComponent },
+  {path: 'folder', component: NotesComponent},
+  {path: 'folder/*', component: NotesComponent},
+  {path: ':id', component: NoteComponent},
+  {path: ':id/edit', component: EditNoteComponent},
+
+  {path: '**', component: NotesComponent}];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

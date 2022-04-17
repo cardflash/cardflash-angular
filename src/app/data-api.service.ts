@@ -55,6 +55,7 @@ export interface NoteEntryContent {
   content: string;
   title: string;
   creationTime: number;
+  path: string;
   // imgIDs?: string[];
 }
 
@@ -668,10 +669,10 @@ ${content
     }
   }
 
-  async markdownToNote(title: string, mdContent: string){
+  async markdownToNote(title: string, mdContent: string, path?: string){
     let htmlContent = await this.renderMd(mdContent);
     htmlContent = htmlContent.replace(/katex-display/g,"math-tex");
-    return await this.createNote({title: title, content: htmlContent, creationTime: Date.now()});
+    return await this.createNote({title: title, content: htmlContent, creationTime: Date.now(), path: path? path : '/'});
   }
 
 

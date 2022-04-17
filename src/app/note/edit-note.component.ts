@@ -18,7 +18,7 @@ export class EditNoteComponent implements OnInit, OnDestroy {
 
   @Input('activeSide') activeSide: string = '';
 
-  @Input('note') note: NoteEntry | NoteEntryContent = {content: '<h3>Loading...</h3>', title: 'Loading...', creationTime: 0 };
+  @Input('note') note: NoteEntry | NoteEntryContent = {content: '<h3>Loading...</h3>', title: 'Loading...', creationTime: 0, path: '/' };
   private tempStyles: HTMLStyleElement | undefined;
 
   private lastSave: number = Date.now();

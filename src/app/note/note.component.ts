@@ -16,6 +16,7 @@ export class NoteComponent implements OnInit {
 
 
   public safeContent: SafeHtml = '';
+  public folderPath: string = '';
   public noteEntry? : NoteEntry;
   @Input('note') set note(value: NoteEntry) {
     this.noteEntry = value;
@@ -25,6 +26,9 @@ export class NoteComponent implements OnInit {
     });
     this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(cleanContent);
     console.log(this.safeContent)
+    const path = value.path.split('/');
+    path.pop();
+    this.folderPath = path.join('/');
     setTimeout(() => {
       this.renderMath();
     },1)

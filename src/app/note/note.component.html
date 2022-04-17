@@ -1,6 +1,6 @@
 <div class="noteActions">
     <br/>
-    <button mat-flat-button color="accent" [routerLink]="'/notes'">
+    <button mat-flat-button color="accent" [routerLink]="'/notes/folder/'+folderPath">
         <mat-icon>arrow_back_ios</mat-icon>
         Back
     </button>
@@ -18,6 +18,7 @@
     </button>
 </div>
 <h1>{{noteEntry?.title}}</h1>
+<pre>{{noteEntry?.path}}</pre>
 <div class="card note" #innerNoteEl [innerHTML]="safeContent"> 
     
 </div>

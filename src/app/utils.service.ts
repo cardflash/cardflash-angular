@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { CardEntry, CardEntryContent, DataApiService } from './data-api.service';
+import { CardEntry, CardEntryContent, DataApiService, NoteEntry } from './data-api.service';
 import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { Annotation } from './types/annotation';
-import {imgSrcToDataURL, dataURLToBlob } from 'blob-util';
+import { imgSrcToDataURL, dataURLToBlob } from 'blob-util';
 import { FabOption } from './fab-expand-button/fab-expand-button.component';
 import DOMPurify from 'dompurify';
-import TurndownService from 'turndown'
+import TurndownService from 'turndown';
 import { v4 } from 'uuid';
 declare var LeaderLine: any;
 
@@ -158,20 +158,17 @@ export class UtilsService {
     } else if (annotation.text) {
       innerEl = `<span data-annotationid="_${annotation.id}">${annotation?.text}</span><span>&zwnj;</span>`;
     }
-    
+
     if (this.dataApi.config.enableAnnotationLinking) {
       // reference += `<a href="${environment.PDF_ANNOT_URL}${documentID ? '/' : ''}${documentID}#${
       //   annotation?.id
       // }">${innerEl}</a>`;
-      reference += `${innerEl} <a href="${environment.PDF_ANNOT_URL}${documentID ? '/' : ''}${documentID}#${
-        annotation?.id
-      }">(📌)</a>`;
+      reference += `${innerEl} <a href="${environment.PDF_ANNOT_URL}${
+        documentID ? '/' : ''
+      }${documentID}#${annotation?.id}">(📌)</a>`;
     } else {
       reference += `${innerEl}`;
     }
-
-
-
 
     let content: string = `${reference}<br>`;
     if (!annotation.imgID) {
@@ -589,7 +586,6 @@ export class UtilsService {
       for (let i = 0; i < imgs.length; i++) {
         const node = imgs[i];
         if (node.src.indexOf('data:') === 0) {
-
           imgSavePromises.push(
             new Promise<void>(async (resolve, reject) => {
               console.log('Saving image', node, node.src, 'to datapi');
@@ -648,6 +644,57 @@ export class UtilsService {
     });
   }
 
+  async fixNote(note: NoteEntry, allNotes: NoteEntry[]) {
+    const domParser: DOMParser = new DOMParser();
+    const dom = domParser.parseFromString(note.content, 'text/html');
+    const wikiLinks = dom.querySelectorAll('a.mention');
+    for (let i = 0; i < wikiLinks.length; i++) {
+      const l = wikiLinks[i];
+      // console.log({l},l.getAttribute('href'));
+      if (l.getAttribute('data-mention') === '[[' || l.getAttribute('href') === (`${environment.BASE_URL}/notes/`)) {
+        // console.log("Link needs fixing!",l.textContent);
+        if (l.textContent) {
+          let candidate: NoteEntry | undefined = undefined;
+          const linkName = l.textContent.replace(/\[|\]/g, '');
+          const candidates = allNotes.filter((note) => note.title === linkName);
+          if (candidates.length === 0) {
+            if (linkName.indexOf('#') === 0) {
+              // hashtag tag
+            } else if (linkName.indexOf('#') > 0) {
+              const splitLinkName = linkName.split('#');
+              if (splitLinkName.length > 0) {
+                const splitCandidates = allNotes.filter((note) => note.title === splitLinkName[0]);
+                if (splitCandidates.length > 0) {
+                  candidate = splitCandidates[0];
+                }
+              }
+            } else {
+              console.log('No candidates; Missing link for ', { l }, ` linkName: ${linkName}`, {
+                candidates,
+              });
+            }
+          } else if (candidates.length === 1) {
+            candidate = candidates[0];
+          } else {
+            console.log('Multiple candidates; Missing link for ', { l }, ` linkName: ${linkName}`, {
+              candidates,
+            });
+            candidate = candidates[0];
+            // multiple candidates
+          }
 
-  
+          if(candidate){
+            l.setAttribute('data-mention',`[[${candidate.$id}]]`);
+            l.setAttribute('href',`${environment.BASE_URL}/notes/${candidate.$id}`);
+            // note.content = ;
+            this.dataApi.updateNote(note.$id,{content: dom.documentElement.innerHTML})
+          }
+        } else {
+          console.log('No text content?', { l });
+        }
+      } else {
+        // note id is linked, check if it still exists and if name is accurate (?)
+      }
+    }
+  }
 }

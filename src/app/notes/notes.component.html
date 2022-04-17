@@ -18,31 +18,45 @@
   </div>
   
   <br />
-  <button mat-flat-button (click)="addNew()"><mat-icon>add</mat-icon> New...</button>
+  <button mat-flat-button (click)="addNew()"><mat-icon>add</mat-icon>New...</button>
+
+  <button mat-flat-button style="float: right;" (click)="fix()">Fix...<mat-icon>auto_fix_high</mat-icon></button>
   <br />
   <br />
-  <input type="file" multiple #fileInput (change)="fileinputChange(fileInput)">
+  <input type="file" multiple webkitdirectory directory #fileInput (change)="fileinputChange(fileInput)">
   <br/>
-<!-- <app-stacked-cards [cards]="filteredCards"></app-stacked-cards> -->
 <div class="noteList">
-  <div mat-flat-button class="noteEl" *ngFor="let note of filteredNotes; trackBt: trackyByNoteId" >
-    <!-- <div class="noteInner"> -->
+  <div *ngIf="!isRootFolder" mat-flat-button class="noteEl" >
+    <mat-icon>keyboard_arrow_up</mat-icon>
+    <span [routerLink]="'..'">..</span>
+</div>
+
+  <div mat-flat-button class="noteEl" *ngFor="let folder of currentFolder?.children" >
+    <mat-icon>folder</mat-icon>
+    <span  [routerLink]="this.folderMode ? folder.name : 'folder/' + folder.name">{{folder.name || 'No title'}}</span>
+    <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <!-- <button mat-menu-item class="deleteButton" aria-label="Delete icon button" title="delete" (click)="deleteNote(note)" i18n-title>
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button> -->
+    </mat-menu>
+</div>
+
+  <div mat-flat-button class="noteEl" *ngFor="let note of currentFolder?.content; trackBt: trackyByNoteId" >
       <mat-icon>text_snippet</mat-icon>
       <span  [routerLink]="'/notes/'+note.$id">{{note.title || 'No title'}}</span>
       <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
-        <!-- <button mat-menu-item aria-label="Edit icon button" title="edit" [routerLink]="'/notes/'+note.$id + '/edit'" i18n-title>
-          <mat-icon>edit</mat-icon>
-          Edit
-        </button> -->
         <button mat-menu-item class="deleteButton" aria-label="Delete icon button" title="delete" (click)="deleteNote(note)" i18n-title>
           <mat-icon>delete</mat-icon>
           Delete
         </button>
       </mat-menu>
-    <!-- </div> -->
   </div>
 </div>
 <app-graph #noteGraph></app-graph>
