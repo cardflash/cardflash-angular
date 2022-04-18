@@ -361,7 +361,7 @@ export class ExtendedPdfComponent implements OnInit {
   async loadNotes(){
     if(this.document){
       if(!this.document.noteIDs || this.document.noteIDs.length === 0){
-        const note = await this.dataApi.createNote({title: 'Test Note', content: '<h1>Hello World!</h1>', creationTime: Date.now(), path: '/'})
+        const note = await this.dataApi.createNote({title: 'Test Note', content: '<h1>Hello World!</h1>', creationTime: Date.now(), path: '/', meta: ''})
         this.note;
         this.document.noteIDs = [note.$id];
         await this.saveDocument();

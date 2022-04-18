@@ -58,7 +58,8 @@ export interface FileEntry {
 export const ENTRY_TYPES = {
   DOCUMENTS: 'documents',
   CARDS: 'cards',
-  NOTES: 'notes'
+  NOTES: 'notes',
+  ATTACHMENTS: 'attachments'
 };
 export type ENTRY_TYPES = typeof ENTRY_TYPES[keyof typeof ENTRY_TYPES];
 

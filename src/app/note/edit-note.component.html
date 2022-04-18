@@ -1,5 +1,5 @@
 
-<div class="mainContent">
+<div class="mainContent"  *ngIf="note">
   <button mat-flat-button (click)="newCard()">New Card</button>
   <!-- <button mat-flat-button (click)="save()">Save</button> -->
   <br/>
@@ -19,5 +19,5 @@
     <input matInput placeholder="Document Title" [(ngModel)]="this.note.title" (change)="change()"/>
     <!-- <mat-icon matSuffix>title</mat-icon> -->
   </mat-form-field>
-  <ckeditor class="editor"#editor [editor]="Editor"  [config]="EDITOR_CONFIG"></ckeditor>
+  <ckeditor [data]="this.note.content" class="editor" #editor [editor]="Editor"  [config]="EDITOR_CONFIG"></ckeditor>
 </div>

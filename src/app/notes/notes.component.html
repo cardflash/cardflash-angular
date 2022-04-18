@@ -45,7 +45,7 @@
     </mat-menu>
 </div>
 
-  <div mat-flat-button class="noteEl" *ngFor="let note of currentFolder?.content; trackBt: trackyByNoteId" >
+  <div mat-flat-button class="noteEl" *ngFor="let note of currentFolder?.content; trackBy: trackyByNoteId" >
       <mat-icon>text_snippet</mat-icon>
       <span  [routerLink]="'/notes/'+note.$id">{{note.title || 'No title'}}</span>
       <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
@@ -58,5 +58,20 @@
         </button>
       </mat-menu>
   </div>
+
+  <div mat-flat-button class="noteEl" *ngFor="let attachment of currentFolder?.attachments; let i = index" >
+    <mat-icon *ngIf="attachment.type.includes('image')">image</mat-icon>
+    <mat-icon *ngIf="!attachment.type.includes('image')">file_present</mat-icon>
+    <a [href]="this.fileViews[i]" target="_blank" class="fileLink"><span>{{attachment.name || 'No title'}}</span></a>
+    <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <!-- <button mat-menu-item class="deleteButton" aria-label="Delete icon button" title="delete" (click)="deleteNote(note)" i18n-title>
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button> -->
+    </mat-menu>
+</div>
 </div>
 <app-graph #noteGraph></app-graph>

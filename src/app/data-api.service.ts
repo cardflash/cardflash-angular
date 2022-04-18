@@ -21,7 +21,6 @@ import {
   Entry,
   ENTRY_TYPES,
 } from './types/data-api-provider';
-import { html } from 'd3';
 import { environment } from 'src/environments/environment';
 
 export interface DocumentEntryContent {
@@ -56,12 +55,23 @@ export interface NoteEntryContent {
   title: string;
   creationTime: number;
   path: string;
-  // imgIDs?: string[];
+  meta: string;
+}
+
+export interface AttachmentEntryContent {
+  $id?: string;
+  fileID: string;
+  path: string;
+  type: string;
+  meta: string;
+  name: string; 
+  creationTime: number;
 }
 
 export type DocumentEntry = Entry & DocumentEntryContent;
 export type CardEntry = Entry & CardEntryContent;
 export type NoteEntry = Entry & NoteEntryContent;
+export type AttachmentEntry = Entry & AttachmentEntryContent;
 
 @Injectable({
   providedIn: 'root',
@@ -159,10 +169,18 @@ export class DataApiService {
     return await this.apiProvider.updateEntry<NoteEntry>(ENTRY_TYPES.NOTES, id, data);
   }
 
+  async updateAttachment(id: string, data: any){
+    return await this.apiProvider.updateEntry<AttachmentEntry>(ENTRY_TYPES.ATTACHMENTS, id, data);
+  }
+
   async getNote(id: string) {
     return await this.regenerateImageObjectURLsForNote(
       await this.apiProvider.getEntry<NoteEntry>(ENTRY_TYPES.NOTES, id)
     );
+  }
+
+  async getAttachment(id: string) {
+      await this.apiProvider.getEntry<AttachmentEntry>(ENTRY_TYPES.ATTACHMENTS, id)
   }
 
   deleteCard(id: string) {
@@ -199,6 +217,10 @@ export class DataApiService {
 
   deleteNote(id: string){
     return this.apiProvider.deleteEntry(ENTRY_TYPES.NOTES,id);
+  }
+
+  deleteAttachment(id: string){
+    return this.apiProvider.deleteEntry(ENTRY_TYPES.ATTACHMENTS,id);
   }
 
   async deleteDocument(id: string, doc: DocumentEntryContent) {
@@ -268,11 +290,19 @@ export class DataApiService {
   }
 
   async listNotes(newestFirst: boolean) {
+    let notes : NoteEntry[] = [];
+    // try{
+      notes = (await this.apiProvider.listEntries<NoteEntry>(ENTRY_TYPES.NOTES, undefined, newestFirst)).documents;
+    // }catch(e){
+
+    // }
     return await Promise.all(
-      (
-        await this.apiProvider.listEntries<NoteEntry>(ENTRY_TYPES.NOTES, undefined, newestFirst)
-      ).documents.map((c) => this.regenerateImageObjectURLsForNote(c))
+      notes.map((c) => this.regenerateImageObjectURLsForNote(c))
     );
+  }
+
+  async listAttachments(newestFirst: boolean) {
+    return (await this.apiProvider.listEntries<AttachmentEntry>(ENTRY_TYPES.ATTACHMENTS, undefined, newestFirst)).documents;
   }
 
   async createDocument(data: DocumentEntryContent) {
@@ -285,6 +315,10 @@ export class DataApiService {
 
   async createNote(data: NoteEntryContent) {
     return await this.apiProvider.createEntry<NoteEntry>(ENTRY_TYPES.NOTES, data);
+  }
+
+  async createAttachment(data: AttachmentEntryContent) {
+    return await this.apiProvider.createEntry<AttachmentEntry>(ENTRY_TYPES.ATTACHMENTS, data);
   }
 
   async getFileView(id: string) {
@@ -672,7 +706,7 @@ ${content
   async markdownToNote(title: string, mdContent: string, path?: string){
     let htmlContent = await this.renderMd(mdContent);
     htmlContent = htmlContent.replace(/katex-display/g,"math-tex");
-    return await this.createNote({title: title, content: htmlContent, creationTime: Date.now(), path: path? path : '/'});
+    return await this.createNote({title: title, content: htmlContent, creationTime: Date.now(), path: path? path : '/', meta: ''});
   }
 
 

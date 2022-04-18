@@ -16,7 +16,6 @@ export class LocalProvider implements DataApiProvider{
         console.log({toSave})
         const newIds = [...await this.getCollectionArray(type),id]
         console.log({newIds})
-        console.log('before setitem')
         const savedIds = await this.setCollectionArray(type,newIds);
         console.log({savedIds})
         const res = await localforage.setItem<T>(type+'_'+id,toSave);
@@ -67,7 +66,7 @@ export class LocalProvider implements DataApiProvider{
     }
 
     async listEntries<T extends EntryWithCreationTime>(type: string, queries: QueryOption[] | undefined, newestFirst: boolean | undefined): Promise<EntryList<T>> {
-       const ids = await this.getCollectionArray(type)
+       const ids = await this.getCollectionArray(type);
        const itemPromises : Promise<T>[] = [];
        for (let i = 0; i < ids.length; i++) {
             itemPromises.push(this.getEntry(type,ids[i]))
