@@ -57,8 +57,9 @@ const routes: Routes = [
   { path: 'doc', loadChildren: () => import('./extended-pdf/extended-pdf.module').then(m => m.ExtendedPdfModule) },
   { path: 'cards/:id/edit', loadChildren: () => import('./edit-card/edit-card.module').then(m => m.EditCardModule) },
   { path: 'cards/:id', component: ViewCardComponent },
+  { path: 'f/notes', loadChildren: () => import('./folders/folders.module').then(m => m.FoldersModule) },
   { path: 'notes', loadChildren: () => import('./note/note.module').then(m => m.NoteModule) },
-  { path: 'graph', loadChildren: () => import('./graph/graph.module').then(m => m.GraphModule) }
+  { path: 'graph', loadChildren: () => import('./graph/graph.module').then(m => m.GraphModule) },
 ];
 
 const routerOptions: ExtraOptions = {

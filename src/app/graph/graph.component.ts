@@ -15,29 +15,45 @@ export class GraphComponent implements OnInit, AfterViewInit {
     this.noteID = value;
     if (this.noteID) {
       console.log('refresh from input');
-      if (this.firstSimDone) {
-        this.refreshData();
-      }
+      // if (this.firstSimDone) {
+      //   this.refreshData();
+      // }
+
+      this.mainNode = this.nodes.find((n) => n.id === this.noteID);
+      this.updateHighlightedNode(this.noteID);
     }
   }
 
   private notes: NoteEntry[] = [];
-  private nodes: { id: string; name: string; group: number; url: string }[] = [];
+  private nodes: { id: string; name: string; group: number; url: string, x?: number, y?: number }[] = [];
   public mainNode: any;
   private ticked: any;
   private simulation: any;
   private width: number = 0;
   private height: number = 0;
   private firstSimDone = false;
+  private link_els? :d3.Selection<SVGLineElement, {
+    source: string;
+    target: string;
+    value: number;
+}, SVGGElement, unknown>;
+  private circles_els? : d3.Selection<SVGCircleElement, {
+    id: string;
+    name: string;
+    group: number;
+    url: string;
+}, SVGGElement, unknown>;
+  // private graph_nodes? : any;
   private zoom?: d3.ZoomBehavior<Element, any>;
   private links: { source: string; target: string; value: number }[] = [];
   constructor(private dataApi: DataApiService, private router: Router) {}
 
-  async ngOnInit() {}
+  async ngOnInit() {
+    this.refreshData();
+  }
 
   ngAfterViewInit(): void {
     console.log('refresh from ngAfterViewInit');
-    this.refreshData();
     console.log(this.nodes, this.links);
   }
 
@@ -106,8 +122,8 @@ export class GraphComponent implements OnInit, AfterViewInit {
       });
     this.zoom = zoom;
     svg.call(zoom as any);
-    const graph = { nodes: [...this.nodes], links: [...this.links] };
-    const collisionForce = Math.max(Math.sqrt(this.nodes.length) * 3, 45);
+    const graph = { nodes: this.nodes, links: this.links };
+    const collisionForce = Math.max(Math.sqrt(this.nodes.length) * 3, 50);
     console.log({ collisionForce }, this.nodes.length);
     var simulation = d3
       .forceSimulation()
@@ -153,7 +169,8 @@ export class GraphComponent implements OnInit, AfterViewInit {
         }
         return '';
       });
-    console.log({ link });
+    this.link_els = link;
+    // console.log({ link });
 
     var node = svg
       .append('g')
@@ -163,9 +180,7 @@ export class GraphComponent implements OnInit, AfterViewInit {
       .enter()
       .append('g')
       .on('click', (e, d) => {
-        console.log({ d, e });
-        this.router.navigateByUrl(d.url);
-        // window.location.href = d.url;
+        this.router.navigateByUrl('/notes/' + d.id);
       })
       .style('cursor', 'pointer');
 
@@ -185,7 +200,7 @@ export class GraphComponent implements OnInit, AfterViewInit {
           return '';
         }
       });
-
+      this.circles_els = circles;
     // Create a drag handler and append it to the node object instead
     var drag_handler = d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended);
 
@@ -227,10 +242,10 @@ export class GraphComponent implements OnInit, AfterViewInit {
       .on('tick', this.ticked)
       .on('end', () => {
         // layout is done
-        if (!this.firstSimDone) {
-          this.centerMainNode();
-          this.firstSimDone = true;
-        }
+        // this.centerMainNode();
+        this.firstSimDone = true;
+        // if (!this.firstSimDone) {
+        // }
       });
 
     (simulation?.force('link') as any).links(graph.links);
@@ -311,5 +326,43 @@ export class GraphComponent implements OnInit, AfterViewInit {
       // svg.querySelector('g.links')?.setAttribute('transform',transformLinks);
       // svg.querySelector('g.nodes')?.setAttribute('transform',transformNodes);
     }
+  }
+
+  updateHighlightedNode(newNodeId: string){
+    console.log('update highlighted node!');
+    console.log(this.circles_els,{newNodeId});
+    if(this.circles_els){
+      const colors = ['#1f77b4', '#aa00ff'];
+
+
+      this.circles_els
+      .attr('fill', function (d) {
+        if(d.id === newNodeId){
+          return colors[1];
+        }else{
+          return colors[0];
+        }
+      })
+      .attr('style', function (d) {
+        if (d.id === newNodeId) {
+          return 'stroke: #7900ff';
+        } else {
+          return '';
+        }
+      });
+    }
+    if(this.link_els){
+      this.link_els.attr('style', (d: any) => {
+        // console.log({d})
+        if (d.source.id === newNodeId) {
+          return 'stroke: #ff77c9';
+        } else if (d.target.id === newNodeId) {
+          return 'stroke: #81fdff';
+        } else {
+          return 'stroke: #c2c2c2';
+        }
+      });
+    }
+    this.centerMainNode();
   }
 }

@@ -23,7 +23,12 @@
   <button mat-flat-button style="float: right;" (click)="fix()">Fix...<mat-icon>auto_fix_high</mat-icon></button>
   <br />
   <br />
-  <input type="file" multiple webkitdirectory directory #fileInput (change)="fileinputChange(fileInput)">
+  <input type="file" multiple webkitdirectory directory #fileInput>
+  <br />
+  <br/>
+  <button mat-flat-button (click)="this.uploadFiles(fileInput)">Import</button>
+  <br/>
+  <mat-progress-bar [value]="this.fileUploadProgress"></mat-progress-bar>
   <br/>
 <div class="noteList">
   <div *ngIf="!isRootFolder" mat-flat-button class="noteEl" >
@@ -33,21 +38,21 @@
 
   <div mat-flat-button class="noteEl" *ngFor="let folder of currentFolder?.children" >
     <mat-icon>folder</mat-icon>
-    <span  [routerLink]="this.folderMode ? folder.name : 'folder/' + folder.name">{{folder.name || 'No title'}}</span>
+    <span  [routerLink]="folder.name">{{folder.name || 'No title'}}</span>
     <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
-      <!-- <button mat-menu-item class="deleteButton" aria-label="Delete icon button" title="delete" (click)="deleteNote(note)" i18n-title>
+      <button mat-menu-item class="deleteButton" aria-label="Delete icon button" title="delete" (click)="deleteFolder(folder,true)" i18n-title>
         <mat-icon>delete</mat-icon>
         Delete
-      </button> -->
+      </button>
     </mat-menu>
 </div>
 
   <div mat-flat-button class="noteEl" *ngFor="let note of currentFolder?.content; trackBy: trackyByNoteId" >
       <mat-icon>text_snippet</mat-icon>
-      <span  [routerLink]="'/notes/'+note.$id">{{note.title || 'No title'}}</span>
+      <span  routerLink="/notes/{{note.$id}}">{{note.title || 'No title'}}</span>
       <button mat-icon-button [matMenuTriggerFor]="menu" class="menu noprint" aria-label="Edit or Delete Card" (click)="$event.preventDefault()">
         <mat-icon>more_vert</mat-icon>
       </button>

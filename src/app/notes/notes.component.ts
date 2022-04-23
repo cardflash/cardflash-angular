@@ -2,7 +2,7 @@ import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { AttachmentEntry, CardEntry, CardEntryContent, DataApiService, NoteEntry, NoteEntryContent } from '../data-api.service';
 import { GraphComponent } from '../graph/graph.component';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
@@ -30,21 +30,29 @@ export class NotesComponent implements OnInit, OnDestroy {
   public isRootFolder = false;
   public fileViews: SafeResourceUrl[] = [];
   public folderMode = false;
+  public fileUploadProgress: number = 100;
   @ViewChild('noteGraph') noteGraph?: GraphComponent;
 
   constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService,public dialog: MatDialog, private utils: UtilsService, private actRoute: ActivatedRoute, private domSanitizer: DomSanitizer) { }
 
   async ngOnInit() {
     await this.refresh()
+    console.log("after refresh")
     this.actRoute.url.subscribe((url) => {
-      // pop 'folder'
-      if(url.length === 0){
-        this.folderMode = false;
-      } else {
-        this.folderMode = true;
-      }
-      console.log({url},this.folders);
-      url.shift();
+      this.refreshFolderBasedOnUrl(url);
+      })
+  }
+
+  refreshFolderBasedOnUrl(url: UrlSegment[]){
+      // if(url.length === 0){
+        //   this.folderMode = false;
+        // } else {
+          //   this.folderMode = true;
+          // }
+          this.folderMode = true;
+          console.log({url},this.folders);
+        //
+      // url.shift();
       this.isRootFolder = url.length === 0;
         let folder : Folder = {name: '', children: this.folders, content: this.folderMode ? [] : this.notes, attachments: []};
         for (let i = 0; i < url.length; i++) {
@@ -63,7 +71,6 @@ export class NotesComponent implements OnInit, OnDestroy {
           const href = (await this.dataApi.getFileView(v.fileID)).href;
           this.fileViews.push(this.domSanitizer.bypassSecurityTrustResourceUrl(href));
         })
-      })
   }
 
   ngOnDestroy(){
@@ -91,13 +98,15 @@ export class NotesComponent implements OnInit, OnDestroy {
     console.log(this.folders,'folders');
     this.filteredNotes = this.notes;
     this.isLoading = false;
-    // this.noteGraph?.refreshData();
+
+    this.refreshFolderBasedOnUrl(this.actRoute.snapshot.url);
+    this.noteGraph?.refreshData();
   }
 
 
   // e.g. path = "uni/c/bpi/inductive-mining.md"
   addFolderPath(el: NoteEntry | AttachmentEntry){
-    const pathParts = el.path.split('/');
+    const pathParts = (el.path || '').split('/');
       let folders = this.folders;
       let currFolder;
       for (let i = 0; i < pathParts.length - 1; i++) {
@@ -145,7 +154,38 @@ export class NotesComponent implements OnInit, OnDestroy {
       this.notes = this.notes.filter((c) => c.$id !== note.$id)
       this.filteredNotes = this.filteredNotes.filter((c) => c.$id !== note.$id)
       await this.dataApi.deleteNote(note.$id);
-      await this.noteGraph?.refreshData();
+      await this.refresh();
+    }
+  }
+
+
+  async deleteFolder(folder: Folder, initialDelete = false){
+    if(initialDelete){
+      this.isLoading = true;
+    }
+    const allPromises: Promise<any>[] = [];
+    for (let i = 0; i < folder.children.length; i++) {
+      const f = folder.children[i];
+      allPromises.push(this.deleteFolder(f));
+    }
+    for (let i = 0; i < folder.content.length; i++) {
+      const n = folder.content[i];
+      allPromises.push(this.dataApi.deleteNote(n.$id));
+    }
+    for (let i = 0; i < folder.attachments.length; i++) {
+      const a = folder.attachments[i];
+      allPromises.push(this.dataApi.deleteAttachment(a.$id));
+      allPromises.push(this.dataApi.deleteFile(a.fileID));
+    }
+    try{
+      await Promise.allSettled(allPromises)
+    }catch(e){
+
+    }finally{
+      if(initialDelete){
+      this.isLoading = false;
+      this.refresh()
+    }
     }
   }
 
@@ -190,27 +230,35 @@ export class NotesComponent implements OnInit, OnDestroy {
     this.router.navigate(['notes',note.$id,'edit']);
   }
 
-  async fileinputChange(fileInput: HTMLInputElement){
+  async uploadFiles(fileInput: HTMLInputElement){
     console.log({fileInput})
     if(fileInput.files){
-
-      for (let i = 0; i < fileInput.files?.length; i++) {
-        const file = fileInput.files[i];
+      const files = fileInput.files;
+      
+      const promises: Promise<any>[] = [];
+      this.fileUploadProgress = 0;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         console.log({file});
         if(file.type === 'text/markdown'){
           const content = await file.text();
           const path = 'webkitRelativePath' in file ? file.webkitRelativePath : undefined;
-          await this.dataApi.markdownToNote(file.name.replace('.md',''),content,path);
-          console.log({content});
+          const promise = this.dataApi.markdownToNote(file.name.replace('.md',''),content,path);
+          promises.push(promise.then(() => {
+            this.fileUploadProgress += 100/files?.length;
+          }));
         }else{
           const path = 'webkitRelativePath' in file ? file.webkitRelativePath : '';
           const fileID = await this.dataApi.saveFile(file);
-          await this.dataApi.createAttachment({name: file.name, type: file.type, fileID: fileID.$id, meta: '', path: path, creationTime: Date.now()})
-          // await this.dataApi.markdownToNote(file.name.replace('.md',''),content,path);
-          // console.log({content});
+          const promise =  this.dataApi.createAttachment({name: file.name, type: file.type, fileID: fileID.$id, meta: '', path: path, creationTime: Date.now()})
+          promises.push(promise.then(() => {
+            this.fileUploadProgress += 100/files?.length;
+          }));
         }
       }
-
+      await Promise.allSettled(promises);
+      await this.refresh();
+      await this.fix()
       await this.refresh();
     }
   }
@@ -218,7 +266,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   async fix(){
     for (let i = 0; i < this.notes.length; i++) {
       const n = this.notes[i];
-      this.utils.fixNote(n,this.notes)
+      this.utils.fixNote(n,this.notes,this.attachments)
     }
   }
 

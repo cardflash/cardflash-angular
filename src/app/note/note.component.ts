@@ -26,7 +26,7 @@ export class NoteComponent implements OnInit {
     });
     this.safeContent = this.domSanitizer.bypassSecurityTrustHtml(cleanContent);
     console.log(this.safeContent)
-    const path = value.path.split('/');
+    const path = (value.path || '').split('/');
     path.pop();
     this.folderPath = path.join('/');
     setTimeout(() => {
@@ -37,7 +37,15 @@ export class NoteComponent implements OnInit {
 
   async ngOnInit() {
     this.actRoute.params.subscribe(async (para : Params) => {
-      this.note = await this.dataApi.getNote(this.actRoute.snapshot.params.id);
+      console.log('hi');
+      try{
+        this.note = await this.dataApi.getNote(para.id);
+      }catch(e){
+        console.error('could not get note for note compontent',para.id)
+      }finally{
+        console.log('okay?!')
+      }
+      console.log(this.note,'this.note')
     })
     // if(!this.note){
     //   this.note = await this.dataApi.getNote(this.actRoute.snapshot.params.id);

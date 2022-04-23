@@ -14,6 +14,7 @@ import { EditNoteComponent } from './edit-note.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { GraphModule } from '../graph/graph.module';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { MatMenuModule } from '@angular/material/menu';
     CKEditorModule,
     NoteRoutingModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,

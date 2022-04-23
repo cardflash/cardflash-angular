@@ -291,14 +291,17 @@ export class DataApiService {
 
   async listNotes(newestFirst: boolean) {
     let notes : NoteEntry[] = [];
-    // try{
-      notes = (await this.apiProvider.listEntries<NoteEntry>(ENTRY_TYPES.NOTES, undefined, newestFirst)).documents;
-    // }catch(e){
-
-    // }
-    return await Promise.all(
-      notes.map((c) => this.regenerateImageObjectURLsForNote(c))
-    );
+    try{
+      notes = (await this.apiProvider.listEntries<NoteEntry>(ENTRY_TYPES.NOTES, [], newestFirst)).documents;
+    }catch(e){
+      console.log({notes},{e},'listNotes failed!',this.apiProvider,this.apiProvider.listEntries);
+    }
+    // console.log('beforeListNotes Promise all',{notes});
+    // const res = await Promise.all(
+    //   notes.map((c) => this.regenerateImageObjectURLsForNote(c))
+    // );
+    // console.log('after listNotes Promise all',{res});
+    return notes;
   }
 
   async listAttachments(newestFirst: boolean) {
@@ -354,21 +357,22 @@ export class DataApiService {
       for (let i = 0; i < imgs.length; i++) {
         const node = imgs[i];
         const imageId = node.getAttribute('data-imageid');
-        if (imageId !== null) {
+        console.log({imageId},note.$id)
+        if (imageId) {
           imgSavePromises.push(
             new Promise<void>(async (resolve, reject) => {
               try {
                 node.src = (await this.getFileView(imageId)).href;
                 resolve();
               } catch (e) {
+                console.error({e}, 'error in regenreateImageObject For Note', {note,node,imgs})
                 reject(e);
               }
             })
           );
         }
       }
-    
-    await Promise.all(imgSavePromises);
+    await Promise.allSettled(imgSavePromises);
     note.content = dom.documentElement.innerHTML;
     return note;
   }
@@ -601,14 +605,40 @@ ${content
   }
 
   async initMDIt(){
-    // if(!this.mdIt){
+    if(!this.mdIt){
       const notes = await this.listNotes(true);
+      const attachments = await this.listAttachments(true);
       this.mdIt = new MarkdownIt()
         .use(MarkdownItMark)
         .use(markdownItTable)
         .use(MarkDownItTaskLists)
         .use(MarkDownItKatex)
         .use(MarkDownWikiLinks.default, (content, isEmbedding, env) => {
+          if(isEmbedding){
+            const i = attachments.findIndex((val) => val.name === content); 
+            const attachment = attachments[i];
+            console.log({notes,attachment});
+            if(attachment){
+              return {
+                  // 'onclick': function(e){console.log(e);},
+                  // "href": environment.BASE_URL + '/notes/' + note.$id,
+                  "class": "mention",
+                  "data-imageid": `${attachment.fileID}`,
+                  "data-attachmentid": `${attachment.$id}`,
+                  "data-attachment-name": content
+                  // "text": `[[${note.title}]]`,
+                  // src: isEmbedding ? ((browser && (window as any).md_availableFiles) || availableFiles).find((file) => file.name === content)?.view : null
+              };
+            }else{
+              return {
+                // "href":  environment.BASE_URL + '/notes',
+                // "class": "mention",
+                // "data-mention": `[[`,
+                "data-imageid": '',
+                "data-attachment-name": content
+              }
+            }
+          }else{
           const note = notes.find((val) => val.title === content);
           console.log({notes,note});
           if(note){
@@ -629,6 +659,7 @@ ${content
               "text": `[[${content}]]`,
             }
           }
+        }
       })
         .use(MarkDownItContainer,'ad-', {
         marker: '`',
@@ -691,7 +722,7 @@ ${content
             }
         }
     });
-    // }
+    }
   }
 
   async renderMd(content: string){

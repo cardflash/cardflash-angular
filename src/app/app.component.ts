@@ -30,7 +30,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   @HostListener('window:click', ['$event'])
-  click(event: KeyboardEvent) {
+  click(event: PointerEvent) {
     const path = event.composedPath() as Array<any>;
     const firstAnchor : HTMLAnchorElement | null = path.find(p => p && p.tagName && p.tagName.toLowerCase() === 'a');
     if (firstAnchor && !firstAnchor.hasAttribute('routerlink')) {
@@ -39,7 +39,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       if(href?.indexOf(environment.BASE_URL) === 0 ){
         event.preventDefault();
         if(window.location.href.indexOf('/edit') < 0){
-          this.router.routeReuseStrategy.shouldReuseRoute  = () => false;
+          // this.router.routeReuseStrategy.shouldReuseRoute  = () => false;
           console.log('internal link pressed',href)
           // this.router.onSameUrlNavigation = 'reload';
           // this.router.routeReuseStrategy.shouldReuseRoute = function (e) {

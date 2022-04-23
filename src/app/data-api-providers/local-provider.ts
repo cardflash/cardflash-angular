@@ -4,9 +4,28 @@ import localforage from "localforage";
 import { DocumentEntry } from "../data-api.service";
 export class LocalProvider implements DataApiProvider{
 
+    private writeLockForType : Map<string,boolean> = new Map<string,boolean>()
     constructor(){
         localforage.config({driver: [localforage.INDEXEDDB,localforage.WEBSQL,localforage.LOCALSTORAGE], name: 'local_cardflash', storeName: 'local_cardflash'})
         // localforage.setDriver(localforage.INDEXEDDB).catch((e) => {console.log({e},'driver fail')})
+     }
+
+     async lockCollectionForType(type: string){
+         if(this.writeLockForType.get(type)){
+            await new Promise<void>((res) => {
+                setTimeout(async () => {
+                   await this.lockCollectionForType(type);
+                   res();
+                },1);
+            })
+                
+         }else{
+             this.writeLockForType.set(type,true);
+         }
+     }
+
+     async unlockCollectionForType(type: string){
+         this.writeLockForType.set(type,false);
      }
 
     async createEntry<T extends Entry>(type: string, data: object, read?: string[], write?: string[]): Promise<T> {
@@ -14,9 +33,11 @@ export class LocalProvider implements DataApiProvider{
         console.log({id})
         const toSave : T = {...data, $id: id, $collection: type, $read: (read || []), $write: (write || [])}  as T;
         console.log({toSave})
+        await this.lockCollectionForType(type);
         const newIds = [...await this.getCollectionArray(type),id]
         console.log({newIds})
         const savedIds = await this.setCollectionArray(type,newIds);
+        await this.unlockCollectionForType(type);
         console.log({savedIds})
         const res = await localforage.setItem<T>(type+'_'+id,toSave);
         console.log({res})
@@ -40,8 +61,11 @@ export class LocalProvider implements DataApiProvider{
     }
     deleteEntry(type: string, id: string): Promise<{}> {
         return new Promise<{}>(async (resolve,reject) => {
+
+            await this.lockCollectionForType(type);
             const newIds = (await this.getCollectionArray(type)).filter((el) => el !== id)
             await this.setCollectionArray(type,newIds);
+            await this.unlockCollectionForType(type);
             localforage.removeItem(type + '_' + id).then(() => resolve({})).catch((reason) => reject(reason));
         })
     }
@@ -66,12 +90,45 @@ export class LocalProvider implements DataApiProvider{
     }
 
     async listEntries<T extends EntryWithCreationTime>(type: string, queries: QueryOption[] | undefined, newestFirst: boolean | undefined): Promise<EntryList<T>> {
-       const ids = await this.getCollectionArray(type);
-       const itemPromises : Promise<T>[] = [];
+        let ids: string[] = [];
+
+        await this.lockCollectionForType(type);
+        try{
+            ids = await this.getCollectionArray(type);
+
+        }catch(e){
+            console.error('getCollectionArary failed!',{e,ids,type,queries,newestFirst})
+        }
+       console.log({ids},'listEntries');
+       const itemPromises : Promise<any>[] = [];
+       const all : T[] = [];
+       const failedIDs : string[] = [];
        for (let i = 0; i < ids.length; i++) {
-            itemPromises.push(this.getEntry(type,ids[i]))
+           const prom = this.getEntry<T>(type,ids[i]).then((t) => all.push(t)).catch((e)=> {
+               failedIDs.push(ids[i]);
+               console.error("getEntry failed, id: "+ ids[i],{e,type,ids,itemPromises})
+           });
+            itemPromises.push(prom);
        }
-       const all = await Promise.all(itemPromises);
+
+       
+       console.log({itemPromises},'listEntries 2');
+       try{
+           await Promise.allSettled(itemPromises);
+       }catch(e){
+        console.error('Awaiting all promises from listEntries failed',{e,itemPromises,ids,all})
+       } finally {
+        const newIDs = ids.filter((id) => !failedIDs.includes(id))
+        console.log({newIDs},{failedIDs})
+        if(newIDs.length < ids.length){
+            console.error('Some items were unavailable and have been deleted from the collection array',{type,failedIDs,ids,newIDs})
+            await this.setCollectionArray(type,newIDs);
+        }
+
+        await this.unlockCollectionForType(type);
+       }
+       
+       console.log({itemPromises},'listEntries 3');
        let timeSorted = all.sort((a,b) => b.creationTime - a.creationTime)
        if(queries !== undefined){
         for (let i = 0; i < queries.length; i++) {

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { CardEntry, CardEntryContent, DataApiService, NoteEntry } from './data-api.service';
+import { AttachmentEntry, CardEntry, CardEntryContent, DataApiService, NoteEntry } from './data-api.service';
 import { UserNotifierService } from './services/notifier/user-notifier.service';
 import { Annotation } from './types/annotation';
 import { imgSrcToDataURL, dataURLToBlob } from 'blob-util';
@@ -644,7 +644,7 @@ export class UtilsService {
     });
   }
 
-  async fixNote(note: NoteEntry, allNotes: NoteEntry[]) {
+  async fixNote(note: NoteEntry, allNotes: NoteEntry[], allAttachments: AttachmentEntry[]) {
     const domParser: DOMParser = new DOMParser();
     const dom = domParser.parseFromString(note.content, 'text/html');
     const wikiLinks = dom.querySelectorAll('a.mention');
@@ -696,5 +696,30 @@ export class UtilsService {
         // note id is linked, check if it still exists and if name is accurate (?)
       }
     }
+
+
+    const attachments = dom.querySelectorAll("img[data-imageid]");
+    console.log({attachments});
+    for (let i = 0; i < attachments.length; i++) {
+      const a = attachments[i];
+      if(!a.getAttribute('data-imageid')){
+
+        const label = a.getAttribute('data-attachment-name');
+        if(label){
+          const candidates = allAttachments.filter((attachment) => attachment.name === label);
+          if(candidates.length > 0){
+            const candidate = candidates[0];
+            a.setAttribute('data-imageid', candidate.fileID);
+            a.setAttribute('data-attachmentid',candidate.$id)
+            // a.setAttribute('src',`${environment.BASE_URL}/notes/${candidate.$id}`);
+            // note.content = ;
+            this.dataApi.updateNote(note.$id,{content: dom.documentElement.innerHTML})
+            console.log({candidates});
+          }
+        }
+        
+      }
+    }
+
   }
 }
