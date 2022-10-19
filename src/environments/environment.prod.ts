@@ -2,6 +2,7 @@ export const environment = {
   production: true,
   API_ENDPOINT: 'https://api.cardflash.net/v1',
   API_PROJECT: '6200475f2c3292dbc7b1',
+  STORAGE_BUCKET: 'default',
   BASE_URL: 'https://app.cardflash.net',
   PDF_ANNOT_URL : 'https://app.cardflash.net/doc',
   ANKI_MODEL_VERSION: '3.3a',

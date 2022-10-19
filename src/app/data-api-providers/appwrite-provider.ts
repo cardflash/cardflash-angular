@@ -26,17 +26,21 @@ export class AppwriteProvider implements DataApiProvider {
     read = undefined,
     write = undefined
   ) {
-    return this.appwrite.database.createDocument<T>(
-      environment.collectionMap[type],
-      'unique()',
-      data,
-      read,
-      write
-    );
+    console.log("createEntry",{type,data})
+    return this.appwrite.database.createDocument<T>(environment.collectionMap[type],'unique()',data)
+    // return this.appwrite.database.createDocument<T>(
+    //   environment.collectionMap[type],
+    //   'unique()',
+    //   data,
+    //   read,
+    //   write
+    // );
   }
 
   getEntry<T extends Entry>(type: ENTRY_TYPES, id: string) {
-    return this.appwrite.database.getDocument<T>(environment.collectionMap[type], id);
+    console.log({id,type},environment.collectionMap[type])
+    return this.appwrite.database.getDocument<T>(environment.collectionMap[type],id)
+    // return this.appwrite.database.getDocument<T>(environment.collectionMap[type], id);
   }
 
   updateEntry<T extends Models.Document>(type: ENTRY_TYPES, id: string, data: any) {
@@ -94,7 +98,7 @@ export class AppwriteProvider implements DataApiProvider {
       [newestFirst ? 'DESC' : 'ASC']
       );
       results.push(...response.documents)
-   while(results.length < response.sum){
+   while(results.length < response.total){
     let response = await this.appwrite.database.listDocuments<T>(
       environment.collectionMap[type],
       appwriteQueries,
@@ -108,22 +112,22 @@ export class AppwriteProvider implements DataApiProvider {
       results.push(...response.documents)
    }
 
-    return {sum: response.sum, documents: results}
+    return {sum: response.total, documents: results}
   }
 
   async getFileView(id: string) {
-    return this.appwrite.storage.getFileView(id);
+    return this.appwrite.storage.getFileView(environment.STORAGE_BUCKET,id);
   }
   async getFilePreview(id: string) {
-    return this.appwrite.storage.getFilePreview(id);
+    return this.appwrite.storage.getFilePreview(environment.STORAGE_BUCKET,id);
   }
 
   async saveFile(file: File) {
-    return this.appwrite.storage.createFile('unique()', file);
+    return this.appwrite.storage.createFile(environment.STORAGE_BUCKET,'unique()', file);
   }
 
   async deleteFile(id: string) {
-    return this.appwrite.storage.deleteFile(id);
+    return this.appwrite.storage.deleteFile(environment.STORAGE_BUCKET,id);
   }
 
   async getPreferences(): Promise<Config> {
