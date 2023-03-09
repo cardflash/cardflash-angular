@@ -475,7 +475,7 @@ export class ExtendedPdfComponent implements OnInit {
           if(this.cardOption.id === 'front'){
             this.cardOption = this.cardOptions[1];
           }else{
-            this.nextCard()
+            this.finishCard()
           }
           break;
         case 's':
