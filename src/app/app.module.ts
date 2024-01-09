@@ -31,6 +31,7 @@ import { StudyComponent } from './study/study.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { ViewCardComponent } from './view-card/view-card.component';
 import { MatCard, MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 @NgModule({
@@ -58,7 +59,7 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     MatFormFieldModule,
-    // MatSelectModule,
+    MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
     MatInputModule,

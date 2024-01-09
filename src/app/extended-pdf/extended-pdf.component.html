@@ -40,6 +40,10 @@
     title="Card side"
     ></app-fab-expand-button>
   </div>
+  <div  *ngIf="ocrLoadingNum > 0" class="ocrSpinnerWrapper">
+    OCR Running...
+    <mat-spinner [diameter]="30"></mat-spinner>
+  </div>
 </div>
 <canvas style="display: none" #previewCanvas></canvas>
 <div class="mainArea">
@@ -72,7 +76,6 @@
       (pdfLoadingFailed)="pdfLoadFailed($event)"
       (pageRendered)="pageRendered($event)"
       [ignoreKeys]="['1', '2', 'w', 's','space','enter']"
-      [enablePinchOnMobile]="true"
       [showBorders]="false"
       [pageViewMode]="'multiple'"
       [height]="'100%'"

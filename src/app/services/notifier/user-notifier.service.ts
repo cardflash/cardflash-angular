@@ -28,11 +28,11 @@ export class UserNotifierService implements OnDestroy{
   ngOnDestroy(): void {
   }
 
-  async notify(title: string, message: string, type: string, autoHide: boolean = false){
+  async notify(title: string, message: string, type: string, autoHide: boolean = false, preventDismiss: boolean = false){
     const notificationData : NotificationData =
     {title: title, message: message,
       type: type === "danger" ? "danger" : "success",
-      autoHide: autoHide};
+      autoHide: autoHide, preventDismiss: preventDismiss};
 
     const snackRef = this.snackBar.openFromComponent(NotificationComponent,{
       verticalPosition: 'top',

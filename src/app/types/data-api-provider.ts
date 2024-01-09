@@ -5,8 +5,8 @@ export interface Config {
   deckName : string,
   // addImageOption: boolean,
   areaSelectOnlyText: boolean,
-  // addOcrTextOption: boolean,
-  // ocrLanguage: string,
+  enableOCR: boolean,
+  ocrLanguage: string,
   // addTextAsHidden: boolean,
   singlePageMode: boolean,
   showSelectionSizeOptions: boolean,
@@ -21,8 +21,8 @@ export const DEFAULT_CONFIG : Config= {
   deckName : 'Default',
   // addImageOption: boolean,
   areaSelectOnlyText: false,
-  // addOcrTextOption: boolean,
-  // ocrLanguage: string,
+  enableOCR: false,
+  ocrLanguage: "eng",
   // addTextAsHidden: boolean,
   singlePageMode: false,
   showSelectionSizeOptions: false,
@@ -89,6 +89,7 @@ export interface DataApiProvider {
   ): Promise<EntryList<T>>;
 
   getFileView(id: string): Promise<URL>;
+  getFileDownload(id: string): Promise<URL>;
   getFilePreview(id: string): Promise<URL>;
 
   saveFile(file: File): Promise<FileEntry>;

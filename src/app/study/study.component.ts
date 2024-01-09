@@ -13,7 +13,7 @@ export class StudyComponent implements OnInit {
   }
   
   async ngOnInit() {
-    this.cards = await this.dataApi.listCards(true)
+    this.cards = await this.dataApi.listCards(true,100)
   }
 
   public cardChange(cards: CardEntry[]){

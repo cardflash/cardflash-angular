@@ -125,6 +125,9 @@ export class LocalProvider implements DataApiProvider{
     getFilePreview(id: string): Promise<URL> {
         return this.getFileView(id);
     }
+    getFileDownload(id: string): Promise<URL> {
+        return this.getFileView(id);
+    }
     async saveFile(file: File): Promise<FileEntry> {
         let fileEntry : FileEntry = {$id: '', name: file.name, mimeType: file.type, dateCreated: Date.now()}
         console.log("SAVE FILE",{fileEntry})

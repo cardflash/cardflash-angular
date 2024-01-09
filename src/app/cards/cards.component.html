@@ -1,6 +1,9 @@
 <div class="main">
   
   <h1 class="title" i18n>Your cards</h1>
+  <span *ngIf="!isLoadingCards">Only showing the first {{this.limit}} cards </span>
+    <h2 class="subtitle" *ngIf="!isLoadingCards">{{totalNumCards}} Cards</h2>
+    <h2 class="subtitle" *ngIf="isLoadingCards">Loading...</h2>
   <button mat-raised-button color="primary" (click)="startStudy()">Study</button>
   <br />
   <mat-form-field class="searchField" *ngIf="this.cards.length >= 1">
@@ -20,7 +23,6 @@
   <h2 i18n>No cards found.</h2>
   <button mat-raised-button routerLink="/doc" i18n>Create some</button>
 </div>
-
 <app-stacked-cards [cards]="filteredCards"></app-stacked-cards>
 
 <div class="cards">

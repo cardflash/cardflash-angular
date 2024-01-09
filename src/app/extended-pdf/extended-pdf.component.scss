@@ -40,6 +40,20 @@
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     box-sizing: border-box;
 }
+
+.ocrSpinnerWrapper {
+    position: absolute;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+    border-radius: 10px;
+    background-color: rgb(214, 218, 253);
+    border: rgb(169, 199, 255) 2px solid;
+}
+
 @media (prefers-color-scheme: dark)
 {
     .cardColumn, .annotationsColumn, .pdfViewer  {

@@ -9,7 +9,7 @@
     <h4 class="title">{{ notificationData.title }}</h4>
     <p>{{ notificationData.message }}</p>
   </div>
-  <div class="dismissOption">
+  <div class="dismissOption" *ngIf="notificationData.preventDismiss !== true">
     <button mat-flat-button color="primary" (click)="dismiss()">Ok</button>
   </div>
 </div>

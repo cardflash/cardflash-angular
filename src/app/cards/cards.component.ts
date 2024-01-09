@@ -7,6 +7,7 @@ import { FlipCardComponent } from '../card/flip-card/flip-card.component';
 import { StaticCardComponent } from '../card/static-card/static-card.component';
 import { CardEntry, CardEntryContent, DataApiService } from '../data-api.service';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
+import { ENTRY_TYPES } from '../types/data-api-provider';
 
 @Component({
   selector: 'app-cards',
@@ -19,6 +20,8 @@ export class CardsComponent implements OnInit, OnDestroy {
   public newestFirst: boolean = true;
 
   public isLoadingCards: boolean = true;
+  public limit = 100;
+  public totalNumCards = 0;
   constructor(private dataApi: DataApiService, private router: Router, private userNotifier: UserNotifierService,public dialog: MatDialog) { }
 
   async ngOnInit() {
@@ -29,7 +32,8 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   async refresh(){
-    this.cards = await this.dataApi.listCards(this.newestFirst)
+    this.cards = await this.dataApi.listCards(this.newestFirst,this.limit)
+    this.totalNumCards = (await this.dataApi.getProviderInstance().listEntries<CardEntry>(ENTRY_TYPES.CARDS, undefined, true)).sum;
     this.filteredCards = this.cards;
     this.isLoadingCards = false;
   }

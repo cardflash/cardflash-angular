@@ -71,6 +71,17 @@
       "
       >Add Text for Area Selection (instead of Image)</mat-slide-toggle
     >
+    <br/>
+    <mat-slide-toggle
+    i18n
+    class="wrap"
+    [checked]="this.dataApi.config.enableOCR"
+    (change)="
+      this.dataApi.config.enableOCR = !this.dataApi.config.enableOCR;
+      saveConfig()
+    "
+    >Enable OCR</mat-slide-toggle
+  >
       <br />
       <mat-slide-toggle
         i18n
@@ -81,6 +92,7 @@
         "
         >Automatically add cards to Anki</mat-slide-toggle
       >
+      
     <br />
     <mat-form-field class="ankiDeckField" appearance="outline" style="margin-bottom: -1.25em">
       <mat-label i18n>Anki Deck</mat-label>
@@ -100,13 +112,17 @@
         <mat-button-toggle value="local">
           Local (Offline)
         </mat-button-toggle>
-        <mat-button-toggle  value="appwrite">
+        <mat-button-toggle  value="appwrite" title="Deprecated! Please do not newly choose this option and make sure to back up and save exisiting cards if you previously used it.">
           Appwrite (Server)
+          <div style="color: red; font-size: 12pt;margin-top: -20px">DEPRECATED</div>
         </mat-button-toggle>
       </mat-button-toggle-group>
       
       <br />
       <button mat-flat-button color="accent" (click)="this.dataApi.downloadCards()">Download all cards</button>
+
+
+      <button mat-flat-button color="accent" (click)="this.dataApi.saveOnlineDataLocally()">Save online data locally</button>
       <br />
       <mat-slide-toggle
       i18n
@@ -131,21 +147,23 @@
       i18n>
     Add Text for Area Selection
   </mat-button-toggle> -->
-      <!-- <mat-form-field
+  <br/>
+  <span><b>OCR Options</b><br/>(Automatic Text Recognition)</span>
+      <mat-form-field
       appearance="fill"
       class="oerLanguageField"
       style="margin-bottom: -1.5em"
     >
       <mat-label i18n>OCR Language</mat-label>
       <mat-select
-        [disabled]="!this.dataApi.config.addOcrTextOption"
         [(value)]="this.dataApi.config.ocrLanguage"
+        (selectionChange)="saveConfig()"
       >
         <mat-option *ngFor="let lang of OCR_LANGUAGES" [value]="lang.short">
           {{ lang.short }} - {{ lang.long }}
         </mat-option>
       </mat-select>
-    </mat-form-field> -->
+    </mat-form-field>
       <!-- <br />
     <mat-button-toggle
       class="coloredToggle"

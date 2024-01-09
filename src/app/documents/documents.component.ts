@@ -54,6 +54,10 @@ export class DocumentsComponent implements OnInit {
 
   }
 
+  async openDocument(fileid: string){
+    this.dataApi.getFileView(fileid).then((res) => window.open(res.href,'_blank'))
+  }
+
   async updateData(docs: Document[]) {
     // if (docs) {
     //   this.documentsCollection = docs;

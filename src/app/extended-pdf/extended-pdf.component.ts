@@ -22,6 +22,7 @@ import { FabOption } from '../fab-expand-button/fab-expand-button.component';
 import { UserNotifierService } from '../services/notifier/user-notifier.service';
 import { Annotation } from '../types/annotation';
 import { UtilsService } from '../utils.service';
+import { recognize } from 'tesseract.js';
 
 @Component({
   selector: 'app-extended-pdf',
@@ -31,6 +32,8 @@ import { UtilsService } from '../utils.service';
 export class ExtendedPdfComponent implements OnInit {
   public currPageNumber: number = 1;
   public pdfSrc: string = '/assets/pdfs/cardflash.net.pdf';
+
+  public ocrLoadingNum: number = 0;
 
   public selectionInsertTypes: ['h1', 'h2', 'normal', 'small'] = ['h1', 'h2', 'normal', 'small'];
 
@@ -358,7 +361,7 @@ export class ExtendedPdfComponent implements OnInit {
   }
 
   pageRendered(e: PageRenderedEvent) {
-    let pdfCanv: HTMLCanvasElement = e.source.canvas;
+    let pdfCanv: HTMLCanvasElement = e.source.canvas!;
     if (!this.isTouchDevice) {
       e.source.div.oncontextmenu = (event: any) => this.contextMenuOnPage(event, e.source.div);
     }
@@ -543,12 +546,28 @@ export class ExtendedPdfComponent implements OnInit {
       };
       this.closeAreaSelection();
 
-      const text = this.getTextFromPosition(sortedRect, page);
+      let text = this.getTextFromPosition(sortedRect, page);
+      const imgSrc = this.getImageFromSelection(sortedRect, page);
+      if(this.dataApi.config.enableOCR && imgSrc){
+        try{
+          this.ocrLoadingNum++
+          const res = await recognize(imgSrc,this.dataApi.config.ocrLanguage);
+          if(res.data.text){
+            text = res.data.text;
+          }
+        }catch(e){
+          console.log(e)
+        }
+        this.ocrLoadingNum--;
+      }else if(text === "" && this.utils.selectedAddAreaOption.id === 'text'){
+        this.userNotifier.notify("OCR","No text detected. Consider enabling OCR in the sidepanel. Do not forget to select the correct OCR language.","",true)
+      }
+      console.log({text});
       if (this.utils.selectedAddAreaOption.id === 'text') {
         newAnnotation.text = text;
       } else {
         newAnnotation.hiddenText = text;
-        const imgSrc = this.getImageFromSelection(sortedRect, page);
+        // const imgSrc = this.getImageFromSelection(sortedRect, page);
         if (imgSrc && this.documentid) {
           const blob: Blob = await imgSrcToBlob(imgSrc);
           const imgRes = await this.dataApi.saveFile(
@@ -572,7 +591,7 @@ export class ExtendedPdfComponent implements OnInit {
   ): string | undefined {
     const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
     const canvasRect = (page.canvas as HTMLCanvasElement).getBoundingClientRect();
-    const context: CanvasRenderingContext2D = page.canvas.getContext('2d');
+    const context: CanvasRenderingContext2D = page.canvas!.getContext('2d')!;
     const x = rect.x1 - canvasRect.left;
     const y = rect.y1 - canvasRect.top;
     const width = rect.x2 - rect.x1;
@@ -610,11 +629,11 @@ export class ExtendedPdfComponent implements OnInit {
     const spans: NodeListOf<HTMLSpanElement> | null | undefined =
       textLayer?.querySelectorAll('span');
     console.log({ spans }, { rect }, { pageRect });
-    if (pageRef && textLayer && spans && pageRect) {
+    if (pageRef && spans && pageRect) {
       let ret = '';
       spans.forEach((span) => {
-        const x = parseFloat(span.style.left) + pageRect.left;
-        const y = parseFloat(span.style.top) + pageRect.top;
+        const x = parseFloat(getComputedStyle(span).left) + pageRect.left;
+        const y = parseFloat(getComputedStyle(span).top) + pageRect.top;
         if (x >= rect.x1 && x <= rect.x2 && y >= rect.y1 && y <= rect.y2) {
           ret += ' ' + span.textContent;
         }
@@ -793,7 +812,7 @@ export class ExtendedPdfComponent implements OnInit {
   drawAnnotationOnPage(pageNumber: number, annotation: Annotation) {
     if (this.getPdfViewerApplication()) {
       const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
-      const context: CanvasRenderingContext2D = page.canvas.getContext('2d');
+      const context: CanvasRenderingContext2D = page.canvas!.getContext('2d')!;
       const viewport = page.viewport;
       if (context) {
         switch (annotation.type) {
@@ -1097,15 +1116,15 @@ export class ExtendedPdfComponent implements OnInit {
         pageNumber = pageNumberCandidate;
       }
       const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
-      const pageRect: any = page.canvas.getClientRects()[0];
-      let res: [number, number, number, number] = page.viewport
-        .convertToPdfPoint(clientRect.left - pageRect.x, clientRect.top - pageRect.y)
+      const pageRect: any = page.canvas!.getClientRects()[0];
+      let res: [number, number, number, number] = (page.viewport
+        .convertToPdfPoint(clientRect.left - pageRect.x, clientRect.top - pageRect.y) as [number,number])
         .concat(
           page.viewport.convertToPdfPoint(
             clientRect.right - pageRect.x,
             clientRect.bottom - pageRect.y
-          )
-        );
+          ) as [number,number]
+        ) as [number,number,number,number];
       return res;
     } else {
       return undefined;
@@ -1162,7 +1181,7 @@ export class ExtendedPdfComponent implements OnInit {
 
   tryGetPageCanvasContext(pageNumber: number) {
     const page = this.getPdfViewerApplication().pdfViewer._pages[pageNumber - 1];
-    const canvas = page.div.querySelector('div.canvasWrapper > canvas');
+    const canvas = page.div.querySelector('div.canvasWrapper > canvas') as HTMLCanvasElement;
     if (canvas) {
       return canvas.getContext('2d');
     } else {

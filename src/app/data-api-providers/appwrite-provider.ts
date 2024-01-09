@@ -85,7 +85,6 @@ export class AppwriteProvider implements DataApiProvider {
         
       }
     }
-    console.log({ newestFirst });
     const results : T[]= [];
     let response = await this.appwrite.database.listDocuments<T>(
       environment.collectionMap[type],
@@ -98,6 +97,7 @@ export class AppwriteProvider implements DataApiProvider {
       [newestFirst ? 'DESC' : 'ASC']
       );
       results.push(...response.documents)
+      console.log({ len: response.total });
    while(results.length < response.total){
     let response = await this.appwrite.database.listDocuments<T>(
       environment.collectionMap[type],
@@ -117,6 +117,9 @@ export class AppwriteProvider implements DataApiProvider {
 
   async getFileView(id: string) {
     return this.appwrite.storage.getFileView(environment.STORAGE_BUCKET,id);
+  }
+  async getFileDownload(id: string) {
+    return this.appwrite.storage.getFileDownload(environment.STORAGE_BUCKET,id);
   }
   async getFilePreview(id: string) {
     return this.appwrite.storage.getFilePreview(environment.STORAGE_BUCKET,id);
