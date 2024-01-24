@@ -360,11 +360,13 @@ export class DataApiService {
       function replaceLinks(doc: Document) {
         doc.querySelectorAll('a').forEach((a) => {
           const reg =
-            /(http:\/\/localhost:4200\/|https:\/\/app.cardflash.net\/|https:\/\/cardflash.net\/)doc\/(.*)#(.*)/;
+            /(http:\/\/localhost:4200\/|https:\/\/app.cardflash.net\/|https:\/\/cardflash.net\/)(doc|extended-pdf)\/(.*)#(.*)/;
           const res = reg.exec(a.href);
           if (res && res.length >= 4) {
             const oldDocID = res[2];
             a.href = a.href.replace(oldDocID, documentIDMap[oldDocID] ?? oldDocID);
+          }else{
+            console.log("Could not replace link: " + a.href, res);
           }
         });
       }

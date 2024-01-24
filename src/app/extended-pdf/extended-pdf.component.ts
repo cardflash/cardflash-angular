@@ -548,6 +548,7 @@ export class ExtendedPdfComponent implements OnInit {
 
       let text = this.getTextFromPosition(sortedRect, page);
       const imgSrc = this.getImageFromSelection(sortedRect, page);
+      console.log({imgSrc});
       if(this.dataApi.config.enableOCR && imgSrc){
         try{
           this.ocrLoadingNum++
@@ -568,10 +569,10 @@ export class ExtendedPdfComponent implements OnInit {
       } else {
         newAnnotation.hiddenText = text;
         // const imgSrc = this.getImageFromSelection(sortedRect, page);
-        if (imgSrc && this.documentid) {
+        if (imgSrc) {
           const blob: Blob = await imgSrcToBlob(imgSrc);
           const imgRes = await this.dataApi.saveFile(
-            new File([blob], this.documentid + '_' + id + '.png')
+            new File([blob], (this.documentid ?? "default") + '_' + id + '.png')
           );
           if (imgRes.$id !== '') {
             newAnnotation.imgID = imgRes.$id;

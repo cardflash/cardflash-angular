@@ -63,9 +63,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     })
     let url;
     if(this.currentLocale === 'de'){
-      url = window.location.href.replace('/de/',"/"+locale+"/");
+      url = window.location.href.replace('cardflash.net/de/',"cardflash.net/");
     }else{
-      url = window.location.href.replace('/en/',"/"+locale+"/")
+      url = window.location.href.replace('cardflash.net/',"cardflash.net/"+locale+"/")
     }
     console.log("LOCALE CHANGE URL",url);
     window.location.assign(url);

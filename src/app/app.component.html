@@ -5,7 +5,7 @@
         <img src="/assets/logo.png" class="logo" alt="Logo of cardflash.net. Showing a card and a lightning bold.">
         <h2>cardflash.net</h2>
         <h3 *ngIf="this.accountService.getAcc()">Hi, {{this.accountService.getAcc().name}}</h3>
-        <h4>Start creating flashcards from PDFs now!</h4>
+        <h4 i18n>Easily create flashcards from PDFs</h4>
         <nav class="sideNavigation">
           <ul class="pageList">
             <li>
@@ -54,8 +54,8 @@
     <div style="padding-bottom: 10rem;">
     <h6 >Toggle language</h6>
     <mat-button-toggle-group>
-      <mat-button-toggle [checked]="currentLocale === 'en'"  (change)="changeLocale('en')"><img [src]="getFlagImgURL('gb')"> English</mat-button-toggle>
-      <mat-button-toggle [checked]="currentLocale === 'de'" (change)="changeLocale('de')"><img [src]="getFlagImgURL('de')"> German</mat-button-toggle>
+      <mat-button-toggle [checked]="currentLocale === 'en'"  (change)="changeLocale('en')">English</mat-button-toggle>
+      <mat-button-toggle [checked]="currentLocale === 'de'" (change)="changeLocale('de')">German</mat-button-toggle>
     </mat-button-toggle-group>
   </div>
       <footer>

@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="5811097982080929097" datatype="html">
+        <source>Cards</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4733307402565258070" datatype="html">
+        <source>Documents</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7514670639004367737" datatype="html">
+        <source>Create from PDF</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2250155903065806087" datatype="html">
+        <source>Study</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8924423565613295579" datatype="html">
+        <source>Login or Register</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3797778920049399855" datatype="html">
+        <source>Logout</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">47,48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5891707175321515013" datatype="html">
+        <source>Imprint</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">62,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8440128775129354214" datatype="html">
+        <source>Privacy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7932418406121526154" datatype="html">
+        <source>Front</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/static-card/static-card.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8890553633144307762" datatype="html">
+        <source>Back</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/static-card/static-card.component.html</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+        <note priority="1" from="description">card back side</note>
+      </trans-unit>
+      <trans-unit id="7775458873969123659" datatype="html">
+        <source>Edit Metadata</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3199743233482854868" datatype="html">
+        <source>Title, Chapter, Hidden Text</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5701618810648052610" datatype="html">
+        <source>Title</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5322922947143379212" datatype="html">
+        <source>Chapter</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3293907569833831436" datatype="html">
+        <source>Hidden Text</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6933180375922169662" datatype="html">
+        <source>Page #</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/card.component.html</context>
+          <context context-type="linenumber">96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9095134843628689709" datatype="html">
+        <source>edit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/static-card/static-card.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2456043080471762298" datatype="html">
+        <source>delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/card/static-card/static-card.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4348019411592948105" datatype="html">
+        <source>Your cards</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/cards/cards.component.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4580988005648117665" datatype="html">
+        <source>Search</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/cards/cards.component.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9145778382554540319" datatype="html">
+        <source>No cards found.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/cards/cards.component.html</context>
+          <context context-type="linenumber">23,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6157419736325144648" datatype="html">
+        <source>Create some</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/cards/cards.component.html</context>
+          <context context-type="linenumber">24,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3748624222027763276" datatype="html">
+        <source>Your documents</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">2,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2597425170090315350" datatype="html">
+        <source> Upload new </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4054265866818778245" datatype="html">
+        <source>Filter by tags</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8490997820602641951" datatype="html">
+        <source>Filter by tag:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1919470040224847299" datatype="html">
+        <source>You currently have no documents stored.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3768927257183755959" datatype="html">
+        <source>Save</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3359197767465866979" datatype="html">
+        <source>Created on <x id="INTERPOLATION" equiv-text="{{ doc.creationTime | date }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">73,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7886570921510760899" datatype="html">
+        <source>Tags</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">75,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3210031722423452183" datatype="html">
+        <source>Document tags</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8412126247479081035" datatype="html">
+        <source>Add a tag</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3249513483374643425" datatype="html">
+        <source>Add</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2261413146054167801" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="Ds.length }}"/> Cards</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6092105380867509126" datatype="html">
+        <source> View cards </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4757574285525808602" datatype="html">
+        <source> Create cards from PDF </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7022070615528435141" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/documents/documents.component.html</context>
+          <context context-type="linenumber">107,108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2800924662568447857" datatype="html">
+        <source> PDF </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3262797394310927696" datatype="html">
+        <source><x id="START_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="vi"/>view_sidebar<x id="CLOSE_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;/mat-icon&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4590203878724292966" datatype="html">
+        <source> Cards </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">16,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3133911356617249968" datatype="html">
+        <source>Loading document...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="580350433395490275" datatype="html">
+        <source>Please wait a moment while we load your document and cards.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9081252425203248276" datatype="html">
+        <source> New Card </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">117,118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6871676155866721087" datatype="html">
+        <source> Front </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">126,127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8132424293432274889" datatype="html">
+        <source> Back </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/extended-pdf/extended-pdf.component.html</context>
+          <context context-type="linenumber">133,134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7471289994571060493" datatype="html">
+        <source>Your cards for</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/my/documents/cards-for-document/cards-for-document.component.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7156405889829337643" datatype="html">
+        <source><x id="START_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="ar"/>arrow_back_ios<x id="CLOSE_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;/mat-icon&gt;"/>Go back to documents </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/my/documents/cards-for-document/cards-for-document.component.html</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2156825091412649228" datatype="html">
+        <source> Create new <x id="START_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;mat-icon&gt;"/>add_circle<x id="CLOSE_TAG_MAT_ICON" ctype="x-mat_icon" equiv-text="&lt;/mat-icon&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/my/documents/cards-for-document/cards-for-document.component.html</context>
+          <context context-type="linenumber">14,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1637101756797349590" datatype="html">
+        <source>No cards found for this document.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/my/documents/cards-for-document/cards-for-document.component.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8432562579042371182" datatype="html">
+        <source>Options</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5145720453777216879" datatype="html">
+        <source>Single Page Mode</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5395927410464008922" datatype="html">
+        <source>Show size options for selection</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="704148687729140007" datatype="html">
+        <source>Automatically add new annotations to card</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8605578933234178981" datatype="html">
+        <source>Link Annotation on Cards to Document</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="166673091931460735" datatype="html">
+        <source>Automatically draw line between annotation and pdf</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3651309818889301956" datatype="html">
+        <source>Add Text for Area Selection (instead of Image)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6860059265641532698" datatype="html">
+        <source>Enable OCR</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7523372151694125660" datatype="html">
+        <source>Automatically add cards to Anki</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6647848105029712539" datatype="html">
+        <source>Anki Deck</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8044330837081932251" datatype="html">
+        <source>Deck Name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6806594097324988465" datatype="html">
+        <source>Show Debug Information</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">135</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6567001339199984518" datatype="html">
+        <source>OCR Language</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/options/options.component.html</context>
+          <context context-type="linenumber">157</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

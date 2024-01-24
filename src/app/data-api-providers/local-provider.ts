@@ -11,16 +11,10 @@ export class LocalProvider implements DataApiProvider{
 
     async createEntry<T extends Entry>(type: string, data: object, read?: string[], write?: string[]): Promise<T> {
         const id = uuidv4();
-        console.log({id})
         const toSave : T = {...data, $id: id, $collection: type, $read: (read || []), $write: (write || [])}  as T;
-        console.log({toSave})
         const newIds = [...await this.getCollectionArray(type),id]
-        console.log({newIds})
-        console.log('before setitem')
         const savedIds = await this.setCollectionArray(type,newIds);
-        console.log({savedIds})
         const res = await localforage.setItem<T>(type+'_'+id,toSave);
-        console.log({res})
         return res;
     }
     getEntry<T extends Entry>(type: string, id: string): Promise<T> {
@@ -111,13 +105,19 @@ export class LocalProvider implements DataApiProvider{
     }
     async getFileView(id: string): Promise<URL> {
         return new Promise<URL>(async (resolve,reject) => {
-            const entry : FileEntry = await this.getEntry<Entry & FileEntry>('file',id)
-            const arrayBuffer = await localforage.getItem<ArrayBuffer>('file-'+id);
-            if(arrayBuffer === null){
-                reject('File not found locally')
-            }else{
-                const file = new File([arrayBuffer],entry.name,{lastModified: entry.dateCreated, type: entry.mimeType})
-                resolve(new URL(URL.createObjectURL(file)));
+            try{
+
+                const entry : FileEntry = await this.getEntry<Entry & FileEntry>('file',id)
+                const arrayBuffer = await localforage.getItem<ArrayBuffer>('file-'+id);
+                if(arrayBuffer === null){
+                    reject('File not found locally')
+                }else{
+                    const file = new File([arrayBuffer],entry.name,{lastModified: entry.dateCreated, type: entry.mimeType})
+                    resolve(new URL(URL.createObjectURL(file)));
+                }
+            }catch(e){
+                console.log(e,id);
+                reject(e);
             }
           });
     }
@@ -130,9 +130,7 @@ export class LocalProvider implements DataApiProvider{
     }
     async saveFile(file: File): Promise<FileEntry> {
         let fileEntry : FileEntry = {$id: '', name: file.name, mimeType: file.type, dateCreated: Date.now()}
-        console.log("SAVE FILE",{fileEntry})
         const savedEntry = await this.createEntry('file',fileEntry)
-        console.log({savedEntry})
         fileEntry.$id = savedEntry.$id;
         await localforage.setItem('file-'+fileEntry.$id,await file.arrayBuffer())
         return fileEntry;

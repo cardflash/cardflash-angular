@@ -19,7 +19,7 @@
       </mat-card>
     </div>
     <div class="document">
-      <span style="padding-bottom: 0.5rem; display: block">{{
+      <span i18n style="padding-bottom: 0.5rem; display: block">{{
         newestFirst ? "Newest first" : "Oldest first"
         }}</span>
       <mat-button-toggle-group #group="matButtonToggleGroup" [value]="newestFirst"
@@ -42,17 +42,17 @@
       <div *ngIf="docs.length < 1">
         <h2 i18n>You currently have no documents stored.</h2>
         <p>
-          <b>Start by selecting a PDF file in the input above.</b>
+          <b 18n>Start by selecting a PDF file in the input above.</b>
           <br />
           <br />
-          After the file is processed, it will appear here.
+          <span i18n>After the file is processed, it will appear here.></span>
           <br />
-          Then you can use the <i>Create cards from PDF</i> button to start creating cards and annotations.
+          <span i18n>Then you can use the <i>Create cards from PDF</i> button to start creating cards and annotations.</span>
         </p>
       </div>
 
       <div *ngIf="docs.length >= 1">
-        <h2>{{docs.length}} Documents</h2>
+        <h2>{{docs.length}} <span i18n>Documents</span></h2>
       </div>
 
       <div class="document" *ngFor="let doc of docs">
@@ -94,7 +94,7 @@
             </div>
           </mat-card-content>
           <mat-card-actions class="cardActions">
-            <button mat-flat-button (click)="this.openDocument(doc.fileid)">
+            <button mat-flat-button (click)="this.openDocument(doc.fileid)" i18n>
               View document
             </button>
             <!-- <a mat-flat-button target="_blank" [href]="(this.dataApi.getFileView(doc.fileid) | async)?.href" i18n>View document</a> -->

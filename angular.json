@@ -130,7 +130,7 @@
         }
       },
       "i18n": {
-        "sourceLocale": "en",
+        "sourceLocale": {"code": "en"},
         "locales": {
           "de": {
             "translation": "src/locale/messages.de.json"
