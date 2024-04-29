@@ -1,4 +1,15 @@
-# cardflash.net
+# cardflash-angular
+
+
+### Note: The cardflash project was ported to a monorepo with a brand new React frontend.
+
+## Check out the new repository at [github.com/cardflash/cardflash-monorepo](https://github.com/cardflash/cardflash-monorepo).
+
+This repository will not be updated in the future, but is preserved for archival purposes.
+Below you can find the original README of the `cardflash-angular` project.
+
+---
+
 **Blazingly fast create flashcards from PDFs**
 
 This is the main repository for the [cardflash.net](https://cardflash.net) project.
